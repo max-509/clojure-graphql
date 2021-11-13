@@ -15,20 +15,19 @@
   (insta/parser
     "clauses = clause (<whitespaces> clause)*
     clause = create;
-    create = <create-command> <left-brace> labels properties? <right-brace>;
+    create = <create-command> node (relationship node)*;
+
+    node = <left-brace> labels? properties? <right-brace>;
+    relationship = <dash> relation <right-arrow> | <left-arrow> relation <dash> | <dash> relation <dash>;
+    relation = <left-square-bracket> label properties? <right-square-bracket>
 
     properties = <left-curly-bracket> property (<whitespaces> property)* <right-curly-bracket>
-    property = word <':'> <whitespaces> data
+    <property> = word <':'> <whitespaces> data
 
     labels = label (<whitespaces> label)*;
-    label = <':'> word;
+    <label> = <':'> word;
 
     create-command = ('create'|'CREATE'|'Create') <whitespaces>;
-
-    left-curly-bracket = <whitespaces>? '{' <whitespaces>?;
-    right-curly-bracket = <whitespaces>? '}' <whitespaces>?;
-    left-brace = <whitespaces>? '(' <whitespaces>?;
-    right-brace = <whitespaces>? ')' <whitespaces>?;
 
     <data> = string | integer | float | boolean | list;
     list = '[' (string* | integer* | float* | boolean* | list*) ']';
@@ -36,6 +35,16 @@
     integer = #'-?[0-9]+';
     float = #'-?([0-9]+.[0-9]+ | (INF | inf) | (NAN | nan))';
     boolean = 'True' | 'TRUE' | 'true' | 'False' | 'FALSE' | 'false';
+
+    right-arrow = <whitespaces>? '->' <whitespaces>?;
+    left-arrow = <whitespaces>? '<-' <whitespaces>?;
+    dash = <whitespaces>? '-' <whitespaces>?;
+    left-curly-bracket = <whitespaces>? '{' <whitespaces>?;
+    right-curly-bracket = <whitespaces>? '}' <whitespaces>?;
+    left-square-bracket = <whitespaces>? '[' <whitespaces>?;
+    right-square-bracket = <whitespaces>? ']' <whitespaces>?;
+    left-brace = <whitespaces>? '(' <whitespaces>?;
+    right-brace = <whitespaces>? ')' <whitespaces>?;
 
     <word> = #'[a-zA-Z]+';
     <digit> = #'[0-9]';
