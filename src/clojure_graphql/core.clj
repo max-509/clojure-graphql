@@ -18,11 +18,11 @@
 
     (*----------------------------CLAUSES DESCRIPTION-----------------------*)
     create = <create-command> patterns
-    match = <match-command> patterns where?
+    match = <match-command> patterns where
     (*----------------------------CLAUSES DESCRIPTION-----------------------*)
 
     (*----------------------------SUPPORT FOR CLAUSES-------------------------*)
-    where = <where-command> predicates
+    where = <where-command> predicates | Epsilon
     (*----------------------------SUPPORT FOR CLAUSES-------------------------*)
 
     (*----------------------------PATTERN DESCRIPTION-----------------------*)
