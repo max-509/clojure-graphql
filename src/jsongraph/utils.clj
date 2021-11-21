@@ -25,6 +25,18 @@
   (apply (partial merge json-map) items)
   )
 
+(defn assoc-items
+  ([items]
+   (loop [[item & items] items
+          json {}
+          ]
+      (if (empty? items)
+          (assoc json (first item) (second item))
+          (recur items (assoc json (first item) (merge (json (first item)) (second item))))
+      )
+   )
+  )
+)
 
 (defn delete-items  [json-map [tag & tags]]
   (apply (partial dissoc json-map) tag tags)

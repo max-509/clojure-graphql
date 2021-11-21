@@ -1,13 +1,29 @@
 {
-  "metadata": {},
-  "nodes": {
-      "A": {},
-      "B": {}
-  },
-  "edges":{
-    "AB":{
-      "nodes":["A", "B"],
-      "data":{"t":"d"}
+  "adjacency":
+  {
+    "A":{
+      "out-edges":{
+        "B":{"cost":1},
+        "C":{"cost":4}
+      },
+      "node-data":{}
+    },
+    "B":{
+      "out-edges":{
+        "A":{"cost":3}
+      },
+      "node-data":{}
+    },
+    "C":{
+      "out-edges":{},
+      "node-data":{}
+    },
+    "D":{
+      "out-edges":{
+        "A":{"cost":8}
+      },
+      "node-data":{}
     }
-  }
+  },
+  "metadata":{}
 }
