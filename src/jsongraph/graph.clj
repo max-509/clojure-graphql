@@ -5,13 +5,23 @@
 
 (defn gen-adjacency-item
   [
+   in-edges
    out-edges
    data
    ]
   {
+   :in-edges  in-edges                               ; in edges
    :out-edges out-edges                              ; out edges
    :node-data data                                   ; some node data
    }
+  )
+
+(defn assoc-out-edges-adjacency-item
+  [
+   adjacency-item
+   out-edges
+   ]
+  (assoc adjacency-item :out-edges out-edges)
   )
 
 
@@ -21,7 +31,7 @@
    data                                                     ; node data (json)
    ]
   {
-    tag (gen-adjacency-item {} data)
+    tag (gen-adjacency-item [] {} data)
    }
   )
 
@@ -101,6 +111,42 @@
  )
 
 
+(defn add-in-edge-adjacency
+  [
+   adjacency
+   target source
+   ]
+  (let [adjacency-item (adjacency target)]
+      (assoc
+        adjacency
+        target
+        (gen-adjacency-item
+          (conj (adjacency-item :in-edges) source)
+          (adjacency-item :out-edges)
+          (adjacency-item :node-data)
+         )
+      )
+    )
+  )
+
+(defn add-in-edges
+  [
+   adjacency targets source
+   ]
+  (if (empty? targets)
+    adjacency
+    (recur
+      (add-in-edge-adjacency
+        adjacency
+        (first targets)
+        source
+        )
+      (rest targets)
+      source
+      )
+    )
+  )
+
 (defn add-out-edges  [adjacency edges]
   (let [edges (adjacency-from-edges edges)]
     (loop [-keys (keys edges)
@@ -110,12 +156,15 @@
         adjacency
         (recur
           (rest -keys) (rest -vals)
-          (assoc adjacency
+          (assoc (add-in-edges adjacency
+                               (keys (first -vals))
+                               (first -keys)
+                               )
             (first -keys)
-            (gen-adjacency-item
+            (assoc-out-edges-adjacency-item
+              (adjacency (first -keys))
               (first -vals)
-              ((adjacency (first -keys)) :node-data)
-            )
+              )
           )
         )
       )
@@ -138,24 +187,42 @@
 (defn delete-adjacency-edge [adjacency source targets]
  (assoc
    adjacency source
-   (gen-adjacency-item
+   (gen-adjacency-item []
      (delete-items ((adjacency source) :out-edges) targets)
      ((adjacency source) :node-data)
    )
  )
 )
 
-(comment
-(defn add-edge [graph edges]
+(defn delete-edges-from-adjacency  [adjacency edges]
+  (let [edges (adjacency-from-edges edges)]
+    (loop [-keys (keys edges)
+           -vals (vals edges)
+           adjacency adjacency]
+      (if (empty? -keys)
+        adjacency
+        (recur
+          (rest -keys) (rest -vals)
+          (delete-adjacency-edge
+            adjacency
+            (first -keys) (keys (first -vals))
+          )
+        )
+      )
+    )
+  )
+)
+
+
+(defn delete-edges [graph edges]
   (merge
     (get-item graph :metadata)
     {
      :adjacency
-     (delete-adjacency-edge
+     (delete-edges-from-adjacency
        (graph :adjacency)
-        nil nil
+       edges
        )
      }
   )
  )
-)

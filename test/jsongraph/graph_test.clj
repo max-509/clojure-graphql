@@ -2,7 +2,7 @@
   (:require [clojure.test :refer :all]
             [jsongraph.graph :refer :all]
             [jsongraph.utils :refer :all]
-    ;[jsonista.core :as j] maybe use in future
+            [jsonista.core :as j]
             [clojure.data.json :as json]
             )
   (:import (java.io File))
@@ -63,14 +63,31 @@
   (json/pprint (add-edge g-add-nodes [edgeAB edgeAC edgeBA edgeBA- edgeDA]))
   )
 
-(comment
 (def full-graph (add-edge g-add-nodes [edgeAB edgeAC edgeBA edgeBA- edgeDA]))
+(j/write-value file full-graph)
 
-(deftest delete-edge-test
+(deftest delete-adjacency-edge-test
   (println)
   (println "delete-edge-test")
   (json/pprint (full-graph :adjacency))
   (println :A [:B])
-  (json/pprint (delete-edge (full-graph :adjacency) :A [:B]))
+  (json/pprint (delete-adjacency-edge (full-graph :adjacency) :A [:B]))
   )
-)
+
+(deftest delete-edge-test
+  (println)
+  (println "add-edge-test")
+  (json/pprint full-graph)
+  (pprint [edgeAB edgeAC edgeBA edgeBA- edgeDA])
+  (println "result")
+  (json/pprint (delete-edges-from-adjacency (full-graph :adjacency) [edgeAB edgeAC edgeBA edgeBA- edgeDA]))
+  )
+
+(deftest delete-edge-test
+  (println)
+  (println "add-edge-test")
+  (json/pprint full-graph)
+  (pprint [edgeAB edgeAC edgeBA edgeBA- edgeDA])
+  (println "result")
+  (json/pprint (delete-edges full-graph [edgeAB edgeAC edgeBA edgeBA- edgeDA]))
+  )
