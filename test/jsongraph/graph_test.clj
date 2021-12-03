@@ -27,67 +27,89 @@
 
 (def edgeBA  '([:B :A] {:cost 2}))
 (def edgeBA- '([:B :A] {:cost 3}))
+
 (def edgeDA  '([:D :A] {:cost 8}))
+(def edgeDC  '([:D :C] {:cost 34}))
 
-
-(deftest delete-node-test
-  (println)
-  (println "delete-node-test")
-  (json/pprint g-add-nodes)
-  (json/pprint (delete-node g-add-nodes [:A :B]))
-  )
 
 
 (deftest adjacency-from-edges-test
   (println)
   (println "adjacency-from-edges-test")
-  (pprint [edgeAB edgeAC edgeBA edgeBA- edgeDA])   ;edgeBA- rewrite data after edgeBA
-  (json/pprint (adjacency-from-edges [edgeAB edgeAC edgeBA edgeBA- edgeDA]))
+  (pprint [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC])   ;edgeBA- rewrite data after edgeBA
+  (json/pprint (adjacency-from-edges [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC]))
   )
 
-(deftest add-out-edges-test
+(deftest add-out-edges-to-adjacency-test
   (println)
-  (println "add-out-edges-test")
+  (println "add-out-edges-to-adjacency-test")
   (json/pprint (g-add-nodes :adjacency))
-  (pprint [edgeAB edgeAC edgeBA edgeBA- edgeDA])
+  (pprint [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC])
   (println "result")
-  (json/pprint (add-out-edges (g-add-nodes :adjacency) [edgeAB edgeAC edgeBA edgeBA- edgeDA]))
+  (json/pprint (add-out-edges (g-add-nodes :adjacency) [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC]))
   )
 
 (deftest add-edge-test
   (println)
   (println "add-edge-test")
   (json/pprint g-add-nodes)
-  (pprint [edgeAB edgeAC edgeBA edgeBA- edgeDA])
+  (pprint [edgeAB edgeAC edgeDA edgeDC edgeAB])
   (println "result")
-  (json/pprint (add-edge g-add-nodes [edgeAB edgeAC edgeBA edgeBA- edgeDA]))
+  (json/pprint (add-edge g-add-nodes [edgeAB edgeAC edgeDA edgeDC edgeAB]))
   )
 
-(def full-graph (add-edge g-add-nodes [edgeAB edgeAC edgeBA edgeBA- edgeDA]))
+(def full-graph (add-edge g-add-nodes [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC]))
 (j/write-value file full-graph)
 
 (deftest delete-adjacency-edge-test
   (println)
-  (println "delete-edge-test")
+  (println "delete-adjacency-edge-test")
   (json/pprint (full-graph :adjacency))
   (println :A [:B])
   (json/pprint (delete-adjacency-edge (full-graph :adjacency) :A [:B]))
   )
 
-(deftest delete-edge-test
+
+(deftest delete-in-edges-test
   (println)
-  (println "add-edge-test")
-  (json/pprint full-graph)
-  (pprint [edgeAB edgeAC edgeBA edgeBA- edgeDA])
-  (println "result")
-  (json/pprint (delete-edges-from-adjacency (full-graph :adjacency) [edgeAB edgeAC edgeBA edgeBA- edgeDA]))
+  (println "delete-in-edge-test")
+  (json/pprint (full-graph :adjacency))
+  (println [:B :C] [:A])
+  (json/pprint (delete-in-edges (full-graph :adjacency) [:B :C] [:A]))
   )
 
-(deftest delete-edge-test
+(deftest delete-edges-from-adjacency-test
   (println)
-  (println "add-edge-test")
+  (println "delete-edges-from-adjacency-test")
   (json/pprint full-graph)
-  (pprint [edgeAB edgeAC edgeBA edgeBA- edgeDA])
+  (pprint [edgeAB edgeBA edgeBA-])
   (println "result")
-  (json/pprint (delete-edges full-graph [edgeAB edgeAC edgeBA edgeBA- edgeDA]))
+  (json/pprint (delete-edges-from-adjacency (full-graph :adjacency) [edgeAB edgeBA edgeBA-]))
+  )
+
+(deftest delete-edges-in-all-nodes-test
+  (println)
+  (println "delete-edges-in-all-nodes-test")
+  (json/pprint full-graph)
+  (pprint [:A :C])
+  (println "result")
+  (json/pprint (delete-edges-in-all-nodes (full-graph :adjacency) [:A :C]))
+  )
+
+(deftest delete-node-test
+  (println)
+  (println "delete-node-test")
+  (json/pprint full-graph)
+  (println "nodes" [:A :C])
+  (json/pprint (delete-node full-graph [:A :C]))
+  )
+
+
+(deftest delete-edges-test
+  (println)
+  (println "delete-edges-test")
+  (json/pprint full-graph)
+  (pprint [edgeAB edgeBA edgeBA-])
+  (println "result")
+  (json/pprint (delete-edges full-graph [edgeAB edgeBA edgeBA-]))
   )
