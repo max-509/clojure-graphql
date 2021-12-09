@@ -18,9 +18,9 @@
   (is (not= (get-val json-1 2) 'a))
 
   (testing "get-item")
-  (is (= (get-item json-1 :A)  {:A 'a}))
-  (is (= (get-item json-1 :D)  {:D 'd}))
-  (is (not= (get-item json-1 :B) {:C 'c}))
+  (is (= (get-items json-1 :A :K) {:A 'a}))
+  (is (= (get-items json-1 :D) {:D 'd}))
+  (is (not= (get-items json-1 :B) {:C 'c}))
   )
 
 (deftest add-delete-test

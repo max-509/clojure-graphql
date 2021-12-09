@@ -11,14 +11,17 @@
 (use '[clojure.pprint :only (pprint)])
 
 
-(def file    (File. "./resources/graph.json"))
+
 (def file_e  (File. "./resources/graph_empty.json"))
 (def file_b  (File. "./resources/graph_byte.json"))
 
-(def nA (gen-node :A {}))
-(def nB (gen-node :B {}))
-(def nC (gen-node :C {}))
-(def nD (gen-node :D {}))
+(defn get-groud-true-from-file [^String file-name]
+  (j/read-value (File. file-name) (j/object-mapper {:decode-key-fn true})))
+
+(def nA (gen-node :A nil [] {}))
+(def nB (gen-node :B nil [] {}))
+(def nC (gen-node :C nil [] {}))
+(def nD (gen-node :D nil [] {}))
 
 (def g-add-nodes (add-node (add-node (gen-empty-graph) [nA nB nC]) nD))
 
@@ -36,8 +39,10 @@
 (deftest adjacency-from-edges-test
   (println)
   (println "adjacency-from-edges-test")
-  (pprint [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC])   ;edgeBA- rewrite data after edgeBA
+  (pprint [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC])     ;edgeBA- rewrite data after edgeBA
   (json/pprint (adjacency-from-edges [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC]))
+  (is (= (get-groud-true-from-file "./resources/adjacency-from-edges-test.json")
+         (adjacency-from-edges [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC])))
   )
 
 (deftest add-out-edges-to-adjacency-test
@@ -47,7 +52,10 @@
   (pprint [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC])
   (println "result")
   (json/pprint (add-out-edges (g-add-nodes :adjacency) [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC]))
+  ;(is (= (get-groud-true-from-file "./resources/add-out-edges-to-adjacency-test.json")
+  ;            (add-out-edges (g-add-nodes :adjacency) [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC])))
   )
+
 
 (deftest add-edge-test
   (println)
@@ -58,8 +66,17 @@
   (json/pprint (add-edge g-add-nodes [edgeAB edgeAC edgeDA edgeDC edgeAB]))
   )
 
+(deftest add-edge-test!
+  (println)
+  (println "add-edge-test")
+  (json/pprint g-add-nodes)
+  (pprint [edgeAB edgeAC edgeDA edgeDC edgeAB])
+  (println "result")
+  (json/pprint (add-edge g-add-nodes [edgeAB edgeAC edgeDA edgeDC edgeAB]))
+  )
+
 (def full-graph (add-edge g-add-nodes [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC]))
-(j/write-value file full-graph)
+(j/write-value (File. "./resources/graph_2.json") full-graph)
 
 (deftest delete-adjacency-edge-test
   (println)
