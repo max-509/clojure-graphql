@@ -1,5 +1,7 @@
 (ns jsongraph.graph
     (:require [jsongraph.utils :refer :all]
+              [clojure.set :refer :all]
+              [clojure.data :refer :all]
       ;[clojure.data.json :as json]
               ))
 
@@ -88,6 +90,7 @@
   )
 
 (defn adjacency-from-edges [edges]
+  (println (map convert-edge-to-adjacency edges))
   (assoc-items (map convert-edge-to-adjacency edges))
   )
 
@@ -322,6 +325,29 @@
   (merge
     (get-items graph :metadata)
     (apply-to-adjacency
-      graph delete-edges-from-adjacency edges)
+      graph delete-edges-from-adjacency edges)))
+
+
+(defn match-adjacency-item [adj-item adj-query-item]
+  (if (lists-equal (keys adj-item) (keys adj-query-item))
+      (and
+        (some? (json-difference (adj-item :out-edges) (adj-query-item :out-edges)))
+        (subvec? (adj-query-item :labels) (adj-item :labels))
+       )
+      false
   )
  )
+
+
+
+(defn match-adjacency [adj-graph adj-query]
+  (if (subset? (.keySet adj-query) (.keySet adj-graph))
+    (loop [q-keys (keys adj-query)
+           is-match false]
+      (if (empty? q-keys)
+        is-match
+        (recur )
+        )
+      )
+    false
+    ))

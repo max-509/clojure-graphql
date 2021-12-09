@@ -50,32 +50,26 @@
       )
    )
 )
-(defn -merge-items [items]
-  (loop [items (wrap-vec items)
-         json (transient {})
-         ]
-    (println json "\n" items)
-    (if-let [item (first items)]
-      (do
-        (println (first item) (json (first item)))
-        (recur (rest items)
-               (merge
-                 (json (first item))
-                 (second item)
-                 )
-               ))
-      (persistent! json)
-
-    ))
-  )
 
 (defn delete-items [json-map [tag & tags]]
   (apply (partial dissoc json-map) tag tags)
   )
 
+(defn list-difference [list-1 list-2]
+   (vec (S/difference (set list-1) (set list-2)))
+  )
+
+(defn subvec? [sub -vec]
+    (subset? (set sub) (set -vec))
+  )
+
+(defn lists-equal [list-1 list-2]
+   (= (set list-1) (set list-2))
+  )
 
 (defn json-difference [json-1 json-2]
-  (#(if (empty? %) nil (assoc-items %)) (vec (S/difference (set json-1) (set json-2))))
+  (#(if (empty? %) nil (add-items {} %))
+    (vec (S/difference (set json-1) (set json-2))))
   )
 
 

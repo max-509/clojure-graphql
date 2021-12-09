@@ -66,7 +66,7 @@
   (json/pprint (add-edge g-add-nodes [edgeAB edgeAC edgeDA edgeDC edgeAB]))
   )
 
-(deftest add-edge-test!
+(deftest add-edge-test
   (println)
   (println "add-edge-test")
   (json/pprint g-add-nodes)
@@ -76,6 +76,7 @@
   )
 
 (def full-graph (add-edge g-add-nodes [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC]))
+(def small-graph (add-edge g-add-nodes [edgeAC edgeBA  edgeDC]))
 (j/write-value (File. "./resources/graph_2.json") full-graph)
 
 (deftest delete-adjacency-edge-test
@@ -129,4 +130,24 @@
   (pprint [edgeAB edgeBA edgeBA-])
   (println "result")
   (json/pprint (delete-edges full-graph [edgeAB edgeBA edgeBA-]))
+  )
+
+(def small-graph (add-edge g-add-nodes [edgeAC edgeBA  edgeDC]))
+
+(deftest match-adjacency-item-test
+  (println)
+  (println "delete-edges-test")
+  (json/pprint ((full-graph :adjacency) :A))
+  (json/pprint ((small-graph :adjacency) :A))
+  (println "result")
+  (json/pprint (match-adjacency-item ((full-graph :adjacency) :A) ((small-graph :adjacency) :A)))
+  )
+
+(deftest match-adjacency-item-test
+  (println)
+  (println "delete-edges-test")
+  (json/pprint ((full-graph :adjacency) :A))
+  (json/pprint ((small-graph :adjacency) :A))
+  (println "result")
+  (json/pprint (match-adjacency-item ((full-graph :adjacency) :A) ((small-graph :adjacency) :A)))
   )
