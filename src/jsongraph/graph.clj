@@ -331,23 +331,16 @@
 (defn match-adjacency-item [adj-item adj-query-item]
   (if (lists-equal (keys adj-item) (keys adj-query-item))
       (and
-        (some? (json-difference (adj-item :out-edges) (adj-query-item :out-edges)))
-        (subvec? (adj-query-item :labels) (adj-item :labels))
-       )
-      false
-  )
- )
+        (print-and-pass (some? (json-difference (adj-item :out-edges) (adj-query-item :out-edges))))
+        (print-and-pass (subvec? (adj-query-item :labels) (adj-item :labels))))
+      false))
 
 
 
 (defn match-adjacency [adj-graph adj-query]
   (if (subset? (.keySet adj-query) (.keySet adj-graph))
-    (loop [q-keys (keys adj-query)
-           is-match false]
-      (if (empty? q-keys)
-        is-match
-        (recur )
-        )
-      )
-    false
-    ))
+    (and
+      (map
+        #(match-adjacency-item (adj-graph %) (adj-query %))
+        (keys adj-query)))
+    false))

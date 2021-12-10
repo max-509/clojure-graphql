@@ -37,7 +37,7 @@
 )
 
 (deftest json-difference-test
-    (println (json-difference json-3 json-2))
+    (println (json-difference {} {}))
 )
 
 (deftest list-difference-test

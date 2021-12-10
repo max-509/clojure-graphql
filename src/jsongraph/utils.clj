@@ -6,6 +6,17 @@
     )
   )
 
+(defn print-and-pass- [& args]
+  (do
+    (doseq [x args] (println x))
+    args
+    )
+  )
+
+(defn print-and-pass [x]
+  (do (json/pprint x) x)
+  )
+
 (defn wrap-vec [arg]
   (if (coll? arg) arg (list arg)))
 
@@ -69,8 +80,7 @@
 
 (defn json-difference [json-1 json-2]
   (#(if (empty? %) nil (add-items {} %))
-    (vec (S/difference (set json-1) (set json-2))))
-  )
+                    (vec (S/difference (set json-1) (set json-2)))))
 
 
 (defn gen-json-by-keys [-keys & -val]
@@ -84,15 +94,4 @@
         )
       )
     )
-  )
-
-(defn print-and-pass- [& args]
-  (do
-    (doseq [x args] (println x))
-    args
-    )
-  )
-
-(defn print-and-pass [x]
-  (do (json/pprint x) x)
   )

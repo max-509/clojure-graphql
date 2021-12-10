@@ -11,7 +11,6 @@
 (use '[clojure.pprint :only (pprint)])
 
 
-
 (def file_e  (File. "./resources/graph_empty.json"))
 (def file_b  (File. "./resources/graph_byte.json"))
 
@@ -76,7 +75,6 @@
   )
 
 (def full-graph (add-edge g-add-nodes [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC]))
-(def small-graph (add-edge g-add-nodes [edgeAC edgeBA  edgeDC]))
 (j/write-value (File. "./resources/graph_2.json") full-graph)
 
 (deftest delete-adjacency-edge-test
@@ -136,18 +134,18 @@
 
 (deftest match-adjacency-item-test
   (println)
-  (println "delete-edges-test")
+  (println "match-adjacency-item-test")
   (json/pprint ((full-graph :adjacency) :A))
   (json/pprint ((small-graph :adjacency) :A))
   (println "result")
   (json/pprint (match-adjacency-item ((full-graph :adjacency) :A) ((small-graph :adjacency) :A)))
   )
 
-(deftest match-adjacency-item-test
+(deftest match-adjacency-test
   (println)
-  (println "delete-edges-test")
-  (json/pprint ((full-graph :adjacency) :A))
-  (json/pprint ((small-graph :adjacency) :A))
+  (println "match-adjacency-test")
+  (json/pprint (small-graph :adjacency))
+  (json/pprint (full-graph :adjacency))
   (println "result")
-  (json/pprint (match-adjacency-item ((full-graph :adjacency) :A) ((small-graph :adjacency) :A)))
+  (json/pprint (match-adjacency (full-graph :adjacency) (small-graph :adjacency)))
   )
