@@ -1,4 +1,4 @@
-(ns jsongraph.utils
+(ns jsongraph.impl.utils
   (:require
     [clojure.data.json :as json]
     [clojure.set :refer :all]
