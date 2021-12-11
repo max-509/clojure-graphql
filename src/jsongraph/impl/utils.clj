@@ -78,9 +78,15 @@
    (= (set list-1) (set list-2))
   )
 
+(defn keys-equal [json-1 json-2]
+   (= (.keySet json-1) (.keySet json-2))
+  )
+
 (defn json-difference [json-1 json-2]
-  (#(if (empty? %) nil (add-items {} %))
-                    (vec (S/difference (set json-1) (set json-2)))))
+  (let [s1 (set json-1) s2 (set json-2)
+        s1-s2 (S/difference s1 s2)]
+    (if (and (empty? s1-s2) (< (count s1) (count s2)))
+      nil (add-items {} (vec s1-s2)))))
 
 
 (defn gen-json-by-keys [-keys & -val]

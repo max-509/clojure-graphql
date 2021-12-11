@@ -1,23 +1,16 @@
-(ns jsongraph.graph
-    (:require [jsongraph.utils :refer :all]
+(ns jsongraph.impl.core
+    (:require [jsongraph.impl.utils :refer :all]
               [clojure.set :refer :all]
               [clojure.data :refer :all]
       ;[clojure.data.json :as json]
               ))
 
 (defn gen-adjacency-item
-  [
-   in-edges
-   out-edges
-   name
-   labels
-   properties
-   ]
+  [in-edges out-edges labels properties]
   {
    :in-edges  in-edges
    :out-edges out-edges
 
-   :name      name
    :labels    labels
    :properties properties
    }
@@ -39,38 +32,16 @@
       {:adjacency  graph-adj})))
 
 
-(defn gen-node
-  [
-   index                                                     ; index (uuid)
-   name labels properties                                  ; node data (keyword list-of-keywords json)
-   ]
-  {
-    index (gen-adjacency-item [] {} name labels properties)
-   }
-  )
-
-; TODO: develop edge format. Now it is '([source target] data)
-(defn gen-edge
-  [
-   [source target]
-   data
-   ]
-  ([source target] data)
-  )
 
 
 (defn get-edge-start [edge-data]
-  (first (first edge-data))
-  )
+  (first (first edge-data)))
 
 (defn get-edge-target [edge-data]
-  (second (first edge-data))
-  )
+  (second (first edge-data)))
 
 (defn get-edge-data [edge-data]
-  (second edge-data)
-  )
-
+  (second edge-data))
 
 (defn gen-empty-graph []
   {
@@ -80,17 +51,14 @@
   )
 
 (defn convert-edge-to-adjacency [edge]
-  (list
-    (get-edge-start edge)
+  [(get-edge-start edge)
     {
-       (get-edge-target edge)
-       (get-edge-data edge)
+     (get-edge-target edge)  (get-edge-data edge)
     }
-    )
+    ]
   )
 
 (defn adjacency-from-edges [edges]
-  (println (map convert-edge-to-adjacency edges))
   (assoc-items (map convert-edge-to-adjacency edges))
   )
 
@@ -114,7 +82,6 @@
         (gen-adjacency-item
           (conj (adjacency-item :in-edges) source)
           (adjacency-item :out-edges)
-          (adjacency-item :name)
           (adjacency-item :labels)
           (adjacency-item :properties)))))
 
@@ -131,7 +98,6 @@
         (gen-adjacency-item
           (conj (adjacency-item :in-edges) source)
           (adjacency-item :out-edges)
-          (adjacency-item :name)
           (adjacency-item :labels)
           (adjacency-item :properties)))))
 
@@ -226,7 +192,6 @@
         (gen-adjacency-item
           (filterv #(not (.contains sources %)) (adjacency-item :in-edges))
           (adjacency-item :out-edges)
-          (adjacency-item :name)
           (adjacency-item :labels)
           (adjacency-item :properties)
         )
@@ -276,7 +241,6 @@
           (gen-adjacency-item
               (adjacency-item :in-edges)
               (delete-items (adjacency-item :out-edges) targets)
-              (adjacency-item :name)
               (adjacency-item :labels)
               (adjacency-item :properties)))))))
 
@@ -329,18 +293,19 @@
 
 
 (defn match-adjacency-item [adj-item adj-query-item]
-  (if (lists-equal (keys adj-item) (keys adj-query-item))
+  (if (keys-equal adj-item adj-query-item)
       (and
-        (print-and-pass (some? (json-difference (adj-item :out-edges) (adj-query-item :out-edges))))
-        (print-and-pass (subvec? (adj-query-item :labels) (adj-item :labels))))
+         (some? (json-difference (adj-item :out-edges) (adj-query-item :out-edges)))
+         (subvec? (adj-query-item :labels) (adj-item :labels))
+        )
       false))
 
 
 
 (defn match-adjacency [adj-graph adj-query]
   (if (subset? (.keySet adj-query) (.keySet adj-graph))
-    (and
-      (map
-        #(match-adjacency-item (adj-graph %) (adj-query %))
-        (keys adj-query)))
+    (every?
+      #(match-adjacency-item (adj-graph %) (adj-query %))
+       (keys adj-query)
+      )
     false))
