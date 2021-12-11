@@ -34,6 +34,14 @@
     )
   )
 
+(defn keysSet [json]
+  (set (keys json))
+  )
+
+(defn valsSet [json]
+  (set (vals json))
+  )
+
 
 (defn get-items [json-map -key & -keys]
 

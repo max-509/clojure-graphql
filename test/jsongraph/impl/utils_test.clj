@@ -58,5 +58,5 @@
 )
 
 (deftest -test
-    (println (subset? (.valSet json-2) (.valSet json-3)))
+    (println (subset? (valsSet json-2) (valsSet json-3)))
 )
