@@ -1,8 +1,9 @@
-(ns jsongraph.utils-test
+(ns jsongraph.impl.utils-test
   (:require [clojure.test :refer :all]
-            [jsongraph.utils :refer :all]
-            [clojure.set :refer :all]))
+            [clojure.set :refer :all]
+            [jsongraph.impl.utils :refer :all]))
 
+(def json-0 {:A 'a :B 'b :C 'c})
 (def json-1 {:A 'a :B 'b :C 'c :D 'd})
 (def json-2 {:E 'e :F 'f :G 'g})
 (def json-3 {:A 'a :B 'b :C 'c :D 'd :E 'e :F 'f :G 'g})
@@ -27,6 +28,9 @@
 (deftest add-delete-test
   (testing "add-items")
   (is (= (add-items json-1 json-2) json-3))
+  (testing "add-empty-items")
+  (is (= (add-items {} {}) {}))
+  (println (count json-1))
   (testing "delete-items")
   (is (= (delete-items json-3 [:C :D :E]) {:A 'a :B 'b :F 'f :G 'g}))
 
@@ -37,7 +41,10 @@
 )
 
 (deftest json-difference-test
-    (println (json-difference {} {}))
+    (is (= (json-difference json-3 json-2) json-1))
+    (is (= (json-difference json-2 json-2) {}))
+    (is (= (json-difference json-0 json-1) nil))
+
 )
 
 (deftest list-difference-test
@@ -45,9 +52,11 @@
 )
 
 (deftest equal-test
-    (println (lists-equal [1 2 3] [2 1 3]))
+    (is (lists-equal [1 2 3] [2 1 3]))
+    (is (lists-equal [1 2 3 5 8] [1 2 3 5 8]))
+    (is (not (lists-equal [1 2 5] [1 3 5])))
 )
 
 (deftest -test
-    (println (subset? (.valSet json-2) (.valSet json-3)))
+    (println (subset? (valsSet json-2) (valsSet json-3)))
 )

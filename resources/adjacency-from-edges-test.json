@@ -1,3 +1,38 @@
-{"A":{"B":{"cost":1}, "C":{"cost":4}},
- "B":{"A":{"cost":3}},
- "D":{"A":{"cost":8}, "C":{"cost":34}}}
+{
+  "A" : {
+    "B" : {
+      "labels" : [ ],
+      "properties" : {
+        "cost" : 1
+      }
+    },
+    "C" : {
+      "labels" : [ ],
+      "properties" : {
+        "cost" : 4
+      }
+    }
+  },
+  "B" : {
+    "A" : {
+      "labels" : [ ],
+      "properties" : {
+        "cost" : 3
+      }
+    }
+  },
+  "D" : {
+    "A" : {
+      "labels" : [ ],
+      "properties" : {
+        "cost" : 8
+      }
+    },
+    "C" : {
+      "labels" : [ ],
+      "properties" : {
+        "cost" : 34
+      }
+    }
+  }
+}

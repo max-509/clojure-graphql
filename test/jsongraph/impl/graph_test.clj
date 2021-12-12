@@ -1,7 +1,9 @@
-(ns jsongraph.graph-test
+(ns jsongraph.impl.graph-test
   (:require [clojure.test :refer :all]
-            [jsongraph.graph :refer :all]
-            [jsongraph.utils :refer :all]
+            [jsongraph.impl.core :refer :all]
+            [jsongraph.impl.utils :refer :all]
+            [jsongraph.api :refer [gen-node gen-edge]]
+
             [jsonista.core :as j]
             [clojure.data.json :as json]
             )
@@ -17,28 +19,31 @@
 (defn get-groud-true-from-file [^String file-name]
   (j/read-value (File. file-name) (j/object-mapper {:decode-key-fn true})))
 
-(def nA (gen-node :A nil [] {}))
-(def nB (gen-node :B nil [] {}))
-(def nC (gen-node :C nil [] {}))
-(def nD (gen-node :D nil [] {}))
+(def nA (gen-node [] {} :A)) (def kA (get-key nA))
+(def nB (gen-node [] {} :B)) (def kB (get-key nB))
+(def nC (gen-node [] {} :C)) (def kC (get-key nC))
+(def nD (gen-node [] {} :D)) (def kD (get-key nD))
 
 (def g-add-nodes (add-node (add-node (gen-empty-graph) [nA nB nC]) nD))
 
-(def edgeAB  '([:A :B] {:cost 1}))   ;edge format '([source target] data)
-(def edgeAC  '([:A :C] {:cost 4}))
+(def edgeAB  (gen-edge nA nB [] {:cost 1}))
+(def edgeAC  (gen-edge nA nC [] {:cost 4}))
 
-(def edgeBA  '([:B :A] {:cost 2}))
-(def edgeBA- '([:B :A] {:cost 3}))
+(def edgeBA  (gen-edge nB nA [] {:cost 2}))
+(def edgeBA- (gen-edge nB nA [] {:cost 3}))
 
-(def edgeDA  '([:D :A] {:cost 8}))
-(def edgeDC  '([:D :C] {:cost 34}))
+(def edgeDA  (gen-edge nD nA [] {:cost 8}))
+(def edgeDC  (gen-edge nD nC [] {:cost 34}))
 
+(json/pprint g-add-nodes)
 
+;(j/write-value (File. "./resources/g.json") (adjacency-from-edges [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC]) (j/object-mapper {:pretty true}))
 
 (deftest adjacency-from-edges-test
   (println)
   (println "adjacency-from-edges-test")
   (pprint [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC])     ;edgeBA- rewrite data after edgeBA
+  (println "result")
   (json/pprint (adjacency-from-edges [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC]))
   (is (= (get-groud-true-from-file "./resources/adjacency-from-edges-test.json")
          (adjacency-from-edges [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC])))
@@ -81,8 +86,8 @@
   (println)
   (println "delete-adjacency-edge-test")
   (json/pprint (full-graph :adjacency))
-  (println :A [:B])
-  (json/pprint (delete-adjacency-edge (full-graph :adjacency) :A [:B]))
+  (println  kA [kB])
+  (json/pprint (delete-adjacency-edge (full-graph :adjacency) kA [kB]))
   )
 
 
@@ -90,8 +95,8 @@
   (println)
   (println "delete-in-edge-test")
   (json/pprint (full-graph :adjacency))
-  (println [:B :C] [:A])
-  (json/pprint (delete-in-edges (full-graph :adjacency) [:B :C] [:A]))
+  (println [kB kC] [kA])
+  (json/pprint (delete-in-edges (full-graph :adjacency) [kB kC] [kA]))
   )
 
 (deftest delete-edges-from-adjacency-test
@@ -107,17 +112,17 @@
   (println)
   (println "delete-edges-in-all-nodes-test")
   (json/pprint full-graph)
-  (pprint [:A :C])
+  (pprint [kA kC])
   (println "result")
-  (json/pprint (delete-edges-in-all-nodes (full-graph :adjacency) [:A :C]))
+  (json/pprint (delete-edges-in-all-nodes (full-graph :adjacency) [kA kC]))
   )
 
 (deftest delete-node-test
   (println)
   (println "delete-node-test")
   (json/pprint full-graph)
-  (println "nodes" [:A :C])
-  (json/pprint (delete-node full-graph [:A :C]))
+  (println "nodes" [kA kC])
+  (json/pprint (delete-node full-graph [kA kC]))
   )
 
 
@@ -135,17 +140,20 @@
 (deftest match-adjacency-item-test
   (println)
   (println "match-adjacency-item-test")
-  (json/pprint ((full-graph :adjacency) :A))
-  (json/pprint ((small-graph :adjacency) :A))
+  (json/pprint ((small-graph :adjacency) kA))
+  (println "in")
+  (json/pprint ((full-graph :adjacency) kA))
   (println "result")
-  (json/pprint (match-adjacency-item ((full-graph :adjacency) :A) ((small-graph :adjacency) :A)))
+  (json/pprint (match-adjacency-item ((full-graph :adjacency) kA) ((small-graph :adjacency) kA)))
   )
 
 (deftest match-adjacency-test
   (println)
   (println "match-adjacency-test")
   (json/pprint (small-graph :adjacency))
-  (json/pprint (full-graph :adjacency))
+  (println "in")
+  (json/pprint (full-graph  :adjacency))
   (println "result")
-  (json/pprint (match-adjacency (full-graph :adjacency) (small-graph :adjacency)))
+
+  (println (match-adjacency (full-graph :adjacency) (small-graph :adjacency)))
   )
