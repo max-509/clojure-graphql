@@ -63,13 +63,6 @@
   )
 
 
-(defn add-node [graph nodes]
-  (merge
-    (get-items graph :metadata)
-    (apply-to-adjacency graph add-items nodes)
-   )
- )
-
 (defn add-in-edge-adjacency
   [
    adjacency
@@ -172,12 +165,6 @@
             (assoc-out-edges-adjacency-item
               (adjacency (first -keys))
               (first -vals))))))))
-
-(defn add-edge [graph edges]
-  (merge
-    (get-items graph :metadata)
-    (apply-to-adjacency
-      graph add-out-edges! edges)))
 
 
 (defn delete-in-edge-adjacency
