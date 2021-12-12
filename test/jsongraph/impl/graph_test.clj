@@ -2,7 +2,7 @@
   (:require [clojure.test :refer :all]
             [jsongraph.impl.core :refer :all]
             [jsongraph.impl.utils :refer :all]
-            [jsongraph.api :refer [gen-node gen-edge]]
+            [jsongraph.api :refer [gen-node add-nodes gen-edge add-edges]]
 
             [jsonista.core :as j]
             [clojure.data.json :as json]
@@ -24,7 +24,7 @@
 (def nC (gen-node [] {} :C)) (def kC (get-key nC))
 (def nD (gen-node [] {} :D)) (def kD (get-key nD))
 
-(def g-add-nodes (add-node (add-node (gen-empty-graph) [nA nB nC]) nD))
+(def g-add-nodes (add-nodes (add-nodes (gen-empty-graph) [nA nB nC]) nD))
 
 (def edgeAB  (gen-edge nA nB [] {:cost 1}))
 (def edgeAC  (gen-edge nA nC [] {:cost 4}))
@@ -61,25 +61,7 @@
   )
 
 
-(deftest add-edge-test
-  (println)
-  (println "add-edge-test")
-  (json/pprint g-add-nodes)
-  (pprint [edgeAB edgeAC edgeDA edgeDC edgeAB])
-  (println "result")
-  (json/pprint (add-edge g-add-nodes [edgeAB edgeAC edgeDA edgeDC edgeAB]))
-  )
-
-(deftest add-edge-test
-  (println)
-  (println "add-edge-test")
-  (json/pprint g-add-nodes)
-  (pprint [edgeAB edgeAC edgeDA edgeDC edgeAB])
-  (println "result")
-  (json/pprint (add-edge g-add-nodes [edgeAB edgeAC edgeDA edgeDC edgeAB]))
-  )
-
-(def full-graph (add-edge g-add-nodes [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC]))
+(def full-graph (add-edges g-add-nodes [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC]))
 (j/write-value (File. "./resources/graph_2.json") full-graph)
 
 (deftest delete-adjacency-edge-test
@@ -135,7 +117,7 @@
   (json/pprint (delete-edges full-graph [edgeAB edgeBA edgeBA-]))
   )
 
-(def small-graph (add-edge g-add-nodes [edgeAC edgeBA  edgeDC]))
+(def small-graph (add-edges g-add-nodes [edgeAC edgeBA  edgeDC]))
 
 (deftest match-adjacency-item-test
   (println)

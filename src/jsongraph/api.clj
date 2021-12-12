@@ -1,6 +1,6 @@
 (ns jsongraph.api
       (:require [jsongraph.impl.core :refer :all]
-                [jsongraph.impl.utils :refer [get-key]]
+                [jsongraph.impl.utils :refer [get-key, get-items, add-items]]
                 [clj-uuid :as uuid])
   )
 
@@ -14,6 +14,13 @@
   (get-key node)
   )
 
+(defn add-nodes [graph nodes]
+  (merge
+    (get-items graph :metadata)
+    (apply-to-adjacency graph add-items nodes)
+   )
+ )
+
 (defn gen-edge
   [
    source target
@@ -22,13 +29,19 @@
  [[(index source) (index target)]
    {:labels labels :properties properties}])
 
+(defn add-edges [graph edges]
+  (merge
+    (get-items graph :metadata)
+    (apply-to-adjacency
+      graph add-out-edges! edges)))
+
 
 
 (defn create-graph
   ([] (gen-empty-graph))
-  ([nodes] (add-node (gen-empty-graph) nodes))
+  ([nodes] (add-nodes (gen-empty-graph) nodes))
   ([nodes edges]
    (-> (gen-empty-graph)
-     (add-node nodes)
-     (add-edge edges)))
+       (add-nodes nodes)
+       (add-edges edges)))
   )
