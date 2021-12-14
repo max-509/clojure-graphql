@@ -3,12 +3,8 @@
             [jsongraph.api :refer :all]
             [clojure.data.json :as json]))
 (use '[clojure.pprint :only (pprint)])
-(comment
-  An array-map maintains the insertion order of the keys.
-  Look up is linear, which is not a problem for small maps (say less than 10 keys).
-  If your map is large, you should use hash-map instead. !!!
-  )
 
+(def node (gen-node [] {}))
 (def nA (gen-node [:label-A] {}))
 (def nB (gen-node [:label-B] {}))
 (def nC (gen-node [:label-C] {}))
@@ -26,6 +22,7 @@
 
 (deftest create-graph-test
   (json/pprint (create-graph))
+  (json/pprint (create-graph [node]))
   (json/pprint (create-graph [nA nB nC]))
   (json/pprint (create-graph [nA nB nC] [edgeAB edgeAC edgeBA]))
   )
