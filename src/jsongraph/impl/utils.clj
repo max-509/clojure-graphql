@@ -39,8 +39,6 @@ user=> (type (assoc (make-map 8) :x 1 :y 2))  ; 10 items -> hash map.
   (do (json/pprint x) x)
   )
 
-(defn wrap-vec [arg]
-  (if (coll? arg) arg (list arg)))
 
 (defn get-key [json-map & [idx]]
   (nth
@@ -69,7 +67,7 @@ user=> (type (assoc (make-map 8) :x 1 :y 2))  ; 10 items -> hash map.
   )
 
 (defn get-items [json-map -key & -keys]
-  (let [-keys (if -keys (conj -keys -key) (wrap-vec -key))
+  (let [-keys (if -keys (conj -keys -key) (vector -key))
         d (difference
             (set -keys)
             (.keySet json-map))]

@@ -17,10 +17,7 @@
   )
 
 (defn assoc-out-edges-adjacency-item
-  [
-   adjacency-item
-   out-edges
-   ]
+  [adjacency-item  out-edges]
   (assoc adjacency-item :out-edges out-edges)
   )
 
@@ -44,19 +41,15 @@
   (second edge-data))
 
 (defn gen-empty-graph []
-  {
-   :metadata   {}
-   :adjacency  {}
-   }
+  {:metadata   {}
+   :adjacency  {} }
   )
 
 (defn convert-edge-to-adjacency [edge]
   [(get-edge-start edge)
-    {
-     (get-edge-target edge)  (get-edge-data edge)
-    }
-    ]
-  )
+    {(get-edge-target edge)
+     (get-edge-data edge)}
+   ])
 
 (defn adjacency-from-edges [edges]
   (assoc-items (map convert-edge-to-adjacency edges))
@@ -64,10 +57,9 @@
 
 
 (defn add-in-edge-adjacency
-  [
-   adjacency
-   target source
-   ]
+  [adjacency
+   target source]
+
   (let [adjacency-item (adjacency target)]
       (assoc
         adjacency
@@ -80,10 +72,9 @@
 
 
 (defn add-in-edge-adjacency!
-  [
-   adjacency
-   target source
-   ]
+  [adjacency
+   target source]
+
   (let [adjacency-item (adjacency target)]
       (assoc!
         adjacency
@@ -96,33 +87,31 @@
 
 
 (defn add-in-edges
-  [
-   adjacency targets source
-   ]
+  [adjacency targets source]
+
   (if (empty? targets)
     adjacency
     (recur
       (add-in-edge-adjacency
         adjacency
         (first targets)
-        source
-        )
+        source)
+
       (rest targets)
       source)))
 
 
 (defn add-in-edges!
-  [
-   adjacency targets source
-   ]
+  [adjacency targets source]
+
   (if (empty? targets)
     adjacency
     (recur
       (add-in-edge-adjacency!
         adjacency
         (first targets)
-        source
-        )
+        source)
+
       (rest targets)
       source)))
 
@@ -139,8 +128,8 @@
             (add-in-edges
               adjacency
               (keys (first -vals))
-              (first -keys)
-            )
+              (first -keys))
+
             (first -keys)
             (assoc-out-edges-adjacency-item
               (adjacency (first -keys))
@@ -159,8 +148,8 @@
             (add-in-edges!
               adjacency
               (keys (first -vals))
-              (first -keys)
-            )
+              (first -keys))
+
             (first -keys)
             (assoc-out-edges-adjacency-item
               (adjacency (first -keys))
@@ -168,10 +157,9 @@
 
 
 (defn delete-in-edge-adjacency
-  [
-   adjacency
-   target sources
-   ]
+  [adjacency
+   target sources]
+
   (if-let [adjacency-item (adjacency target)]
       (assoc!
         adjacency
@@ -180,9 +168,8 @@
           (filterv #(not (.contains sources %)) (adjacency-item :in-edges))
           (adjacency-item :out-edges)
           (adjacency-item :labels)
-          (adjacency-item :properties)
-        )
-      )
+          (adjacency-item :properties)))
+
       adjacency))
 
 
@@ -192,17 +179,20 @@
    )
 
   ( [adjacency [targets sources]]
-   (loop [adjacency (transient adjacency)
-          targets (if (some? targets) (wrap-vec targets) (keys adjacency))
-          sources (wrap-vec sources)]
+   (loop [wrapv #(if (coll? %) % [%])
+          adjacency (transient adjacency)
+          targets (if (some? targets) (wrapv targets) (keys adjacency))
+          sources (wrapv sources)]
+
       (if (empty? targets)
         (persistent! adjacency)
         (recur
+          wrapv
           (delete-in-edge-adjacency
             adjacency
             (first targets)
-            sources
-           )
+            sources)
+
           (rest targets)
           sources)))))
 
@@ -218,7 +208,8 @@
    (delete-adjacency-edge adjacency [targets source])
    )
   ([adjacency [targets source]]
-     (let [adjacency (transient  (delete-in-edges
+     (let [adjacency (transient
+                       (delete-in-edges
                          adjacency targets source))
            adjacency-item (adjacency source)]
        (persistent!
@@ -239,11 +230,11 @@
         (delete-adjacency-edge
           adjacency
            (first -keys)
-           (first -vals)
-         )
+           (first -vals))
+
         (rest -keys) (rest -vals))))
 
-(defn delete-edges-in-all-nodes [adjacency targets]
+(defn delete-edges-by-target-uuids [adjacency targets]
   (let [-keys (keys adjacency)]
      (delete-kv-edges-from-adjacency
         adjacency
@@ -255,44 +246,39 @@
       adjacency
       (keys edges) (map keys (vals edges)))))
 
-(defn delete-node [graph nodes-tags]
-  (let [nodes-tags  (wrap-vec nodes-tags)]
+(defn delete-node-by-uuid [graph uuid-nodes]
+  (let [nodes-tags  (vec uuid-nodes)]
    (merge
      (get-items graph :metadata)
      (-> graph
          (apply-to-adjacency
              delete-items
-             nodes-tags true
-          )
+             nodes-tags true)
+
          (apply-to-adjacency
-             delete-edges-in-all-nodes
-             nodes-tags true
-          )
+           delete-edges-by-target-uuids
+           nodes-tags true)
+
          (apply-to-adjacency
              delete-in-edges-in-all-node
              nodes-tags)))))
 
-(defn delete-edges [graph edges]
-  (merge
-    (get-items graph :metadata)
-    (apply-to-adjacency
-      graph delete-edges-from-adjacency edges)))
 
 
-(defn match-adjacency-item [adj-item adj-query-item]
-  (if (keys-equal adj-item adj-query-item)
+(defn match-adjacency-item [adj-item query-item]
+  (if (keys-equal adj-item query-item)
       (and
-         (some? (json-difference (adj-item :out-edges) (adj-query-item :out-edges)))
-         (subvec? (adj-query-item :labels) (adj-item :labels))
-        )
+         (some? (json-difference (adj-item :out-edges) (query-item :out-edges)))
+         (subvec? (query-item :labels) (adj-item :labels)))
+
       false))
 
 
 
-(defn match-adjacency [adj-graph adj-query]
-  (if (subset? (.keySet adj-query) (.keySet adj-graph))
+(defn match-adjacency [adj-graph query]
+  (if (subset? (.keySet query) (.keySet adj-graph))
     (every?
-      #(match-adjacency-item (adj-graph %) (adj-query %))
-       (keys adj-query)
-      )
+      #(match-adjacency-item (adj-graph %) (query %))
+       (keys query))
+
     false))
