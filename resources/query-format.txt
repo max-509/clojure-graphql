@@ -7,6 +7,10 @@
 ;; (j/read-value "{\"dog\": {\"name\":\"Teppo\"}}" j/keyword-keys-object-mapper)
 ;; ;; => {:dog {:name "Teppo"}}
 
+;;comparison signs (<cs> is any from: )
+;; "=" :eq ; "!=" :ne
+;; ">" :gt ; "<" :lt
+;; "<" :lt ; "<=" :le
 
 ; Node ;
 
@@ -53,30 +57,24 @@
 ; for string ONLY "="
 ; I think it enough
 
-(n:<node-label-string>) where n.cost = <num-value> =>
+(n:<node-label-string>) where n.cost  <cs>  <num-value> =>
 
 {:n {:out-edges nil
      :labels [:<node-label-string>]
-     :property [{:cost ("=" <value>)} {}]}}
-
-(n:<node-label-string>) where n.cost  >  <num-value> =>
-
-{:n {:out-edges nil
-     :labels [:<node-label-string>]
-     :property [{:cost (">" <num-value>)} {}]}}
+     :property [{:cost (<cs> <value>)} {}]}}
 
 
-(n:<node-label-string> <node-property-json>) where n.cost  >  <num-value> =>
+(n:<node-label-string> <node-property-json>) where n.cost  <cs>  <num-value> =>
 
 {:n {:out-edges nil
      :labels [:<node-label-string>]
-     :property [{:cost (">" <value>)} <node-property-json>]}}
+     :property [{:cost (<cs> <value>)} <node-property-json>]}}
 
 (n:<node-label-string>) where n.name = <string-value> =>
 
 {:n {:out-edges nil
      :labels [:<node-label-string>]
-     :property [{:cost ("=" <string-value>)} {}]}}
+     :property [{:cost (:eq <string-value>)} {}]}}
 
 
 
