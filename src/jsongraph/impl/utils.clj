@@ -93,7 +93,10 @@ user=> (type (assoc (make-map 8) :x 1 :y 2))  ; 10 items -> hash map.
   )
 
 (defn list-difference [list-1 list-2]
-   (vec (difference (set list-1) (set list-2)))
+  (if (or (nil? list-1) (nil? list-2))
+    (println "list-difference get nil list") ; return nil
+    (vec (difference (set list-1) (set list-2)))
+    )
   )
 
 (defn subvec? [sub -vec]

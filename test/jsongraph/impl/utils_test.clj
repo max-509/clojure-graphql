@@ -75,6 +75,10 @@
 )
 
 (deftest list-difference-test
+    (println (list-difference nil [1 3]))
+)
+
+(deftest subvec-test
     (is (subvec? [1 2] [2 1 3]))
 )
 

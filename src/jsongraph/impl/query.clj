@@ -4,17 +4,29 @@
 
 
 (defn gen-query-node
-  [labels properties & [index]]
+  [labels properties where & [index]]
   {(if index index (uuid/v0))
-     {:out-edges nil
-      :labels    labels
-      :properties properties}})
+     {:out-edge   nil
+      :labels     labels
+      :properties properties
+      :where      where}})
 
 
-(defn match-node-labels [adj-node query-node]
-  (lists-equal (adj-node :labels) (query-node :labels))
-  )
+(defn query-edge-target
+  [query-edge]
+  (get-key query-edge))
+(defn query-edge-labels
+  [query-edge]
+  ((get-val query-edge) :labels))
+(defn query-edge-prop
+  [query-edge]
+  ((get-val query-edge) :properties))
 
+(defn gen-query-edge
+  [target labels properties]
+  {target
+   {:labels     labels
+    :properties properties}})
 
 ;;comparison signs map
 (def cs-map
@@ -25,32 +37,35 @@
    }
   )
 
-(defn- query-prop-cs [query-prop-item]
+(defn query-where-cs [query-prop-item]
   (first (second query-prop-item)))
 
-(defn- query-prop-val [query-prop-item]
+(defn query-where-val [query-prop-item]
   (second (second query-prop-item)))
 
-(defn- query-prop-key [query-prop-item]
+(defn query-where-key [query-prop-item]
     (first query-prop-item))
 
-(defn match-node-where-properties [adj-node-prop where-query-node]
-  (if (subvec? (keys where-query-node) (keys adj-node-prop))
-     (every?
-       #((cs-map (query-prop-cs %))
-          (adj-node-prop (query-prop-key %))
-          (query-prop-val %)  )
-       (get-items where-query-node)
-     )
-    (do (println "\n!where query contains unknown keys!\n") false)
+(defn match-node-where-properties [node query-node]
+  (let [node-prop   ((get-val node) :properties)
+        query-where ((get-val query-node)  :where)  ; maybe nil
+        d (list-difference (keys query-where) (keys node-prop))]
+    (if (empty? d)
+      (every?
+         #((cs-map (query-where-cs %))
+            (node-prop (query-where-key %))
+            (query-where-val %))
+        (get-items query-where)
+      )
+     (do (println (str "Keys " (vec d) " not found")) false)
     )
-
   )
+ )
 
 (defn match-node-properties [node query-node]
   (let [
         query-node-prop (query-node :properties)
-        node-prop   (node   :properties)
+        node-prop       (node       :properties)
         ]
     (if (map? query-node-prop)
       (empty? (json-difference query-node-prop node-prop))
@@ -62,14 +77,14 @@
     )
   )
 
-(defn match-node-in-edges [adj-node query-node]
-  (lists-equal (adj-node :in-edges) (query-node :in-edges))
+(defn match-node-labels [node query-node]
+  (lists-equal ((get-val node) :labels) ((get-val query-node) :labels))
   )
 
-(defn match-node [adj-node query-node]
-  (let [diff (json-difference adj-node query-node)]
-    (if (empty? diff)
-      true
-      2)
-    )
+(defn match-node [node query-node]
+  (and
+    (match-node-labels node query-node)
+     ;(match-node-properties node query-node)
+    (match-node-where-properties node query-node)
   )
+)
