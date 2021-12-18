@@ -1,9 +1,7 @@
 (ns jsongraph.impl.core
     (:require [jsongraph.impl.utils :refer :all]
               [clojure.set :refer :all]
-              [clojure.data :refer :all]
-      ;[clojure.data.json :as json]
-              ))
+              [clojure.data :refer :all]))
 
 (defn gen-adjacency-item
   [in-edges out-edges labels properties]
@@ -262,23 +260,3 @@
          (apply-to-adjacency
              delete-in-edges-in-all-node
              nodes-tags)))))
-
-
-
-(defn match-adjacency-item [adj-item query-item]
-  (if (keys-equal adj-item query-item)
-      (and
-         (some? (json-difference (adj-item :out-edges) (query-item :out-edges)))
-         (subvec? (query-item :labels) (adj-item :labels)))
-
-      false))
-
-
-
-(defn match-adjacency [adj-graph query]
-  (if (subset? (.keySet query) (.keySet adj-graph))
-    (every?
-      #(match-adjacency-item (adj-graph %) (query %))
-       (keys query))
-
-    false))

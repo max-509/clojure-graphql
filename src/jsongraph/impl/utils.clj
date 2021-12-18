@@ -1,9 +1,7 @@
 (ns jsongraph.impl.utils
   (:require
     [clojure.data.json :as json]
-    [clojure.set :refer :all]
-    )
-  )
+    [clojure.set :refer :all]))
 
 (comment How work array-map and hash-map
   An array-map maintains the insertion order of the keys.
@@ -66,17 +64,15 @@ user=> (type (assoc (make-map 8) :x 1 :y 2))  ; 10 items -> hash map.
   (vec (intersection (keysSet json-1) (keysSet json-2)))
   )
 
-(defn get-items [json-map -key & -keys]
-  (let [-keys (if -keys (conj -keys -key) (vector -key))
-        d (difference
-            (set -keys)
-            (.keySet json-map))]
-    (if (empty? d)
-       (select-keys json-map -keys)
-       (throw (Throwable. (str "Keys " (vec d) " not found")))
-      )
-    )
-  )
+(defn get-items [json-map & -keys]
+  (if (empty? -keys)
+    (vec (set json-map))
+    (let [d (difference
+              (set -keys)
+              (.keySet json-map))]
+      (if (empty? d)
+         (select-keys json-map -keys)
+         (throw (Throwable. (str "Keys " (vec d) " not found")))))))
 
 (defn add-items [json-map items]
   (apply (partial merge json-map) items)

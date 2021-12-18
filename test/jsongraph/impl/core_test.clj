@@ -106,26 +106,3 @@
   (println "nodes" [kA kC])
   (json/pprint (delete-node-by-uuid full-graph [kA kC]))
   )
-
-(def small-graph (add-edges g-add-nodes [edgeAC edgeBA  edgeDC]))
-
-(deftest match-adjacency-item-test
-  (println)
-  (println "match-adjacency-item-test")
-  (json/pprint ((small-graph :adjacency) kA))
-  (println "in")
-  (json/pprint ((full-graph :adjacency) kA))
-  (println "result")
-  (json/pprint (match-adjacency-item ((full-graph :adjacency) kA) ((small-graph :adjacency) kA)))
-  )
-
-(deftest match-adjacency-test
-  (println)
-  (println "match-adjacency-test")
-  (json/pprint (small-graph :adjacency))
-  (println "in")
-  (json/pprint (full-graph  :adjacency))
-  (println "result")
-
-  (println (match-adjacency (full-graph :adjacency) (small-graph :adjacency)))
-  )

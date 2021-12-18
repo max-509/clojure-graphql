@@ -70,10 +70,12 @@
     (is (= (json-difference json-2 json-2) {}))
     (is (= (json-difference json-0 json-1) nil))
 
+    (println (json-difference {:A [1 2 4] :B {:A [1 9 4] :B {:A [14] :B {} :C nil} :C 7} :C 8} {:A [1 2 4] :B {:A [1 2 4] :B {:A [14] :B {} :C nil} :C 7}}))
+
 )
 
 (deftest list-difference-test
-    (println (subvec? [1 2 3] [2 1]))
+    (is (subvec? [1 2] [2 1 3]))
 )
 
 (deftest equal-test

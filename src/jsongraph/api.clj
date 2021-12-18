@@ -1,8 +1,8 @@
 (ns jsongraph.api
   (:require [jsongraph.impl.core :refer :all]
             [jsongraph.impl.utils :refer [get-key get-items add-items]]
-            [clj-uuid :as uuid])
-  (:import (clojure.lang APersistentMap)))
+            [clj-uuid :as uuid]))
+
 
 
 (defn gen-node
@@ -15,7 +15,7 @@
   )
 
 (defn index-from-many [nodes]
-  (if (instance? APersistentMap nodes)
+  (if (map? nodes)
     [(index nodes)]      ; only one node
     (mapv index nodes)   ; list of node
     )
