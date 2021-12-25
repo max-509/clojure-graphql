@@ -1,14 +1,16 @@
-(ns clojure-graphql.impl.core-impl
+(ns clojure-graphql.impl.language_parser
   (:require [instaparse.core :as insta]))
 
 (def create-rule
   (insta/parser
     "clauses = clause (<whitespaces> clause)*
-    clause = create | match
+    clause = create | delete | match | undo
 
     (*----------------------------CLAUSES DESCRIPTION-----------------------*)
     create = <create-command> patterns
+    delete = <delete-command> variable-name
     match = <match-command> patterns where
+    undo = <undo-command>
     (*----------------------------CLAUSES DESCRIPTION-----------------------*)
 
     (*----------------------------SUPPORT FOR CLAUSES-------------------------*)
@@ -16,19 +18,19 @@
     (*----------------------------SUPPORT FOR CLAUSES-------------------------*)
 
     (*----------------------------PATTERN DESCRIPTION-----------------------*)
-    patterns = pattern (',' <whitespaces>? pattern)*
-    pattern = node (relationship node)*
+    patterns = pattern (<comma> pattern)*
+    pattern = node (relation node)*
 
     node = <left-bracket> variable-name labels properties <right-bracket>
-    relationship = dash relation right-arrow | left-arrow relation dash (* | dash relation dash *)
-    relation = <left-square-bracket> variable-name labels properties <right-square-bracket> | Epsilon variable-name labels properties
+    relation = dash edge right-arrow | left-arrow edge dash (* | dash edge dash *)
+    edge = <left-square-bracket> variable-name labels properties <right-square-bracket> | Epsilon variable-name labels properties
 
     labels = (label)+ | Epsilon
-    label = <':'> word
+    label = <':'> name
 
     properties = <left-curly-bracket> property (<whitespaces> property)* <right-curly-bracket> | Epsilon
     property = field <':'> <whitespaces> data
-    field = word
+    field = name
     (*----------------------------PATTERN DESCRIPTION-----------------------*)
 
     (*----------------------------PREDICATES DESCRIPTION----------------------*)
@@ -57,7 +59,8 @@
     (*----------------------------PREDICATES DESCRIPTION----------------------*)
 
     (*----------------------------DATA TYPES-------------------------------*)
-    variable-name = word | Epsilon
+    variables = variable-name (<comma> variable-name)*
+    variable-name = name | Epsilon
     <data> = string | integer | float | boolean | list
     list = <left-square-bracket> (string (<whitespaces> string)*
                                 | integer (<whitespaces> integer)*
@@ -65,7 +68,7 @@
                                 | boolean (<whitespaces> boolean)*
                                 | list (<whitespaces> list)*
                                 | Epsilon) <right-square-bracket>
-    string = <'\"'> word <'\"'>
+    string = (<quote> string-val <quote>) | (<dquote> string-val <dquote>)
     integer = #'-?[0-9]+'
     float = #'-?([0-9]+.[0-9]+ | (INF | inf) | (NAN | nan))'
     boolean = 'True' | 'TRUE' | 'true' | 'False' | 'FALSE' | 'false'
@@ -86,6 +89,8 @@
     (*--------------------------------COMMANDS---------------------------*)
     create-command = <('create' | 'CREATE' | 'Create')> <whitespaces>
     match-command = <('match' | 'MATCH' | 'Match')> <whitespaces>
+    undo-command = <('undo' | 'UNDO' | 'Undo')> <whitespaces>?
+    delete-command = <('delete' | 'DELETE' | 'Delete')> <whitespaces>
     where-command = <('where' | 'WHERE' | 'Where')> <whitespaces>
     and-command = <('and' | 'AND' | 'And')> <whitespaces>
     or-command = <('or' | 'OR' | 'Or')> <whitespaces>
@@ -106,6 +111,10 @@
     in-command = <('in' | 'IN' | 'In')> <whitespaces>
     (*--------------------------------COMMANDS---------------------------*)
 
-    <word> = #'[a-zA-Z]+'
+    <comma> = ',' <whitespaces>?
+    <dquote> = '\"'
+    <quote> = \"'\"
+    <string-val> = #'[\\x20-\\x21\\x23-\\x26\\x28-x7E]+'
+    <name> = #'[a-zA-Z_$][a-zA-Z_$0-9]*'
     <digit> = #'[0-9]'
     <whitespaces> = #'\\s+'"))
