@@ -89,5 +89,5 @@
 )
 
 (deftest -test
-    (println (subset? (valsSet json-2) (valsSet json-3)))
+    (println (map #(array-map (first %) (second %)) (vec json-0)))
 )

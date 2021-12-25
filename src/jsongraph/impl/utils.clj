@@ -29,40 +29,37 @@ user=> (type (assoc (make-map 8) :x 1 :y 2))  ; 10 items -> hash map.
 (defn print-and-pass- [& args]
   (do
     (doseq [x args] (println x))
-    args
-    )
+    args))
+
+(defn print-and-pass-json [x]
+  (do (json/pprint x) x)
   )
 
 (defn print-and-pass [x]
-  (do (json/pprint x) x)
-  )
+  (do (println x) x))
 
 
 (defn get-key [json-map & [idx]]
   (nth
     (keys json-map)
-    (if (some? idx) idx 0)
-    )
-  )
+    (if (some? idx) idx 0)))
 
 (defn get-val [json-map & [idx]]
   (nth
     (vals json-map)
-    (if (some? idx) idx 0)
-    )
-  )
+    (if (some? idx) idx 0)))
+
+(defn get-field [json-map -key]
+  ((get-val json-map) -key))
 
 (defn keysSet [json]
-  (set (keys json))
-  )
+  (set (keys json)))
 
 (defn valsSet [json]
-  (set (vals json))
-  )
+  (set (vals json)))
 
 (defn keys-intersection [json-1 json-2]
-  (vec (intersection (keysSet json-1) (keysSet json-2)))
-  )
+  (vec (intersection (keysSet json-1) (keysSet json-2))))
 
 (defn get-items [json-map & -keys]
   (if (empty? -keys)
@@ -74,42 +71,36 @@ user=> (type (assoc (make-map 8) :x 1 :y 2))  ; 10 items -> hash map.
          (select-keys json-map -keys)
          (throw (Throwable. (str "Keys " (vec d) " not found")))))))
 
+(defn split-json [json]
+  (map #(array-map (first %) (second %)) (vec json)))
+
 (defn add-items [json-map items]
-  (apply (partial merge json-map) items)
-  )
+  (apply (partial merge json-map) items))
+
 (defn assoc-items [items]
    (loop [items items
           json (transient {})
           ]
       (if-let [item (first items)]
         (recur (rest items) (assoc! json (first item) (merge (json (first item)) (second item))))
-        (persistent! json)
-      )
-   )
-)
+        (persistent! json))))
 
 (defn delete-items [json-map [tag & tags]]
-  (apply (partial dissoc json-map) tag tags)
-  )
+  (apply (partial dissoc json-map) tag tags))
 
 (defn list-difference [list-1 list-2]
   (if (or (nil? list-1) (nil? list-2))
-    (println "list-difference get nil list") ; return nil
-    (vec (difference (set list-1) (set list-2)))
-    )
-  )
+    nil
+    (vec (difference (set list-1) (set list-2)))))
 
 (defn subvec? [sub -vec]
-    (subset? (set sub) (set -vec))
-  )
+    (subset? (set sub) (set -vec)))
 
 (defn lists-equal [list-1 list-2]
-   (= (set list-1) (set list-2))
-  )
+   (= (set list-1) (set list-2)))
 
 (defn keys-equal [json-1 json-2]
-   (= (.keySet json-1) (.keySet json-2))
-  )
+   (= (.keySet json-1) (.keySet json-2)))
 
 (defn json-difference [json-1 json-2]
   (let [s1 (set json-1) s2 (set json-2)
@@ -125,8 +116,4 @@ user=> (type (assoc (make-map 8) :x 1 :y 2))  ; 10 items -> hash map.
       json
       (recur
         (merge json {(first -keys) -val})
-        (rest -keys)
-        )
-      )
-    )
-  )
+        (rest -keys)))))
