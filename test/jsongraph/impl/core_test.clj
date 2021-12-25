@@ -1,4 +1,4 @@
-(ns jsongraph.impl.graph-test
+(ns jsongraph.impl.core-test
   (:require [clojure.test :refer :all]
             [jsongraph.impl.core :refer :all]
             [jsongraph.impl.utils :refer :all]
@@ -90,52 +90,19 @@
   (json/pprint (delete-edges-from-adjacency (full-graph :adjacency) [edgeAB edgeBA edgeBA-]))
   )
 
-(deftest delete-edges-in-all-nodes-test
+(deftest delete-edges-by-target-uuids-test
   (println)
-  (println "delete-edges-in-all-nodes-test")
+  (println "delete-edges-by-target-uuids-test")
   (json/pprint full-graph)
   (pprint [kA kC])
   (println "result")
-  (json/pprint (delete-edges-in-all-nodes (full-graph :adjacency) [kA kC]))
+  (json/pprint (delete-edges-by-target-uuids (full-graph :adjacency) [kA kC]))
   )
 
-(deftest delete-node-test
+(deftest delete-node-by-uuid-test
   (println)
-  (println "delete-node-test")
+  (println "delete-node-by-uuid-test")
   (json/pprint full-graph)
   (println "nodes" [kA kC])
-  (json/pprint (delete-node full-graph [kA kC]))
-  )
-
-
-(deftest delete-edges-test
-  (println)
-  (println "delete-edges-test")
-  (json/pprint full-graph)
-  (pprint [edgeAB edgeBA edgeBA-])
-  (println "result")
-  (json/pprint (delete-edges full-graph [edgeAB edgeBA edgeBA-]))
-  )
-
-(def small-graph (add-edges g-add-nodes [edgeAC edgeBA  edgeDC]))
-
-(deftest match-adjacency-item-test
-  (println)
-  (println "match-adjacency-item-test")
-  (json/pprint ((small-graph :adjacency) kA))
-  (println "in")
-  (json/pprint ((full-graph :adjacency) kA))
-  (println "result")
-  (json/pprint (match-adjacency-item ((full-graph :adjacency) kA) ((small-graph :adjacency) kA)))
-  )
-
-(deftest match-adjacency-test
-  (println)
-  (println "match-adjacency-test")
-  (json/pprint (small-graph :adjacency))
-  (println "in")
-  (json/pprint (full-graph  :adjacency))
-  (println "result")
-
-  (println (match-adjacency (full-graph :adjacency) (small-graph :adjacency)))
+  (json/pprint (delete-node-by-uuid full-graph [kA kC]))
   )

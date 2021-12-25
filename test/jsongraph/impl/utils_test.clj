@@ -3,6 +3,32 @@
             [clojure.set :refer :all]
             [jsongraph.impl.utils :refer :all]))
 
+(use '[criterium.core :refer [bench]])
+
+(def arraymap (array-map :f 1 :g 2 :h 4 :y 5 :w 4))
+(def hashmap (hash-map :f 1 :g 2 :h 4 :y 5 :w 4))
+(defn add-2-keys [m]
+  (assoc m :new 2 :w 4))
+
+(defn access-all-keys [m]
+  (mapv m [:f :g :h :y :w :not-there]))
+
+(deftest test-performance
+
+; Modification
+(bench (add-2-keys arraymap))
+
+(bench (add-2-keys hashmap))
+
+; Access
+(bench (access-all-keys arraymap))
+
+(bench (access-all-keys hashmap))
+
+  )
+
+
+
 (def json-0 {:A 'a :B 'b :C 'c})
 (def json-1 {:A 'a :B 'b :C 'c :D 'd})
 (def json-2 {:E 'e :F 'f :G 'g})
@@ -44,10 +70,16 @@
     (is (= (json-difference json-2 json-2) {}))
     (is (= (json-difference json-0 json-1) nil))
 
+    (println (json-difference {:A [1 2 4] :B {:A [1 9 4] :B {:A [14] :B {} :C nil} :C 7} :C 8} {:A [1 2 4] :B {:A [1 2 4] :B {:A [14] :B {} :C nil} :C 7}}))
+
 )
 
 (deftest list-difference-test
-    (println (subvec? [1 2 3] [2 1]))
+    (println (list-difference nil [1 3]))
+)
+
+(deftest subvec-test
+    (is (subvec? [1 2] [2 1 3]))
 )
 
 (deftest equal-test
@@ -57,5 +89,5 @@
 )
 
 (deftest -test
-    (println (subset? (valsSet json-2) (valsSet json-3)))
+    (println (map #(array-map (first %) (second %)) (vec json-0)))
 )
