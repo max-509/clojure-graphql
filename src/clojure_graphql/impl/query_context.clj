@@ -1,6 +1,5 @@
 (ns clojure-graphql.impl.query-context
-  (:require [clojure-graphql.impl.versions-tree :as vtree])
-  (:require [jsongraph.api.api :as jgraph]))
+  (:require [jsongraph.api.graph-api :as jgraph]))
 
 (use '[clojure.pprint :only (pprint)])
 

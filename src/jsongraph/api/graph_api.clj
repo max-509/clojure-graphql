@@ -1,7 +1,7 @@
 (ns jsongraph.api.graph-api
   (:require
     [jsongraph.impl.core :refer :all]
-    [jsongraph.impl.utils :refer [get-key get-items add-items split-json write-to-file read-from-file]]
+    [jsongraph.impl.utils :refer [get-key get-items add-items split-json]]
     [clj-uuid :as uuid] [jsonista.core :as j])
 
   (:import (java.io File)))

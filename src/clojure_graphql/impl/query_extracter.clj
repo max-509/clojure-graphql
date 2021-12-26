@@ -86,4 +86,4 @@
       (first val-data))))
 
 (defn extract-predicates [clause-params]
-  (rest (second clause-params)))
+  (second (second clause-params)))
