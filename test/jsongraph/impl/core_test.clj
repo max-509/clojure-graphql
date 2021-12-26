@@ -2,21 +2,11 @@
   (:require [clojure.test :refer :all]
             [jsongraph.impl.core :refer :all]
             [jsongraph.impl.utils :refer :all]
-            [jsongraph.api.graph-api :refer [gen-node add-nodes gen-edge add-edges]]
-            [jsonista.core :as j]
-            [clojure.data.json :as json]
-            )
-  (:import (java.io File))
-)
+            [jsongraph.api.graph-api :refer [gen-node add-nodes gen-edge add-edges save-graph load-graph]]
+            [clojure.data.json :as json]))
 
 (use '[clojure.pprint :only (pprint)])
 
-
-(def file_e  (File. "./resources/graph_empty.json"))
-(def file_b  (File. "./resources/graph_byte.json"))
-
-(defn get-ground-true-from-file [^String file-name]
-  (j/read-value (File. file-name) (j/object-mapper {:decode-key-fn true})))
 
 (def nA (gen-node [] {} :A)) (def kA (get-key nA))
 (def nB (gen-node [] {} :B)) (def kB (get-key nB))
@@ -44,7 +34,7 @@
   (pprint [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC])     ;edgeBA- rewrite data after edgeBA
   (println "result")
   (json/pprint (adjacency-from-edges [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC]))
-  (is (= (get-ground-true-from-file "./resources/adjacency-from-edges-test.json")
+  (is (= (load-graph "./resources/adjacency-from-edges-test.json")
          (adjacency-from-edges [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC])))
   )
 
@@ -55,13 +45,13 @@
   (pprint [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC])
   (println "result")
   (json/pprint (add-out-edges (g-add-nodes :adjacency) [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC]))
-  ;(is (= (get-groud-true-from-file "./resources/add-out-edges-to-adjacency-test.json")
+  ;(is (= (load-graph "./resources/add-out-edges-to-adjacency-test.json")
   ;            (add-out-edges (g-add-nodes :adjacency) [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC])))
   )
 
 
 (def full-graph (add-edges g-add-nodes [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC]))
-(j/write-value (File. "./resources/graph_2.json") full-graph)
+(save-graph full-graph "./resources/graph_2.json")
 
 (deftest delete-adjacency-edge-test
   (println)

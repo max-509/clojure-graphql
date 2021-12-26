@@ -1,7 +1,6 @@
 (ns jsongraph.api.match-api-test
   (:require [clojure.test :refer :all]
-            [jsongraph.impl.query-test :refer :all]
-            [jsongraph.api.graph-api :refer [gen-node gen-edge create-graph]]
+            [jsongraph.impl.query.match-test :refer :all]
             [jsongraph.api.match-api :refer :all]))
 (use '[clojure.pprint :only (pprint)])
 
@@ -11,8 +10,7 @@
   (println (match-query graph-nA-nB query-node-matched-any))
   (testing "no match") (println "no match")
   (println (match-query graph-empty query-node-matched-A))
-  (println (match-query graph-empty query-node-matched-any))
-  )
+  (println (match-query graph-empty query-node-matched-any)))
 
 
 (deftest match-query-graph-with-edges-test
@@ -26,11 +24,9 @@
   (println "NO Match")
   (print " Source\t ") (println (match-query graph-with-edge query-node-with-edge-no-matched-A))
   (print " Target\t ") (println (match-query graph-with-edge query-node-with-edge-no-matched-B))
-  (print " Edge\t ") (println (match-query graph-with-edge query-node-with-edge-matched-edge-A-B))
-  )
+  (print " Edge\t ") (println (match-query graph-with-edge query-node-with-edge-matched-edge-A-B)))
 
 
 (deftest node-to-query-node-test
   (pprint nA)
-  (pprint (node-to-query-node nA query-where-matched))
-  )
+  (pprint (node-to-query-node nA query-where-matched)))

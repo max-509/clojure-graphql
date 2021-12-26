@@ -27,8 +27,6 @@
       {:adjacency  graph-adj})))
 
 
-
-
 (defn get-edge-start [edge-data]
   (first (first edge-data)))
 

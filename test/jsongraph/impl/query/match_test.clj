@@ -1,6 +1,6 @@
-(ns jsongraph.impl.query-test
+(ns jsongraph.impl.query.match-test
   (:require [clojure.test :refer :all]
-            [jsongraph.impl.query :refer :all]
+            [jsongraph.impl.query.match :refer :all]
             [jsongraph.api.graph-api :refer [gen-node gen-edge create-graph get-nodes-from-graph]]
             [jsongraph.api.match-api :refer :all]))
 (use '[clojure.pprint :only (pprint)])

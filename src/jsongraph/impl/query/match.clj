@@ -1,4 +1,4 @@
-(ns jsongraph.impl.query
+(ns jsongraph.impl.query.match
   (:require [jsongraph.impl.utils :refer :all]))
 
 (use '[clojure.pprint :only (pprint)])

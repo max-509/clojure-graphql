@@ -1,6 +1,6 @@
 (ns jsongraph.api.match-api
   (:require [jsongraph.impl.utils :refer :all]
-            [jsongraph.impl.query :refer :all]
+            [jsongraph.impl.query.match :refer :all]
             [clj-uuid :as uuid]))
 
 ;;generators

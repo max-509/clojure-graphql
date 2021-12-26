@@ -1,7 +1,10 @@
 (ns jsongraph.api.graph-api
-  (:require [jsongraph.impl.core :refer :all]
-            [jsongraph.impl.utils :refer [get-key get-items add-items split-json]]
-            [clj-uuid :as uuid]))
+  (:require
+    [jsongraph.impl.core :refer :all]
+    [jsongraph.impl.utils :refer [get-key get-items add-items split-json write-to-file read-from-file]]
+    [clj-uuid :as uuid] [jsonista.core :as j])
+
+  (:import (java.io File)))
 
 
 
@@ -66,3 +69,10 @@
 
 (defn get-nodes-from-graph [graph]
   (split-json (graph :adjacency)))
+
+
+(defn save-graph [graph ^String path]
+  (j/write-value (File. path) graph))
+
+(defn load-graph [^String path]
+  (j/read-value (File. path) (j/object-mapper {:decode-key-fn true})))
