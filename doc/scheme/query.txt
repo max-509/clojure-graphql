@@ -8,9 +8,9 @@
 ;; ;; => {:dog {:name "Teppo"}}
 
 ;;comparison signs (<cs> is any from: )
-;; "=" :eq ; "!=" :ne
-;; ">" :gt ; "<" :lt
-;; "<" :lt ; "<=" :le
+;;   :eq =  :ne not=
+;;   :gt >  :lt <
+;;   :ge >= :le <=
 
 ; Node ;
 
@@ -107,8 +107,9 @@
      :property nil}}
 
 (n) - [:<edge-label-name>] - (k:<target-label-name>) =>
-{:n {:out-edges {:k {:labels [<edge-label-name>]
-                     :property nil}}
+{:n {:out-edges 
+     {:k {:labels [<edge-label-name>]
+          :property nil}}
      :labels nil
      :property nil}
 

@@ -1,0 +1,6 @@
+{:E {:in [:A]
+     :out [:B :D]}
+ :B {:in []
+     :out [:B :D]}
+ :C {:in [:A]
+     :out [:B :D]}}
