@@ -35,9 +35,9 @@
 
     (*----------------------------PREDICATES DESCRIPTION----------------------*)
     predicates = predicate (<whitespaces> boolean-operator predicate)*
-    predicate = not-command? (brackets-predicates | atom-predicate)
-    <brackets-predicates> = <left-bracket> predicate (<whitespaces> boolean-operator predicate)* <right-bracket>
-    <atom-predicate> = label-check | field-check | pattern-check
+    predicate = (brackets-predicates | atom-predicate)
+    brackets-predicates = not-command? <left-bracket> predicates <right-bracket>
+    atom-predicate = not-command? (label-check | field-check | pattern-check)
 
     label-check = variable-name labels
     field-check = variable-name <'.'> field <whitespaces> comparing-operator data
