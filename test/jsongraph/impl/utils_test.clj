@@ -89,5 +89,5 @@
 )
 
 (deftest -test
-    (println (map #(array-map (first %) (second %)) (vec json-0)))
+    (println (keys (transient {:A 'a})))
 )

@@ -1,6 +1,6 @@
-(ns jsongraph.api-test
+(ns jsongraph.api.api-test
   (:require [clojure.test :refer :all]
-            [jsongraph.api :refer :all]
+            [jsongraph.api.api :refer :all]
             [clojure.data.json :as json]))
 
 (use '[clojure.pprint :only (pprint)])
@@ -41,12 +41,24 @@
   (json/pprint (create-graph [nA nB nC] [edgeAB edgeAC edgeBA]))
   )
 
+(deftest delete-one-node-from-one-node-graph-test
+  (println)
+  (println "delete-one-node-from-one-node-graph-test")
+  (json/pprint (create-graph [nA]))
+  (pprint nA)
+  (println "result")
+  (is (delete-nodes (create-graph [nA]) nA) (create-graph))
+  (json/pprint (delete-nodes (create-graph [nA]) nA))
+  )
+
+
 (deftest delete-one-node-test
   (println)
   (println "delete-one-node-test")
   (json/pprint g-add-nodes)
   (pprint nA)
   (println "result")
+  (is (delete-nodes g-add-nodes nA) (create-graph [nB nC nD]))
   (json/pprint (delete-nodes g-add-nodes nA))
   )
 
@@ -56,6 +68,7 @@
   (json/pprint g-add-nodes)
   (pprint [nA nB nC])
   (println "result")
+  (is (delete-nodes g-add-nodes nA) (create-graph [nD]))
   (json/pprint (delete-nodes g-add-nodes [nA nB nC]))
   )
 

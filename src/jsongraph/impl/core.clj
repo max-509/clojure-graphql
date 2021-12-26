@@ -177,22 +177,20 @@
    )
 
   ( [adjacency [targets sources]]
-   (loop [wrapv #(if (coll? %) % [%])
-          adjacency (transient adjacency)
-          targets (if (some? targets) (wrapv targets) (keys adjacency))
-          sources (wrapv sources)]
+   (let [wrapv #(if (coll? %) % [%])]
+    (loop [ targets (if (some? targets) (wrapv targets) (keys adjacency))
+            adjacency (transient adjacency)
+            sources (wrapv sources)]
 
-      (if (empty? targets)
-        (persistent! adjacency)
-        (recur
-          wrapv
-          (delete-in-edge-adjacency
-            adjacency
-            (first targets)
-            sources)
-
-          (rest targets)
-          sources)))))
+        (if (empty? targets)
+          (persistent! adjacency)
+          (recur
+            (rest targets)
+            (delete-in-edge-adjacency
+              adjacency
+              (first targets)
+             sources)
+            sources))))))
 
 
 (defn delete-in-edges-in-all-node [adjacency targets]

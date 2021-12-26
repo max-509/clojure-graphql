@@ -2,7 +2,7 @@
   (:require [clojure.test :refer :all]
             [jsongraph.impl.core :refer :all]
             [jsongraph.impl.utils :refer :all]
-            [jsongraph.api :refer [gen-node add-nodes gen-edge add-edges]]
+            [jsongraph.api.api :refer [gen-node add-nodes gen-edge add-edges]]
 
             [jsonista.core :as j]
             [clojure.data.json :as json]

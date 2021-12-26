@@ -1,7 +1,7 @@
 (ns jsongraph.impl.query-test
   (:require [clojure.test :refer :all]
             [jsongraph.impl.query :refer :all]
-            [jsongraph.api :refer [gen-node gen-edge create-graph]]))
+            [jsongraph.api.api :refer [gen-node gen-edge create-graph]]))
 
 
 (def prop-A {:money 100 :age 21 :weight 50})

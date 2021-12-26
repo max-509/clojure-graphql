@@ -1,4 +1,4 @@
-(ns jsongraph.api
+(ns jsongraph.api.api
   (:require [jsongraph.impl.core :refer :all]
             [jsongraph.impl.utils :refer [get-key get-items add-items]]
             [clj-uuid :as uuid]))
