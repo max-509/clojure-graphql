@@ -1,5 +1,5 @@
-(ns clojure-graphql.impl.pattern-processing
-  (:require [jsongraph.api :as jgraph])
+(ns clojure-graphql.impl.query_processing.pattern-processing
+  (:require [jsongraph.api.api :as jgraph])
   (:require [clojure-graphql.impl.query_extracter :as qextr])
   (:require [clojure-graphql.impl.query-context :as qcont]))
 
@@ -43,7 +43,8 @@
         properties (properties-processing (qextr/extract-properties-data node-data) context)
         generated-node (jgraph/gen-node labels properties)
         new-context (if (some? var-name)
-                      (qcont/add-qcontext-vars context {var-name {:node generated-node}}))]
+                      (qcont/add-qcontext-nodes-var context var-name generated-node)
+                      context)]
     [new-context generated-node]))
 
 (defn relation-processing [prev-node relation-data next-node context]
@@ -71,50 +72,48 @@
                         (conj properties))
         generated-edge (apply jgraph/gen-edge gen-edge-data)
         new-context (if (some? var-name)
-                      (qcont/add-qcontext-vars context {var-name {:edge generated-edge}}))]
+                      (qcont/add-qcontext-edges-var context var-name generated-edge)
+                      context)]
     [new-context generated-edge]))
 
 (defn edge-node-processing [prev-node rest-edges-nodes context]
   (pprint "rest-edges-nodes")
   (pprint rest-edges-nodes)
-  (first
-    (reduce (fn [[old-context prev] edge-node]
-              (let [acc-graph (qcont/get-qcontext-graph old-context)
-                    relation-data (->
-                                    (qextr/extract-first-pattern-elem edge-node)
-                                    (qextr/extract-relation-data))
-                    [new-context next-node] (->
-                                              (qextr/extract-second-pattern-elem edge-node)
-                                              (qextr/extract-node-data)
-                                              (node-processing old-context))
-                    [new-context edge] (relation-processing prev relation-data next-node new-context)
-                    new-graph (->
-                                (jgraph/add-nodes acc-graph next-node)
-                                (jgraph/add-edges [edge]))
-                    new-context (qcont/set-qcontext-graph new-context new-graph)]
-                [new-context next-node]))
-            [context prev-node]
-            (partition 2 rest-edges-nodes))))
+  (let [nodes [prev-node]
+        edges []]
+    (first (reduce (fn [[[context nodes edges] prev] edge-node]
+                     (let [relation-data (->
+                                           (qextr/extract-first-pattern-elem edge-node)
+                                           (qextr/extract-relation-data))
+                           [context next-node] (->
+                                                 (qextr/extract-second-pattern-elem edge-node)
+                                                 (qextr/extract-node-data)
+                                                 (node-processing context))
+                           [context edge] (relation-processing prev relation-data next-node context)
+                           nodes (cons next-node nodes)
+                           edges (cons edge edges)]
+                       [[context nodes edges] next-node]))
+                   [[context nodes edges] prev-node]
+                   (partition 2 rest-edges-nodes)))))
 
 (defn pattern-processing [pattern-data context]
   (pprint "pattern")
   (pprint pattern-data)
-  (let [graph (qcont/get-qcontext-graph context)
-        node (qextr/extract-first-pattern-elem pattern-data)
+  (let [node (qextr/extract-first-pattern-elem pattern-data)
         rest-edges-nodes (qextr/extract-rest-pattern-elems pattern-data)
-        [new-context processed-node] (node-processing (qextr/extract-node-data node) context)
-        new-graph (jgraph/add-nodes graph [processed-node])
-        new-context (qcont/set-qcontext-graph new-context new-graph)]
+        [new-context processed-node] (node-processing (qextr/extract-node-data node) context)]
     (if (empty? rest-edges-nodes)
-      new-context
+      [new-context [processed-node] []]
       (edge-node-processing processed-node rest-edges-nodes new-context))))
 
 (defn patterns-processing
   ;TODO: Impl for matching and other non-creating operations
-  [patterns context operation-type]
+  [patterns context]
   (pprint "patterns")
   (pprint patterns)
-  (reduce (fn [graph pattern] (pattern-processing (qextr/extract-pattern-data pattern) context))
-          context
+  (reduce (fn [[context nodes edges] pattern]
+            (let [[new-context new-nodes new-edges] (pattern-processing (qextr/extract-pattern-data pattern) context)]
+              [new-context (concat nodes new-nodes) (concat edges new-edges)]))
+          [context [] []]
           patterns))
 

@@ -8,7 +8,7 @@
 
     (*----------------------------CLAUSES DESCRIPTION-----------------------*)
     create = <create-command> patterns
-    delete = <delete-command> variable-name
+    delete = <delete-command> variables
     match = <match-command> patterns where
     undo = <undo-command>
     (*----------------------------CLAUSES DESCRIPTION-----------------------*)
