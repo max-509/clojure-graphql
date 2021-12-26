@@ -1,6 +1,6 @@
 (ns jsongraph.api.graph-api
   (:require [jsongraph.impl.core :refer :all]
-            [jsongraph.impl.utils :refer [get-key get-items add-items]]
+            [jsongraph.impl.utils :refer [get-key get-items add-items split-json]]
             [clj-uuid :as uuid]))
 
 
@@ -63,3 +63,6 @@
        (add-nodes nodes)
        (add-edges edges)))
   )
+
+(defn get-nodes-from-graph [graph]
+  (split-json (graph :adjacency)))

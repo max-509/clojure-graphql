@@ -26,10 +26,6 @@ user=> (type (assoc (make-map 8) :x 1 :y 2))  ; 10 items -> hash map.
       => clojure.lang.PersistentHashMap
   )
 
-(defn print-and-pass- [& args]
-  (do
-    (doseq [x args] (println x))
-    args))
 
 (defn print-and-pass-json [x]
   (do (json/pprint x) x)

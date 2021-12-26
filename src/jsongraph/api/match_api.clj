@@ -18,13 +18,13 @@
 
 (defn gen-query-node
   ([]
-   {(uuid/v0)
+   {(uuid/v4)
    {:out-edge   nil
     :labels     nil
     :properties nil
     :where      nil}})
   ([labels properties where & [index]]
-  {(if index index (uuid/v0))
+  {(if index index (uuid/v4))
      {:out-edge   nil
       :labels     labels
       :properties properties
