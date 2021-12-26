@@ -1,6 +1,6 @@
-(ns jsongraph.api.api-test
+(ns jsongraph.api.graph-api-test
   (:require [clojure.test :refer :all]
-            [jsongraph.api.api :refer :all]
+            [jsongraph.api.graph-api :refer :all]
             [clojure.data.json :as json]))
 
 (use '[clojure.pprint :only (pprint)])

@@ -2,8 +2,7 @@
   (:require [clojure.test :refer :all]
             [jsongraph.impl.core :refer :all]
             [jsongraph.impl.utils :refer :all]
-            [jsongraph.api.api :refer [gen-node add-nodes gen-edge add-edges]]
-
+            [jsongraph.api.graph-api :refer [gen-node add-nodes gen-edge add-edges]]
             [jsonista.core :as j]
             [clojure.data.json :as json]
             )
@@ -16,7 +15,7 @@
 (def file_e  (File. "./resources/graph_empty.json"))
 (def file_b  (File. "./resources/graph_byte.json"))
 
-(defn get-groud-true-from-file [^String file-name]
+(defn get-ground-true-from-file [^String file-name]
   (j/read-value (File. file-name) (j/object-mapper {:decode-key-fn true})))
 
 (def nA (gen-node [] {} :A)) (def kA (get-key nA))
@@ -45,7 +44,7 @@
   (pprint [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC])     ;edgeBA- rewrite data after edgeBA
   (println "result")
   (json/pprint (adjacency-from-edges [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC]))
-  (is (= (get-groud-true-from-file "./resources/adjacency-from-edges-test.json")
+  (is (= (get-ground-true-from-file "./resources/adjacency-from-edges-test.json")
          (adjacency-from-edges [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC])))
   )
 

@@ -69,7 +69,9 @@ user=> (type (assoc (make-map 8) :x 1 :y 2))  ; 10 items -> hash map.
               (.keySet json-map))]
       (if (empty? d)
          (select-keys json-map -keys)
-         (throw (Throwable. (str "Keys " (vec d) " not found")))))))
+         (throw (Throwable. (str "\nKeys " (vec d) " not found\n"
+                                 "-keys" (set -keys) "\n"
+                                 "json-map-keys" (.keySet json-map) "\n")))))))
 
 (defn split-json [json]
   (map #(array-map (first %) (second %)) (vec json)))
