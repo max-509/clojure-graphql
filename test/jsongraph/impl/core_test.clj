@@ -1,6 +1,6 @@
 (ns jsongraph.impl.core-test
   (:require [clojure.test :refer :all]
-            [jsongraph.impl.core :refer :all]
+            [jsongraph.impl.graph :refer :all]
             [jsongraph.impl.utils :refer :all]
             [jsongraph.api.graph-api :refer [gen-node add-nodes gen-edge add-edges save-graph load-graph]]
             [clojure.data.json :as json]))
@@ -44,7 +44,7 @@
   (json/pprint (g-add-nodes :adjacency))
   (pprint [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC])
   (println "result")
-  (json/pprint (add-out-edges (g-add-nodes :adjacency) [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC]))
+  (json/pprint (add-out-edges! (g-add-nodes :adjacency) [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC]))
   ;(is (= (load-graph "./resources/add-out-edges-to-adjacency-test.json")
   ;            (add-out-edges (g-add-nodes :adjacency) [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC])))
   )

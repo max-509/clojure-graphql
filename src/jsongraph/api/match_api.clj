@@ -34,12 +34,11 @@
   (gen-query-node
     (get-field node :labels)
     (get-field node :properties)
-    where   (get-key node)
-    )
-  )
+    where   (get-key node)))
 
 
 (defn add-edge-into-query-node [query-node query-edge query-target-node]
+  ;(println "query-node index" (get-key query-node))
   (merge
     (assoc-in query-node [(get-key query-node) :out-edge] query-edge)
          {(get-key query-edge) (get-val query-target-node)}))

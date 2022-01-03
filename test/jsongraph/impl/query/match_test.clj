@@ -32,7 +32,7 @@
 (def nodes (get-nodes-from-graph graph-with-edges))
 
 
-(def query-where-matched {:money [:gt 70] :age [:lt 30] :weight [:eq 50]})
+(def query-where-matched    {:money [:gt 70] :age [:lt 30] :weight [:eq 50]})
 (def query-where-no-matched {:money [:lt 70] :age [:gt 30] :weight [:eq 50]})
 (def query-where-on-matched-unknown {:age [:gt 18] :cost [:eq 45]})
 
@@ -62,7 +62,6 @@
 
 (def query-node-matched-any    (gen-query-node nil {} nil))
 
-
 (def query-node-with-edge-matched-A-B
   (add-edge-into-query-node query-node-matched-A query-edge query-node-matched-B))
 
@@ -72,13 +71,24 @@
 (def query-node-with-edge-matched-any-any
   (add-edge-into-query-node query-node-matched-any query-edge-any query-node-matched-any))
 
+(println "A")
+(pprint query-node-matched-A)
+
 (def query-node-with-edge-no-matched-A
   (add-edge-into-query-node query-node-no-matched-A query-edge-any query-node-matched-B))
 (def query-node-with-edge-no-matched-B
   (add-edge-into-query-node query-node-matched-A query-edge-any query-node-no-matched-B))
 
+(println "A B")
 (def query-node-with-edge-matched-edge-A-B
   (add-edge-into-query-node query-node-matched-A query-edge-no-mch query-node-matched-B))
+(pprint query-node-with-edge-matched-edge-A-B)
+
+
+(println "A B A")
+(def query-node-with-edge-matched-edge-A-B-A
+  (add-edge-into-query-node query-node-with-edge-matched-edge-A-B query-edge-no-mch query-node-matched-A))
+(pprint query-node-with-edge-matched-edge-A-B-A)
 
 
 (def nodes (get-nodes-from-graph graph-with-edges))

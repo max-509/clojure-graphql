@@ -1,0 +1,13 @@
+In-Out adjacency template.
+It's simple representation of graph without data for matching subgraph structure.
+Ii contains only list of Nodes and Links.
+{:E {:in  [:A]
+     :out [:B :D]}
+ :B {:in  []
+     :out [:B :D]}
+ :C {:in  [:A]
+     :out [:B :D]}}
+
+This template contains part of all nodes, namely: [E B C], but there are also links to nodes from the full graph
+
+There is function witch by graph and list of node construct this adjacency template

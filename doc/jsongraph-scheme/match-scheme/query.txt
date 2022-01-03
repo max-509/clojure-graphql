@@ -80,36 +80,48 @@
 
 ; Node with edges ;
 
-(n) - [] - () =>
-{:n {:out-edges {uuid/v0 nil}
+(n)-[]->() =>
+{:n
+  {:out-edges {uuid/v0 nil}
      :labels nil
      :property nil}}
 
-(n) - [...:<edge-label-string-s>...] - () =>
-{:n {:out-edges {uuid/v0 {:labels [...:<edge-label-string-s>...]
-                          :property nil}}
+(n)-[...:<edge-label-string-s>...]->() =>
+{:n
+  {:out-edges
+      {uuid/v0
+        {:labels [...:<edge-label-string-s>...]
+         :property nil}}
      :labels nil
      :property nil}}
 
-(n) - [...:<edge-label-string-s>... :<edge-property-json>] - () =>
-{:n {:out-edges {uuid/v0 {:labels [...:<edge-label-string-s>...]
-                          :property :<edge-property-json>}}
+(n)-[...:<edge-label-string-s>... :<edge-property-json>]->() =>
+{:n
+  {:out-edges
+      {uuid/v0
+        {:labels [...:<edge-label-string-s>...]
+         :property :<edge-property-json>}}
      :labels nil
      :property nil}}
 
 
 ; Node with edge and target node
 
-(n) - [:<edge-label-name>] - (k) =>
-{:n {:out-edges {:k {:labels [<edge-label-name>]
-                     :property nil}}
+(n)-[:<edge-label-name>]->(k) =>
+{:n
+  {:out-edges
+     {:k
+       {:labels [<edge-label-name>]
+        :property nil}}
      :labels nil
      :property nil}}
 
-(n) - [:<edge-label-name>] - (k:<target-label-name>) =>
-{:n {:out-edges 
-     {:k {:labels [<edge-label-name>]
-          :property nil}}
+(n)-[:<edge-label-name>]->(k:<target-label-name>) =>
+{:n
+  {:out-edges
+     {:k
+       {:labels [<edge-label-name>]
+        :property nil}}
      :labels nil
      :property nil}
 
@@ -119,12 +131,16 @@
 
 ; Node with edge, target node and another edge after
 
-(n) - [:<label-name-1>] - (k) - [:<label-name-2>] - ()  =>
-{:n {:out-edges {:k {:labels nil
-                     :property nil}}
+(n)-[:<label-name-1>]->(k)-[:<label-name-2>]->()  =>
+{:n {:out-edges
+      {:k
+        {:labels nil
+         :property nil}}
      :labels nil
      :property nil}
- :k {:out-edges {uuid/v0 {:labels [<label-name-2>]
-                          :property nil}}
+ :k {:out-edges
+      {uuid/v0
+        {:labels [<label-name-2>]
+         :property nil}}
      :labels  nil
      :property nil}}

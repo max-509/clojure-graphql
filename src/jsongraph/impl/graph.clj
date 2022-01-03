@@ -1,4 +1,4 @@
-(ns jsongraph.impl.core
+(ns jsongraph.impl.graph
     (:require [jsongraph.impl.utils :refer :all]
               [clojure.set :refer :all]
               [clojure.data :refer :all]))
@@ -44,12 +44,10 @@
 (defn convert-edge-to-adjacency [edge]
   [(get-edge-start edge)
     {(get-edge-target edge)
-     (get-edge-data edge)}
-   ])
+     (get-edge-data edge)}])
 
 (defn adjacency-from-edges [edges]
-  (assoc-items (map convert-edge-to-adjacency edges))
-  )
+  (assoc-items (map convert-edge-to-adjacency edges)))
 
 
 (defn add-in-edge-adjacency
@@ -171,8 +169,7 @@
 
 (defn delete-in-edges
   ([adjacency targets sources]
-   (delete-in-edges adjacency [targets sources])
-   )
+   (delete-in-edges adjacency [targets sources]))
 
   ( [adjacency [targets sources]]
    (let [wrapv #(if (coll? %) % [%])]
@@ -199,8 +196,8 @@
 
 (defn delete-adjacency-edge
   ([adjacency source targets]
-   (delete-adjacency-edge adjacency [targets source])
-   )
+   (delete-adjacency-edge adjacency [targets source]))
+
   ([adjacency [targets source]]
      (let [adjacency (transient
                        (delete-in-edges

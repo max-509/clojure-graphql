@@ -35,18 +35,21 @@ user=> (type (assoc (make-map 8) :x 1 :y 2))  ; 10 items -> hash map.
   (do (println x) x))
 
 
-(defn get-key [json-map & [idx]]
+(defn get-key [json & [idx]]
   (nth
-    (keys json-map)
+    (keys json)
     (if (some? idx) idx 0)))
 
-(defn get-val [json-map & [idx]]
+(defn get-val [json & [idx]]
   (nth
-    (vals json-map)
+    (vals json)
     (if (some? idx) idx 0)))
 
-(defn get-field [json-map -key]
-  ((get-val json-map) -key))
+(defn get-field [json -key]
+  ((get-val json) -key))
+
+(defn keysv [json]
+  (vec (keys json)))
 
 (defn keysSet [json]
   (set (keys json)))
@@ -108,10 +111,10 @@ user=> (type (assoc (make-map 8) :x 1 :y 2))  ; 10 items -> hash map.
 
 
 (defn gen-json-by-keys [-keys & -val]
-  (loop [json {}
+  (loop [json (transient {})
          -keys -keys]
     (if (empty? -keys)
-      json
+      (persistent! json)
       (recur
-        (merge json {(first -keys) -val})
+        (assoc! json (first -keys) -val)
         (rest -keys)))))
