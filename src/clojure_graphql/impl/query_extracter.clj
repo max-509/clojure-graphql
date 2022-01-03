@@ -10,10 +10,10 @@
   (first (second clause)))
 
 (defn extract-clause-data [clause]
-  (second (second clause)))
+  (rest (second clause)))
 
 (defn extract-patterns [clause-params]
-  (rest clause-params))
+  (rest (first clause-params)))
 
 (defn extract-pattern-data [pattern]
   (rest pattern))
@@ -84,3 +84,6 @@
     (if (= val-type :list)
       val-data
       (first val-data))))
+
+(defn extract-predicates [clause-params]
+  (second (second clause-params)))

@@ -1,5 +1,5 @@
 (ns clojure-graphql.impl.versions-tree
-  (:require [jsongraph.api.api :as jgraph]))
+  (:require [jsongraph.api.graph-api :as jgraph]))
 
 (defn init-versions-tree
   ([] (init-versions-tree (jgraph/create-graph)))

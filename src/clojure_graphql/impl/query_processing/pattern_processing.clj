@@ -1,5 +1,5 @@
 (ns clojure-graphql.impl.query_processing.pattern-processing
-  (:require [jsongraph.api.api :as jgraph])
+  (:require [jsongraph.api.graph-api :as jgraph])
   (:require [clojure-graphql.impl.query_extracter :as qextr])
   (:require [clojure-graphql.impl.query-context :as qcont]))
 

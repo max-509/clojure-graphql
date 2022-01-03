@@ -1,16 +1,20 @@
 (ns clojure-graphql.impl.query_processing.clauses_processing
-  (:require [jsongraph.api.api :as jgraph])
+  (:require [jsongraph.api.graph-api :as jgraph])
   (:require [clojure-graphql.impl.query_extracter :as qextr])
   (:require [clojure-graphql.impl.versions-tree :as vtree])
   (:require [clojure-graphql.impl.query_processing.pattern-processing :as patt-proc])
+  (:require [clojure-graphql.impl.query_processing.where-processing :as where-proc])
   (:require [clojure-graphql.impl.query-context :as qcont]))
+
 (use '[clojure.pprint :only (pprint)])
 
 (defn match-processing [clause-data context]
   (pprint "match")
   (pprint clause-data)
   (let [patterns (qextr/extract-patterns clause-data)
-        [new-context new-nodes new-edges] (patt-proc/patterns-processing patterns context)]))
+        [new-context new-nodes new-edges] (patt-proc/patterns-processing patterns context)
+        predicates (qextr/extract-predicates clause-data)
+        new-context (where-proc/where-processing predicates new-context)]))
 
 (defn undo-processing [context db]
   (pprint "undo")
@@ -54,7 +58,7 @@
 (defmethod clause-processing :create [clause context db] (create-processing (qextr/extract-clause-data clause) context db))
 (defmethod clause-processing :delete [clause context db] (delete-processing (qextr/extract-clause-data clause) context db))
 (defmethod clause-processing :undo [clause context db] (undo-processing context db))
-(defmethod clause-processing :match [clause context db] (match-processing clause context))
+(defmethod clause-processing :match [clause context db] (match-processing (qextr/extract-clause-data clause) context))
 
 (defn runner [db query params]
   (pprint "query")
