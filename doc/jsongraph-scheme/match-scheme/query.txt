@@ -61,20 +61,23 @@
 
 {:n {:out-edges nil
      :labels [:<node-label-string>]
-     :property [{:cost (<cs> <value>)} {}]}}
+     :property {}
+     :where {:cost (<cs> <value>)}}}
 
 
 (n:<node-label-string> <node-property-json>) where n.cost  <cs>  <num-value> =>
 
 {:n {:out-edges nil
      :labels [:<node-label-string>]
-     :property [{:cost (<cs> <value>)} <node-property-json>]}}
+     :property <node-property-json>
+     :where {:cost (<cs> <value>)}}}
 
 (n:<node-label-string>) where n.name = <string-value> =>
 
 {:n {:out-edges nil
      :labels [:<node-label-string>]
-     :property [{:cost (:eq <string-value>)} {}]}}
+     :property {}
+     :where {:cost (:eq <string-value>)}}}
 
 
 
@@ -84,7 +87,8 @@
 {:n
   {:out-edges {uuid/v0 nil}
      :labels nil
-     :property nil}}
+     :property nil
+     :where nil}}
 
 (n)-[...:<edge-label-string-s>...]->() =>
 {:n
@@ -93,7 +97,8 @@
         {:labels [...:<edge-label-string-s>...]
          :property nil}}
      :labels nil
-     :property nil}}
+     :property nil
+     :where nil}}
 
 (n)-[...:<edge-label-string-s>... :<edge-property-json>]->() =>
 {:n
@@ -102,7 +107,8 @@
         {:labels [...:<edge-label-string-s>...]
          :property :<edge-property-json>}}
      :labels nil
-     :property nil}}
+     :property nil
+     :where nil}}
 
 
 ; Node with edge and target node
@@ -114,7 +120,8 @@
        {:labels [<edge-label-name>]
         :property nil}}
      :labels nil
-     :property nil}}
+     :property nil
+     :where nil}}
 
 (n)-[:<edge-label-name>]->(k:<target-label-name>) =>
 {:n
@@ -123,11 +130,13 @@
        {:labels [<edge-label-name>]
         :property nil}}
      :labels nil
-     :property nil}
+     :property nil
+     :where nil}
 
  :k {:out-edges nil
      :labels   [<target-label-name>]
-     :property nil}}
+     :property nil
+     :where nil}}
 
 ; Node with edge, target node and another edge after
 
@@ -143,4 +152,5 @@
         {:labels [<label-name-2>]
          :property nil}}
      :labels  nil
-     :property nil}}
+     :property nil
+     :where nil}}
