@@ -95,7 +95,8 @@ user=> (type (assoc (make-map 8) :x 1 :y 2))  ; 10 items -> hash map.
     (vec (difference (set list-1) (set list-2)))))
 
 (defn subvec? [sub -vec]
-    (subset? (set sub) (set -vec)))
+  (if (empty? sub)
+    false (subset? (set sub) (set -vec))))
 
 (defn lists-equal [list-1 list-2]
    (= (set list-1) (set list-2)))

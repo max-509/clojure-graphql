@@ -70,23 +70,19 @@
     (is (= (json-difference json-2 json-2) {}))
     (is (= (json-difference json-0 json-1) nil))
 
-    (println (json-difference {:A [1 2 4] :B {:A [1 9 4] :B {:A [14] :B {} :C nil} :C 7} :C 8} {:A [1 2 4] :B {:A [1 2 4] :B {:A [14] :B {} :C nil} :C 7}}))
-
-)
+    (println (json-difference {:A [1 2 4] :B {:A [1 9 4] :B {:A [14] :B {} :C nil} :C 7} :C 8} {:A [1 2 4] :B {:A [1 2 4] :B {:A [14] :B {} :C nil} :C 7}})))
 
 (deftest list-difference-test
-    (println (list-difference nil [1 3]))
-)
+    (println (list-difference nil [1 3])))
 
 (deftest subvec-test
-    (is (subvec? [1 2] [2 1 3]))
+    (is (subvec? [] [2 1 3]))
 )
 
 (deftest equal-test
     (is (lists-equal [1 2 3] [2 1 3]))
     (is (lists-equal [1 2 3 5 8] [1 2 3 5 8]))
-    (is (not (lists-equal [1 2 5] [1 3 5])))
-)
+    (is (not (lists-equal [1 2 5] [1 3 5]))))
 
 (deftest -test
     (println (keys (transient {:A 'a})))
