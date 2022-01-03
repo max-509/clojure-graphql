@@ -3,8 +3,6 @@
 
 (use '[clojure.pprint :only (pprint)])
 
-;TODO: use graph instead db
-
 (defn get-qcontext [graph params]
   {:graph      graph
    :params     params
@@ -23,10 +21,10 @@
 (defn get-qcontext-vars [qcontext]
   (get qcontext :vars))
 
-(defn is-nodes-qcontext-var [var]
+(defn qcontext-var-nodes? [var]
   (= :nodes (first var)))
 
-(defn is-edges-qcontext-var [var]
+(defn qcontext-var-edges? [var]
   (= :edges (first var)))
 
 (defn get-qcontext-var-val [var]

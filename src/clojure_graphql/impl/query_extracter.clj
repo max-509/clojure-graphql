@@ -46,7 +46,7 @@
   (first (nth relation-data 2)))
 
 (defn extract-variables [clause-data]
-  (rest clause-data))
+  (rest (first clause-data)))
 
 (defn extract-variable [graph-element-data]
   (nth graph-element-data 0))

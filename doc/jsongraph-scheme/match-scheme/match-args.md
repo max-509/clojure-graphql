@@ -3,7 +3,7 @@
 Example of match-query:
 
 ```
-  MATCH (a :Person) - [b :ACTED_IN] -> (:Film)
+  MATCH (a:Person)-[b:ACTED_IN]->(:Film)
   WHERE a.name = "Morgan" AND b.salary > 10000
  ```
 
@@ -22,9 +22,9 @@ Arguments for match:
 - WHERE-expression-tree:
 
 ```clojure
-([:bin-op :and]
- ([:pred [{:name "a" :property "name"} :eq "Morgan"]])
- ([:pred [{:name "b" :property "salary"} :gt 10000]]))
+([:binary-op :and]
+ ([:pred {:type :field-check :val [{:name "a" :property "name"} :eq "Morgan"]}])
+ ([:pred {:type :field-check :val [{:name "b" :property "salary"} :gt 10000]}]))
 ```
 
 Firstly, need find all nodes-edges in graph, which suited by nodes-edges list (For Denis).

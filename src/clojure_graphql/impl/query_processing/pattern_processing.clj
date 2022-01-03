@@ -1,20 +1,10 @@
 (ns clojure-graphql.impl.query_processing.pattern-processing
   (:require [jsongraph.api.graph-api :as jgraph])
   (:require [clojure-graphql.impl.query_extracter :as qextr])
-  (:require [clojure-graphql.impl.query-context :as qcont]))
+  (:require [clojure-graphql.impl.query-context :as qcont])
+  (:require [clojure-graphql.impl.lang2cloj :as l2cloj]))
 
 (use '[clojure.pprint :only (pprint)])
-
-(defmulti parse-prop-value (fn [val] (qextr/extract-property-val-type val)))
-(defmethod parse-prop-value :integer [val] (Integer/parseInt (qextr/extract-property-val-data val)))
-(defmethod parse-prop-value :float [val] (Double/parseDouble (qextr/extract-property-val-data val)))
-(defmethod parse-prop-value :boolean [val] (Boolean/parseBoolean (qextr/extract-property-val-data val)))
-(defmethod parse-prop-value :string [val] (qextr/extract-property-val-data val))
-(defmethod parse-prop-value :list [val]
-  (let [list-values (qextr/extract-property-val-data val)]
-    (if (empty? list-values)
-      []
-      (mapv #(parse-prop-value %) list-values))))
 
 (defn labels-processing [labels-data]
   (pprint "labels")
@@ -30,7 +20,7 @@
                          (let [prop-data (qextr/extract-property-data prop)
                                name (qextr/extract-property-key-data prop-data)
                                val (qextr/extract-property-val prop-data)]
-                           [name (parse-prop-value val)]))
+                           [name (l2cloj/convert-prop-value val)]))
                        properties-data))))
 
 (defn node-processing [node-data context]
@@ -107,7 +97,6 @@
       (edge-node-processing processed-node rest-edges-nodes new-context))))
 
 (defn patterns-processing
-  ;TODO: Impl for matching and other non-creating operations
   [patterns context]
   (pprint "patterns")
   (pprint patterns)
