@@ -1,6 +1,5 @@
 (ns clojure-graphql.impl.query_processing.where-processing
   (:require [clojure-graphql.impl.predicates-extracter :as pextr])
-  (:require [clojure-graphql.impl.query-context :as qcont])
   (:require [clojure-graphql.impl.lang2cloj :as l2cloj]))
 
 (use '[clojure.pprint :only (pprint)])
@@ -8,7 +7,8 @@
 (def type-of-op
   {:negation-command :unary-op
    :and-command      :binary-op
-   :or-command       :binary-op})
+   :or-command       :binary-op
+   :xor-command      :binary-op})
 
 (defn get-type-of-op [op]
   (get type-of-op op))
@@ -20,7 +20,7 @@
       true
       (if (and (= :and-command op2) (not= :negation-command op1))
         true
-        (not (and (= :or-command op2) (= :and-command op1)))))))
+        (not (and (or (= :or-command op2) (= :xor-command op2)) (= :and-command op1)))))))
 
 (defn add-op-to-rpn [rpn op]
   (conj rpn [(get-type-of-op op) op]))

@@ -32,10 +32,13 @@
         labels (labels-processing (qextr/extract-labels-data node-data))
         properties (properties-processing (qextr/extract-properties-data node-data) context)
         generated-node (jgraph/gen-node labels properties)
-        new-context (if (some? var-name)
-                      (qcont/add-qcontext-nodes-var context var-name generated-node)
-                      context)]
-    [new-context generated-node]))
+        [context generated-node] (if (some? var-name)
+                                   (let [var-by-name (qcont/get-qcontext-var context var-name)]
+                                     (if (= nil var-by-name)
+                                       [(qcont/add-qcontext-nodes-var context var-name generated-node) generated-node]
+                                       [context var-by-name]))
+                                   [context generated-node])]
+    [context generated-node]))
 
 (defn relation-processing [prev-node relation-data next-node context]
   (pprint "prev-node")
@@ -61,10 +64,13 @@
                         (conj source-target labels)
                         (conj properties))
         generated-edge (apply jgraph/gen-edge gen-edge-data)
-        new-context (if (some? var-name)
-                      (qcont/add-qcontext-edges-var context var-name generated-edge)
-                      context)]
-    [new-context generated-edge]))
+        [context generated-edge] (if (some? var-name)
+                                   (let [var-by-name (qcont/get-qcontext-var context var-name)]
+                                     (if (= nil var-by-name)
+                                       [(qcont/add-qcontext-edges-var context var-name generated-edge) generated-edge]
+                                       [context var-by-name]))
+                                   [context generated-edge])]
+    [context generated-edge]))
 
 (defn edge-node-processing [prev-node rest-edges-nodes context]
   (pprint "rest-edges-nodes")

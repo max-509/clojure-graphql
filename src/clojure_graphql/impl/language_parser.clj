@@ -38,22 +38,19 @@
     predicate = (brackets-predicates | atom-predicate)
     brackets-predicates = not-command? <left-bracket> predicates <right-bracket>
     (* For future *)
-    (*atom-predicate = not-command? (label-check | field-check | pattern-check)*)
+    (*atom-predicate = not-command? (label-check | field-check)*)
 
     atom-predicate = not-command? field-check
 
 
     label-check = variable-name labels
     field-check = variable-name <'.'> field <whitespaces> comparing-operator data
-    pattern-check = pattern
     <comparing-operator> = lt-command
                         | le-command
                         | gt-command
                         | ge-command
                         | eq-command
                         | ne-command
-                        | is-null-command
-                        | is-not-null-command
                         | starts-with-command
                         | ends-with-command
                         | contains-command

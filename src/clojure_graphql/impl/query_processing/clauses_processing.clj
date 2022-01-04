@@ -12,7 +12,8 @@
   (pprint "match")
   (pprint clause-data)
   (let [patterns (qextr/extract-patterns clause-data)
-        [new-context new-nodes new-edges] (patt-proc/patterns-processing patterns context)
+        [new-context nodes edges] (patt-proc/patterns-processing patterns context)
+        ;[query-nodes] (where-proc/nodes2qnodes nodes edges)
         predicates (qextr/extract-predicates clause-data)
         where-expr-tree (where-proc/where-processing predicates)]
     (pprint "where-expr-tree")

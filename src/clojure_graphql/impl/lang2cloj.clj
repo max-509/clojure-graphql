@@ -8,8 +8,6 @@
    :ge-command          :ge
    :eq-command          :eq
    :ne-command          :ne
-   :is-null-command     :is-null
-   :is-not-null-command :is-not-null
    :starts-with-command :starts-with
    :ends-with-command   :ends-with
    :contains-command    :contains
@@ -22,6 +20,7 @@
 (def operators-map
   {:and-command :and
    :or-command :or
+   :xor-command :xor
    :negation-command :neg})
 
 (defn convert-operator [op]
