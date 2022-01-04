@@ -91,12 +91,12 @@
 (defmethod check-processing :field-check [check]
   (let [field-check-value (pextr/extract-check-value check)
         var-name (pextr/extract-field-check-var-name field-check-value)
-        field-name (pextr/extract-field-check-field-name field-check-value)
+        field-name (keyword (pextr/extract-field-check-field-name field-check-value))
         command (pextr/extract-field-check-command field-check-value)
         comp-value (l2cloj/convert-prop-value (pextr/extract-field-check-comp-value field-check-value))]
     [:pred
      {:type :field-check
-      :val  [{:name var-name :property (keyword field-name)} (l2cloj/convert-command command) comp-value]}]))
+      :val  [{:name var-name :property field-name} (l2cloj/convert-command command) comp-value]}]))
 (defmethod check-processing :label-check [check]            ;TODO: for future
   nil)
 (defmethod check-processing :pattern-check [check]          ;TODO: for future

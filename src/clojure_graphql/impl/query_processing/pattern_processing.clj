@@ -9,19 +9,28 @@
 (defn labels-processing [labels-data]
   (pprint "labels")
   (pprint labels-data)
-  (map (fn [label] (qextr/extract-label-data label)) labels-data))
+  (mapv (fn [label] (keyword (qextr/extract-label-data label))) labels-data))
 
 (defn properties-processing [properties-data context]
   (pprint "properties")
   (pprint properties-data)
-  (let [params (qcont/get-qcontext-params context)]
-    (into (hash-map) (map
-                       (fn [prop]
-                         (let [prop-data (qextr/extract-property-data prop)
-                               name (qextr/extract-property-key-data prop-data)
-                               val (qextr/extract-property-val prop-data)]
-                           [name (l2cloj/convert-prop-value val)]))
-                       properties-data))))
+  (let [params (qcont/get-qcontext-params context)
+        properties-data-type (qextr/extract-properties-data-type properties-data)]
+    (cond
+      (= :external-properties properties-data-type) (let [external-prop-name (qextr/extract-external-properties properties-data)
+                                                          external-props-by-name (get params (keyword external-prop-name))]
+                                                      (if (= nil external-props-by-name)
+                                                        (throw (RuntimeException. (str "Error: Cannot find variable '" external-prop-name "' for properties")))
+                                                        external-props-by-name))
+      (= :internal-properties properties-data-type) (let [properties (qextr/extract-internal-properties properties-data)]
+                                                      (into (hash-map) (map
+                                                                         (fn [prop]
+                                                                           (let [prop-data (qextr/extract-property-data prop)
+                                                                                 name (keyword (qextr/extract-property-key-data prop-data))
+                                                                                 val (qextr/extract-property-val prop-data)]
+                                                                             [name (l2cloj/convert-prop-value val)]))
+                                                                         properties)))
+      :default {})))
 
 (defn node-processing [node-data context]
   (pprint "node")

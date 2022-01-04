@@ -54,7 +54,7 @@
 
 (defn field-check-processing [pattern check-value]
   (let [var-name (get (nth check-value 0) :name)
-        prop-name (get (nth check-value 0) :property)
+        prop-name (keyword (get (nth check-value 0) :property))
         cmp-op (nth check-value 1)
         cmp-val (nth check-value 2)
         var-by-name (filter (fn [var]

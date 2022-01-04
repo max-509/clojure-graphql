@@ -7,9 +7,9 @@
 
 ;(println (rest [1]))
 
-(defquery get-persons "create (a:Person:Manager {name: 'Emil' from: 'Sweden' klout: 99 list: [99 0 1] listt: []})
+(defquery get-persons "create (a:Person:Manager {name: 'Emil' from: 'Sweden' klout: 99 list: [99 0 1] listt: []})-[b:ACTED_IN $A]->()
                       match (a:Person) where a.name = 'Emil' AND a.klout < 100 AND NOT (a.klout > 50 OR a.from = 'Sweden')")
-;(defquery get-persom "match (a:Person) where NOT a.name = 'Emil' AND a.klout < 100 AND NOT (a.klout > 50 OR a.from = 'Sweden')")
+;(defquery get-persons "create (a:Person:Manager $A)")
 
 ;(pprint (create-rule "match (a) WHERE a:Person AND a.condition = \"ASd\" AND a.salary > 10"))
 
@@ -17,11 +17,11 @@
 
 (pprint db)
 
-(get-persons db)
+(get-persons db {:A {:name "Egor" :cost 1000}})
 
-;(pprint db)
-;;;
-;(print-last-version db)
+(pprint db)
+;;
+(print-last-version db)
 
 ;(with-session [session (get-session local_db)]
 ;              (get-persons session))

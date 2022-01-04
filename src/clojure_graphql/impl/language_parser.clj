@@ -28,7 +28,9 @@
     labels = (label)+ | Epsilon
     label = <':'> name
 
-    properties = <left-curly-bracket> property (<whitespaces> property)* <right-curly-bracket> | Epsilon
+    properties = internal-properties | external-properties | Epsilon
+    internal-properties = <left-curly-bracket> property (<whitespaces> property)* <right-curly-bracket>
+    external-properties = <whitespaces>? <'$'> name <whitespaces>?
     property = field <':'> <whitespaces> data
     field = name
     (*----------------------------PATTERN DESCRIPTION-----------------------*)

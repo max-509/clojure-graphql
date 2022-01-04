@@ -45,11 +45,11 @@
 
 (defn add-qcontext-edges-var [qcontext var edges]
   (let [edges (if (seq? edges) edges [edges])]
-    (assoc qcontext :vars (merge (get-qcontext-vars qcontext) {var [:edges edges]}))))
+    (assoc qcontext :vars (merge (get-qcontext-vars qcontext) {(keyword var) [:edges edges]}))))
 
 (defn add-qcontext-nodes-var [qcontext var nodes]
   (let [nodes (if (seq? nodes) nodes [nodes])]
-    (assoc qcontext :vars (merge (get-qcontext-vars qcontext) {var [:nodes nodes]}))))
+    (assoc qcontext :vars (merge (get-qcontext-vars qcontext) {(keyword var) [:nodes nodes]}))))
 
 (defn set-qcontext-graph [qcontext graph]
   (assoc qcontext :graph graph))
