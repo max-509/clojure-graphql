@@ -59,6 +59,15 @@
        (add-nodes nodes)
        (add-edges edges))))
 
+(defn create-one-edge-adjacency
+  [n-source n-target
+   e-labels e-properties]
+  (->  {}
+       (add-items [n-source n-target])
+       (add-out-edges! [(gen-edge
+                    n-source n-target
+                    e-labels e-properties)])))
+
 (defn get-nodes-from-graph [graph]
   (split-json (graph :adjacency)))
 

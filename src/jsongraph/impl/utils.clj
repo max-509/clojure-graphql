@@ -80,8 +80,7 @@ user=> (type (assoc (make-map 8) :x 1 :y 2))  ; 10 items -> hash map.
 
 (defn assoc-items [items]
    (loop [items items
-          json (transient {})
-          ]
+          json (transient {})]
       (if-let [item (first items)]
         (recur (rest items) (assoc! json (first item) (merge (json (first item)) (second item))))
         (persistent! json))))
@@ -110,6 +109,12 @@ user=> (type (assoc (make-map 8) :x 1 :y 2))  ; 10 items -> hash map.
     (if (and (empty? s1-s2) (< (count s1) (count s2)))
       nil (add-items {} (vec s1-s2)))))
 
+(defn concat! [x y]
+  (if (empty? y)
+    x
+    (recur
+      (conj! x (first y))
+      (rest y))))
 
 (defn gen-json-by-keys [-keys & -val]
   (loop [json (transient {})
