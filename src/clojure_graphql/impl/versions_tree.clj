@@ -28,12 +28,13 @@
     (get-graph-from-version-tree)))
 
 (defn undo! [db]
-  (let [undo-list (get-undo-list db)
-        undo-first-elem (first undo-list)
-        prev-version (if (nil? undo-first-elem) (get-last-version db) undo-first-elem)]
-    (swap! db #(assoc % :versions-tree prev-version))
-    (swap! db #(assoc % :undo-list (rest undo-list)))
-    (get-graph-from-version-tree prev-version)))
+  (let [undo-list (get-undo-list db)]
+    (if (empty? undo-list)
+      (get-last-version db)
+      (let [prev-version (first undo-list)]
+        (swap! db #(assoc % :versions-tree prev-version))
+        (swap! db #(assoc % :undo-list (rest undo-list)))
+        (get-graph-from-version-tree prev-version)))))
 
 (defn add-new-version! [db new-graph]
   (let [versions-tree (get-versions-tree db)

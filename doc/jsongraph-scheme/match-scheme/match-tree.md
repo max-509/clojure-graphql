@@ -38,11 +38,11 @@ Example of WHERE-expression-tree:
 Example of possible Clojure view:
 
 ```clojure
-([:bin-op :and]
-  ([:pred [{:name "a" :property "name"} :eq "Name"]])
-  ([:bin-op :or]
-    ([:pred [{:name "b" :property "surname"} :eq "Surname"]])
-    ([:pred [{:name "a" :property "child"} :eq "Boy"]])))
+([:binary-op :and]
+ ([:pred {:type :field-check :val [{:name "a" :property "name"} :eq "Name"]}])
+ ([:binary-op :or]
+  ([:pred {:type :field-check :val [{:name "b" :property "surname"} :eq "Surname"]}])
+  ([:pred {:type :field-check :val [{:name "a" :property "child"} :eq "Boy"]}])))
 ```
 
 This tree

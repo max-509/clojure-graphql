@@ -1,37 +1,36 @@
 (ns clojure-graphql.impl.query_processing.pattern-processing
   (:require [jsongraph.api.graph-api :as jgraph])
   (:require [clojure-graphql.impl.query_extracter :as qextr])
-  (:require [clojure-graphql.impl.query-context :as qcont]))
+  (:require [clojure-graphql.impl.query-context :as qcont])
+  (:require [clojure-graphql.impl.lang2cloj :as l2cloj]))
 
 (use '[clojure.pprint :only (pprint)])
-
-(defmulti parse-prop-value (fn [val] (qextr/extract-property-val-type val)))
-(defmethod parse-prop-value :integer [val] (Integer/parseInt (qextr/extract-property-val-data val)))
-(defmethod parse-prop-value :float [val] (Double/parseDouble (qextr/extract-property-val-data val)))
-(defmethod parse-prop-value :boolean [val] (Boolean/parseBoolean (qextr/extract-property-val-data val)))
-(defmethod parse-prop-value :string [val] (qextr/extract-property-val-data val))
-(defmethod parse-prop-value :list [val]
-  (let [list-values (qextr/extract-property-val-data val)]
-    (if (empty? list-values)
-      []
-      (mapv #(parse-prop-value %) list-values))))
 
 (defn labels-processing [labels-data]
   (pprint "labels")
   (pprint labels-data)
-  (map (fn [label] (qextr/extract-label-data label)) labels-data))
+  (mapv (fn [label] (keyword (qextr/extract-label-data label))) labels-data))
 
 (defn properties-processing [properties-data context]
   (pprint "properties")
   (pprint properties-data)
-  (let [params (qcont/get-qcontext-params context)]
-    (into (hash-map) (map
-                       (fn [prop]
-                         (let [prop-data (qextr/extract-property-data prop)
-                               name (qextr/extract-property-key-data prop-data)
-                               val (qextr/extract-property-val prop-data)]
-                           [name (parse-prop-value val)]))
-                       properties-data))))
+  (let [params (qcont/get-qcontext-params context)
+        properties-data-type (qextr/extract-properties-data-type properties-data)]
+    (cond
+      (= :external-properties properties-data-type) (let [external-prop-name (qextr/extract-external-properties properties-data)
+                                                          external-props-by-name (get params (keyword external-prop-name))]
+                                                      (if (= nil external-props-by-name)
+                                                        (throw (RuntimeException. (str "Error: Cannot find variable '" external-prop-name "' for properties")))
+                                                        external-props-by-name))
+      (= :internal-properties properties-data-type) (let [properties (qextr/extract-internal-properties properties-data)]
+                                                      (into (hash-map) (map
+                                                                         (fn [prop]
+                                                                           (let [prop-data (qextr/extract-property-data prop)
+                                                                                 name (keyword (qextr/extract-property-key-data prop-data))
+                                                                                 val (qextr/extract-property-val prop-data)]
+                                                                             [name (l2cloj/convert-prop-value val)]))
+                                                                         properties)))
+      :default {})))
 
 (defn node-processing [node-data context]
   (pprint "node")
@@ -42,10 +41,13 @@
         labels (labels-processing (qextr/extract-labels-data node-data))
         properties (properties-processing (qextr/extract-properties-data node-data) context)
         generated-node (jgraph/gen-node labels properties)
-        new-context (if (some? var-name)
-                      (qcont/add-qcontext-nodes-var context var-name generated-node)
-                      context)]
-    [new-context generated-node]))
+        [context generated-node] (if (some? var-name)
+                                   (let [var-by-name (qcont/get-qcontext-var context var-name)]
+                                     (if (= nil var-by-name)
+                                       [(qcont/add-qcontext-nodes-var context var-name generated-node) generated-node]
+                                       [context var-by-name]))
+                                   [context generated-node])]
+    [context generated-node]))
 
 (defn relation-processing [prev-node relation-data next-node context]
   (pprint "prev-node")
@@ -71,10 +73,13 @@
                         (conj source-target labels)
                         (conj properties))
         generated-edge (apply jgraph/gen-edge gen-edge-data)
-        new-context (if (some? var-name)
-                      (qcont/add-qcontext-edges-var context var-name generated-edge)
-                      context)]
-    [new-context generated-edge]))
+        [context generated-edge] (if (some? var-name)
+                                   (let [var-by-name (qcont/get-qcontext-var context var-name)]
+                                     (if (= nil var-by-name)
+                                       [(qcont/add-qcontext-edges-var context var-name generated-edge) generated-edge]
+                                       [context var-by-name]))
+                                   [context generated-edge])]
+    [context generated-edge]))
 
 (defn edge-node-processing [prev-node rest-edges-nodes context]
   (pprint "rest-edges-nodes")
@@ -107,7 +112,6 @@
       (edge-node-processing processed-node rest-edges-nodes new-context))))
 
 (defn patterns-processing
-  ;TODO: Impl for matching and other non-creating operations
   [patterns context]
   (pprint "patterns")
   (pprint patterns)

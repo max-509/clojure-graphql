@@ -12,9 +12,12 @@
   (pprint "match")
   (pprint clause-data)
   (let [patterns (qextr/extract-patterns clause-data)
-        [new-context new-nodes new-edges] (patt-proc/patterns-processing patterns context)
+        [new-context nodes edges] (patt-proc/patterns-processing patterns context)
+        ;[query-nodes] (where-proc/nodes2qnodes nodes edges)
         predicates (qextr/extract-predicates clause-data)
-        new-context (where-proc/where-processing predicates new-context)]))
+        where-expr-tree (where-proc/where-processing predicates)]
+    (pprint "where-expr-tree")
+    (pprint where-expr-tree)))
 
 (defn undo-processing [context db]
   (pprint "undo")
@@ -31,8 +34,9 @@
                                     var-val (qcont/get-qcontext-var-val var)
                                     old-graph (qcont/get-qcontext-graph context)
                                     new-graph (cond
-                                                (qcont/is-nodes-qcontext-var var) (jgraph/delete-nodes old-graph var-val)
-                                                (qcont/is-edges-qcontext-var var) (jgraph/delete-edges old-graph var-val)
+                                                (= nil var) (throw (RuntimeException. "Error: in where clause must be operations with exists variable"))
+                                                (qcont/qcontext-var-nodes? var) (jgraph/delete-nodes old-graph var-val)
+                                                (qcont/qcontext-var-edges? var) (jgraph/delete-edges old-graph var-val)
                                                 :default old-graph)
                                     acc-context (qcont/set-qcontext-graph acc-context new-graph)]
                                 acc-context))

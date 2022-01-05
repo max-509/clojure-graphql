@@ -46,7 +46,7 @@
   (first (nth relation-data 2)))
 
 (defn extract-variables [clause-data]
-  (rest clause-data))
+  (rest (first clause-data)))
 
 (defn extract-variable [graph-element-data]
   (nth graph-element-data 0))
@@ -61,7 +61,16 @@
   (rest (nth graph-element-data 1)))
 
 (defn extract-properties-data [graph-element-data]
-  (rest (nth graph-element-data 2)))
+  (second (nth graph-element-data 2)))
+
+(defn extract-properties-data-type [properties-data]
+  (first properties-data))
+
+(defn extract-internal-properties [properties-data]
+  (rest properties-data))
+
+(defn extract-external-properties [properties-data]
+  (second properties-data))
 
 (defn extract-label-data [label]
   (second label))
