@@ -1,1 +1,62 @@
-{"metadata":{},"adjacency":{"A":{"in-edges":["B","D"],"out-edges":{"B":{"labels":[],"properties":{"cost":1}},"C":{"labels":[],"properties":{"cost":4}}},"labels":["A"],"properties":{}},"B":{"in-edges":["A"],"out-edges":{"A":{"labels":[],"properties":{"cost":3}}},"labels":["B"],"properties":{}},"C":{"in-edges":["A","D"],"out-edges":{},"labels":["C"],"properties":{}},"D":{"in-edges":[],"out-edges":{"A":{"labels":[],"properties":{"cost":8}},"C":{"labels":[],"properties":{"cost":34}}},"labels":["D"],"properties":{}}}}
+{
+  "metadata" : { },
+  "adjacency" : {
+    "A" : {
+      "in-edges" : [ "B", "D" ],
+      "out-edges" : {
+        "B" : {
+          "labels" : [ ],
+          "properties" : {
+            "cost" : 1
+          }
+        },
+        "C" : {
+          "labels" : [ ],
+          "properties" : {
+            "cost" : 4
+          }
+        }
+      },
+      "labels" : [ "A" ],
+      "properties" : { }
+    },
+    "B" : {
+      "in-edges" : [ "A" ],
+      "out-edges" : {
+        "A" : {
+          "labels" : [ ],
+          "properties" : {
+            "cost" : 3
+          }
+        }
+      },
+      "labels" : [ "B" ],
+      "properties" : { }
+    },
+    "C" : {
+      "in-edges" : [ "A", "D" ],
+      "out-edges" : { },
+      "labels" : [ "C" ],
+      "properties" : { }
+    },
+    "D" : {
+      "in-edges" : [ ],
+      "out-edges" : {
+        "A" : {
+          "labels" : [ ],
+          "properties" : {
+            "cost" : 8
+          }
+        },
+        "C" : {
+          "labels" : [ ],
+          "properties" : {
+            "cost" : 34
+          }
+        }
+      },
+      "labels" : [ "D" ],
+      "properties" : { }
+    }
+  }
+}

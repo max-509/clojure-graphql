@@ -73,7 +73,7 @@
 
 
 (defn save-graph [graph ^String path]
-  (j/write-value (File. path) graph))
+  (j/write-value (File. path) graph (j/object-mapper {:pretty true})))
 
 (defn load-graph [^String path]
   (j/read-value (File. path) (j/object-mapper {:decode-key-fn true})))

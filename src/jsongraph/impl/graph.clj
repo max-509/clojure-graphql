@@ -10,21 +10,17 @@
    :out-edges out-edges
 
    :labels    labels
-   :properties properties
-   }
-  )
+   :properties properties})
 
 (defn assoc-out-edges-adjacency-item
   [adjacency-item  out-edges]
-  (assoc adjacency-item :out-edges out-edges)
-  )
+  (assoc adjacency-item :out-edges out-edges))
 
 (defn apply-to-adjacency
-  [graph-adj func args & [adj-only?]]
+  [graph-adj func args & [data-only?]]
   (let [graph-adj (func (graph-adj :adjacency graph-adj) args)]
-    (if (boolean adj-only?)
-      graph-adj
-      {:adjacency  graph-adj})))
+    (if (boolean data-only?)
+      graph-adj  {:adjacency  graph-adj})))
 
 
 (defn get-edge-start [edge-data]
