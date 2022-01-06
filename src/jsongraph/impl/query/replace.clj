@@ -1,13 +1,14 @@
 (ns jsongraph.impl.query.replace
-    (:require [jsongraph.impl.utils :refer :all]
-
-                 )
-  )
+    (:require [jsongraph.impl.utils :refer :all]))
 
 
-(defn construct-template-graph [graph nodes]
-   (let [adjacency (graph :adjacency)]
-    (if (subvec? nodes (keys (graph :adjacency)))
+(defn construct-template-graph [graph & [nodes]]
+   (let [adjacency (graph :adjacency)
+         nodes (if (some? nodes)
+                 (if (subvec? nodes (keys adjacency))
+                   nodes nil)
+                 (keys adjacency))]
+    (if (some? nodes)
       (loop [real-nodes nodes
              template (transient {})]
         (if-let [n-uuid (first real-nodes)]

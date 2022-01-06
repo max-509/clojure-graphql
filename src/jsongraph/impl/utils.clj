@@ -45,6 +45,9 @@ user=> (type (assoc (make-map 8) :x 1 :y 2))  ; 10 items -> hash map.
     (vals json)
     (if (some? idx) idx 0)))
 
+(defn get-item [json -key]
+  (select-keys json [-key]))
+
 (defn get-field [json -key]
   ((get-val json) -key))
 
@@ -72,7 +75,7 @@ user=> (type (assoc (make-map 8) :x 1 :y 2))  ; 10 items -> hash map.
                                  "-keys" (set -keys) "\n"
                                  "json-map-keys" (.keySet json-map) "\n")))))))
 
-(defn split-json [json]
+(defn split-json [json] ; faster than (seq json) and (apply list json)
   (map #(array-map (first %) (second %)) (vec json)))
 
 (defn add-items [json-map items]

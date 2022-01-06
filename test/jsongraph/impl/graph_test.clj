@@ -1,17 +1,18 @@
-(ns jsongraph.impl.core-test
+(ns jsongraph.impl.graph-test
   (:require [clojure.test :refer :all]
             [jsongraph.impl.graph :refer :all]
             [jsongraph.impl.utils :refer :all]
-            [jsongraph.api.graph-api :refer [gen-node add-nodes gen-edge add-edges save-graph load-graph]]
+            [jsongraph.api.graph-api :refer [gen-node add-nodes gen-edge add-edges save-graph load-graph index]]
             [clojure.data.json :as json]))
 
 (use '[clojure.pprint :only (pprint)])
 
 
-(def nA (gen-node [] {} :A)) (def kA (get-key nA))
-(def nB (gen-node [] {} :B)) (def kB (get-key nB))
-(def nC (gen-node [] {} :C)) (def kC (get-key nC))
-(def nD (gen-node [] {} :D)) (def kD (get-key nD))
+;inner-
+(def nA (gen-node [:A] {} :A)) (def kA (index nA))
+(def nB (gen-node [:B] {} :B)) (def kB (index nB))
+(def nC (gen-node [:C] {} :C)) (def kC (index nC))
+(def nD (gen-node [:D] {} :D)) (def kD (index nD))
 
 (def g-add-nodes (add-nodes (add-nodes (gen-empty-graph) [nA nB nC]) nD))
 
@@ -85,7 +86,7 @@
   (json/pprint full-graph)
   (pprint [kA kC])
   (println "result")
-  (json/pprint (delete-edges-by-target-uuids (full-graph :adjacency) [kA kC]))
+  (json/pprint (delete-edges-by-target-indexes (full-graph :adjacency) [kA kC]))
   )
 
 (deftest delete-node-by-uuid-test
@@ -93,5 +94,5 @@
   (println "delete-node-by-uuid-test")
   (json/pprint full-graph)
   (println "nodes" [kA kC])
-  (json/pprint (delete-node-by-uuid full-graph [kA kC]))
+  (json/pprint (delete-node-by-index full-graph [kA kC]))
   )

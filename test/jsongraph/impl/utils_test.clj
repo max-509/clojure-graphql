@@ -46,9 +46,9 @@
   (is (not= (get-val json-1 2) 'a))
 
   (testing "get-item")
-  (is (= (get-items json-1 :A) {:A 'a}))
+  (is (= (get-item json-1 :A) {:A 'a}))
   (is (= (get-items json-1 :A :D) {:A 'a :D 'd}))
-  (is (not= (get-items json-1 :B) {:C 'c}))
+  (is (not= (get-item json-1 :B) {:C 'c}))
   )
 
 (deftest add-delete-test
@@ -76,8 +76,7 @@
     (println (list-difference nil [1 3])))
 
 (deftest subvec-test
-    (is (subvec? [] [2 1 3]))
-)
+    (is (subvec? [] [2 1 3])))
 
 (deftest equal-test
     (is (lists-equal [1 2 3] [2 1 3]))
