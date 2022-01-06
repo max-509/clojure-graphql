@@ -19,25 +19,25 @@
   (not (no-query-var? query-node)))
 )
 
-(defn match-nodes [adjacency query-node]
-  (split-json (select-keys adjacency (get-matched-nodes adjacency query-node))))
+(defn match-nodes [graph query-node]
+  (split-json (select-keys (graph :adjacency) (get-matched-nodes (graph :adjacency) query-node))))
   ;(if (no-query-var? query-node) '() ; []
   ;   (split-json (select-keys adjacency (get-matched-nodes adjacency query-node)))))
 
-(defn match-edges [adjacency qnS query-edge qnT]
+(defn match-edges [graph qnS query-edge qnT]
  ; (if (and (query-var? qnS) (query-var? qnT))
-     (loop [adj-items (split-json (get-matched-edges adjacency qnS query-edge qnT))
+     (loop [adj-items (split-json (get-matched-edges (graph :adjacency) qnS query-edge qnT))
             edges (transient [])]
        (if-let [adj-item (first adj-items)]
          (recur
            (rest adj-items)
-           (concat! edges (get-edges-by-match-adj-item adjacency adj-item)))
+           (concat! edges (get-edges-by-match-adj-item (graph :adjacency) adj-item)))
         (persistent! edges)))
     ;'())
     )
 
-(defn match-query [adjacency query]
+(defn match-query [graph query]
   (let [[qnS qnT] (split-json query)   ;Node and edge only
         query-edge (get-field qnS :out-edges)]
-    (if (nil? qnT) (match-nodes adjacency qnS)
-      (match-edges adjacency qnS query-edge qnT))))
+    (if (nil? qnT) (match-nodes graph qnS)
+      (match-edges graph qnS query-edge qnT))))
