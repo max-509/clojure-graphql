@@ -2,7 +2,7 @@
   (:require [clojure.test :refer :all]
             [jsongraph.impl.utils :refer [split-json]]
             [jsongraph.impl.query.match :refer :all]
-            [jsongraph.api.graph-api :refer [gen-node gen-edge
+            [jsongraph.api.graph-api :refer [gen-node gen-edge-data
                                              create-graph create-one-edge-adjacency
                                              get-nodes-from-graph]]
             [jsongraph.api.match-api :refer :all]))
@@ -17,13 +17,13 @@
 (def nC  (gen-node [:lab-C] prop-C :C))
 
 (def prop-edge-AB {:cost 68 :danger 10})
-(def edge-AB (gen-edge nA nB [:lab-AB] prop-edge-AB))
+(def edge-AB (gen-edge-data nA nB [:lab-AB] prop-edge-AB))
 
 (def prop-edge-AC {:cost 56 :danger 3})
-(def edge-AC (gen-edge nA nC [:lab-AC] prop-edge-AC))
+(def edge-AC (gen-edge-data nA nC [:lab-AC] prop-edge-AC))
 
 (def prop-edge-CB {:cost 40 :danger 5})
-(def edge-CB (gen-edge nC nB [:lab-CB] prop-edge-CB))
+(def edge-CB (gen-edge-data nC nB [:lab-CB] prop-edge-CB))
 
 
 (def graph-empty (create-graph))

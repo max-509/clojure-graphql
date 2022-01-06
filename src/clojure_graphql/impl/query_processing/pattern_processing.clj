@@ -72,7 +72,7 @@
         gen-edge-data (->
                         (conj source-target labels)
                         (conj properties))
-        generated-edge (apply jgraph/gen-edge gen-edge-data)
+        generated-edge (apply jgraph/gen-edge-data gen-edge-data)
         [context generated-edge] (if (some? var-name)
                                    (let [var-by-name (qcont/get-qcontext-var context var-name)]
                                      (if (= nil var-by-name)

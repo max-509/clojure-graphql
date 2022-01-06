@@ -13,11 +13,11 @@
 
 (def g-add-nodes (add-nodes (add-nodes (create-graph) [nA nB nC]) nD))
 
-(def edgeAB  (gen-edge nA nB [:label-edgeAB] {:cost 1}))
-(def edgeAC  (gen-edge nA nC [:label-edgeAC] {:cost 4}))
-(def edgeBA  (gen-edge nB nA [:label-edgeBA] {:cost 2}))
-(def edgeDA  (gen-edge nD nA [:label-edgeDA] {:cost 8}))
-(def edgeDC  (gen-edge nD nC [:label-edgeDC] {:cost 34}))
+(def edgeAB  (gen-edge-data nA nB [:label-edgeAB] {:cost 1}))
+(def edgeAC  (gen-edge-data nA nC [:label-edgeAC] {:cost 4}))
+(def edgeBA  (gen-edge-data nB nA [:label-edgeBA] {:cost 2}))
+(def edgeDA  (gen-edge-data nD nA [:label-edgeDA] {:cost 8}))
+(def edgeDC  (gen-edge-data nD nC [:label-edgeDC] {:cost 34}))
 
 (deftest index-from-many-test
   (println)

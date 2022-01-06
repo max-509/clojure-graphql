@@ -2,7 +2,7 @@
   (:require [clojure.test :refer :all]
             [jsongraph.impl.graph :refer :all]
             [jsongraph.impl.utils :refer :all]
-            [jsongraph.api.graph-api :refer [gen-node add-nodes gen-edge add-edges save-graph load-graph index]]
+            [jsongraph.api.graph-api :refer [gen-node add-nodes gen-edge-data add-edges save-graph load-graph index]]
             [clojure.data.json :as json]))
 
 (use '[clojure.pprint :only (pprint)])
@@ -16,14 +16,14 @@
 
 (def g-add-nodes (add-nodes (add-nodes (gen-empty-graph) [nA nB nC]) nD))
 
-(def edgeAB  (gen-edge nA nB [] {:cost 1}))
-(def edgeAC  (gen-edge nA nC [] {:cost 4}))
+(def edgeAB  (gen-edge-data nA nB [] {:cost 1}))
+(def edgeAC  (gen-edge-data nA nC [] {:cost 4}))
 
-(def edgeBA  (gen-edge nB nA [] {:cost 2}))
-(def edgeBA- (gen-edge nB nA [] {:cost 3}))
+(def edgeBA  (gen-edge-data nB nA [] {:cost 2}))
+(def edgeBA- (gen-edge-data nB nA [] {:cost 3}))
 
-(def edgeDA  (gen-edge nD nA [] {:cost 8}))
-(def edgeDC  (gen-edge nD nC [] {:cost 34}))
+(def edgeDA  (gen-edge-data nD nA [] {:cost 8}))
+(def edgeDC  (gen-edge-data nD nC [] {:cost 34}))
 
 (json/pprint g-add-nodes)
 

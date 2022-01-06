@@ -31,7 +31,7 @@
     (get-item graph :metadata)
     (delete-node-by-index graph (index-from-many nodes))))
 
-(defn gen-edge
+(defn gen-edge-data
   [
    source target
    labels properties
@@ -60,13 +60,19 @@
        (add-edges edges))))
 
 (defn create-one-edge-adjacency
-  [n-source n-target
+  ([n-source n-target
    e-labels e-properties]
   (->  {}
        (add-items [n-source n-target])
-       (add-out-edges! [(gen-edge
+       (add-out-edges! [(gen-edge-data
                     n-source n-target
                     e-labels e-properties)])))
+  ([n-source n-target edge-data]
+    (create-one-edge-adjacency
+      n-source n-target
+      ((second edge-data) :labels)
+      ((second edge-data) :properties))
+    ))
 
 (defn get-nodes-from-graph [graph]
   (split-json (graph :adjacency)))
