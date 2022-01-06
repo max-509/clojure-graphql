@@ -62,58 +62,41 @@
 
   ;(print-and-pass
     (and
+      (= (count data) (count query-data))
       (match-labels data query-data)
       (match-properties data query-data)));)
 
-(defn get-matched-edges [node query-node]
-  ;(println "\n\nget-matched-edges")
-  ;(print "node ") (pprint node)
-  ;(print "query-node ") (pprint query-node)
-  (if-let [query-out-edge (get-field query-node :out-edge)]
-    (loop [out-edges (split-json (get-field node :out-edges))
-           matched-edges-targets []]
-      ;(print "query-out-edge ") (pprint query-out-edge)
-      ;(println "matched-edges-targets-" matched-edges-targets)
-      ;(println "first out-edges" (first out-edges))
-      (if (empty? out-edges)
-        matched-edges-targets
-        (recur
-          (rest out-edges)
-          (if (match-data (first out-edges) query-out-edge)
-            (conj matched-edges-targets [(get-key (first out-edges)) (get-key query-out-edge)])
-            matched-edges-targets))))
-    []))
+(defn match-json [json query-data]
+  (let [ks (keys json)]
+    ;(vec
+      (if (nil? query-data) ks
+      (filter #(match-data (get-item json %) query-data) ks))));)
+
+(defn get-matched-arrows [adjacency source query-edge query-node-target]
+   (let [targets (match-json ((adjacency source) :out-edges) query-edge)]
+     (match-json (select-keys adjacency targets) query-node-target)))
+
+(defn get-matched-nodes [adjacency query-node]
+  (match-json adjacency query-node))
+
+(defn get-matched-edges [adjacency query-node-source q-edge-data query-node-target]
+  (loop [sources (get-matched-nodes adjacency query-node-source)
+         matched-edges (transient {})]
+    (if-let [source (first sources)]
+       (recur (rest sources)
+              (assoc! matched-edges source
+                      (get-matched-arrows adjacency source q-edge-data query-node-target)))
+       (persistent! matched-edges))))
+
+(defn get-matched-query [adjacency query]
+  (let [[qnS qnT] (split-json query)   ;Node and edge only
+        query-edge (get-field qnS :out-edges)]
+    (if (nil? qnT) (get-matched-nodes adjacency qnS)
+      (get-matched-edges adjacency qnS query-edge qnT))))
 
 
-(defn get-matched-targets [adjacency query matched-edges-targets]
-  ;(println "\n\nget-matched-targets")
-  ;(print "adjacency ") (pprint adjacency)
-  ;(print "query ") (pprint query)
-  ;(print "matched-edges-targets ") (pprint matched-edges-targets)
-  (mapv first
-    (filterv
-      #(match-data
-         (get-items adjacency (first %))
-         (get-items query (second %)))
-      matched-edges-targets)))
-
-(defn get-match-answer [graph query]
-
-  (let [adjacency (graph :adjacency)]
-  (loop [nodes (split-json adjacency)
-         query-nodes (split-json query)
-         matched-nodes (transient {})]
-
-    (if (empty? nodes)
-      (persistent! matched-nodes)
-      (recur
-        (rest nodes)
-        query-nodes
-        (if (match-data (first nodes) (first query-nodes))
-          (assoc!
-             matched-nodes
-             (get-key (first nodes))
-             (get-matched-targets
-               adjacency query
-               (get-matched-edges (first nodes) query)))
-          matched-nodes))))))
+(defn get-edges-by-match-adj-item [adjacency match-adj-item]
+  (map #(merge
+          (get-item adjacency (get-key match-adj-item))
+          (get-item adjacency %))
+    (get-val match-adj-item)))

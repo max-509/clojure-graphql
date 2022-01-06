@@ -1,33 +1,43 @@
 (ns jsongraph.api.match-api
   (:require [jsongraph.impl.utils :refer :all]
-            [jsongraph.impl.query.match :refer :all]
-            [clj-uuid :as uuid]))
+            [jsongraph.impl.query.match :refer :all]))
 
 ;;generators
 
-(defn gen-query-data
-  ([]
-   {(uuid/v4)
-   {:out-edge   nil
-    :labels     nil
-    :properties nil}})
-  ([labels properties & [index]]
-  {(if index index (uuid/v4))
-     {:out-edge   nil
-      :labels     labels
-      :properties properties}}))
+; structure matching
+;; USE GRAPH API ;;
 
-(defn node-to-query-data [node & [index]]
-  (gen-query-data
-    (get-field node :labels)
-    (get-field node :properties)
-    index))
-
-(defn add-edge-into-query-node [query-node query-edge query-target-node]
-  ;(println "query-node index" (get-key query-node))
-  (merge
-    (assoc-in query-node [(get-key query-node) :out-edge] query-edge)
-         {(get-key query-edge) (get-val query-target-node)}))
+; where matching
 
 
 ; match
+
+(comment   ; implement varietals
+(defn no-query-var? [query-node]
+  (uuid? (get-key query-node)))
+(defn query-var? [query-node]
+  (not (no-query-var? query-node)))
+)
+
+(defn match-nodes [adjacency query-node]
+  (split-json (select-keys adjacency (get-matched-nodes adjacency query-node))))
+  ;(if (no-query-var? query-node) '() ; []
+  ;   (split-json (select-keys adjacency (get-matched-nodes adjacency query-node)))))
+
+(defn match-edges [adjacency qnS query-edge qnT]
+ ; (if (and (query-var? qnS) (query-var? qnT))
+     (loop [adj-items (split-json (get-matched-edges adjacency qnS query-edge qnT))
+            edges (transient [])]
+       (if-let [adj-item (first adj-items)]
+         (recur
+           (rest adj-items)
+           (concat! edges (get-edges-by-match-adj-item adjacency adj-item)))
+        (persistent! edges)))
+    ;'())
+    )
+
+(defn match-query [adjacency query]
+  (let [[qnS qnT] (split-json query)   ;Node and edge only
+        query-edge (get-field qnS :out-edges)]
+    (if (nil? qnT) (match-nodes adjacency qnS)
+      (match-edges adjacency qnS query-edge qnT))))

@@ -41,6 +41,9 @@
   (json/pprint (create-graph [nA nB nC] [edgeAB edgeAC edgeBA]))
   )
 
+(deftest create-one-edge-graph-test
+  (json/pprint (create-one-edge-adjacency nA nB [:label-edgeAB] {:cost 1})))
+
 (deftest delete-one-node-from-one-node-graph-test
   (println)
   (println "delete-one-node-from-one-node-graph-test")
