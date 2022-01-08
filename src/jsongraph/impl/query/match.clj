@@ -2,9 +2,26 @@
   (:require [jsongraph.impl.utils :refer :all]
             [jsongraph.impl.graph :refer [adjacency-to-edges-data
                                           get-edge-source get-edge-target
-                                          get-edge-data]]))
+                                          get-edge-data gen-edge
+                                          add-out-edges!]]))
 
 (use '[clojure.pprint :only (pprint)])
+
+(defn single-edge-query
+  ([n-source n-target
+   e-labels e-properties]
+  (->  {}
+       (add-items [n-source n-target])
+       (add-out-edges!
+         [(gen-edge
+            (get-key n-source) (get-key n-target)
+            e-labels e-properties)])))
+  ([n-source n-target edge-data]
+    (single-edge-query
+      n-source n-target
+      ((second edge-data) :labels)
+      ((second edge-data) :properties))))
+
 
 ;;comparison signs map
 (def cs-map

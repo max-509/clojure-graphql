@@ -3,8 +3,7 @@
             [jsongraph.impl.utils :refer [split-json pprint-list]]
             [jsongraph.impl.query.match :refer :all]
             [jsongraph.api.graph-api :refer [gen-node gen-edge-data
-                                             create-graph create-one-edge-adjacency
-                                             get-nodes-from-graph]]
+                                             create-graph get-nodes-from-graph]]
             [jsongraph.api.match-api :refer :all]))
 (use '[clojure.pprint :only (pprint)])
 
@@ -68,19 +67,23 @@
 
 (def query-node-matched-any (gen-node nil nil))
 
+(deftest single-edge-query-demo
+  (pprint (single-edge-query nA nB [:label-edgeAB] {:cost 1}))
+  (pprint (single-edge-query nA nB edge-AB)))
+
 (def query-node-with-edge-matched-AB
-  (create-one-edge-adjacency
+  (single-edge-query
     query-node-matched-A query-node-matched-B
     nil prop-edge-AB))
 
 
 (def query-node-with-edge-matched-A-any
-  (create-one-edge-adjacency
+  (single-edge-query
     query-node-matched-A query-node-matched-any
     nil nil))
 
 (def query-node-with-edge-matched-any-any
-  (create-one-edge-adjacency
+  (single-edge-query
     query-node-matched-any (gen-node nil nil)
     nil nil))
 
@@ -95,17 +98,17 @@
 ;; no matched
 
 (def query-node-with-edge-no-matched-A
-  (create-one-edge-adjacency
+  (single-edge-query
     query-node-no-matched-A query-node-matched-B
     nil prop-edge-AB))
 
 (def query-node-with-edge-no-matched-B
-  (create-one-edge-adjacency
+  (single-edge-query
     query-node-matched-A query-node-no-matched-B
     nil prop-edge-AB))
 
 (def query-node-with-edge-no-matched-edge-AB
-  (create-one-edge-adjacency
+  (single-edge-query
     query-node-matched-A query-node-matched-B
     nil (assoc prop-edge-AB :cost -1)))
 
