@@ -6,7 +6,7 @@
   (:require [clojure-graphql.impl.query_processing.pattern-processing :as patt-proc])
   (:require [clojure-graphql.impl.query_processing.where-processing :as where-proc])
   (:require [clojure-graphql.impl.query-context :as qcont])
-  (:require [clojure-graphql.impl.variables-utils :as utils])
+  (:require [clojure-graphql.impl.variables-utils :as vutils])
   (:require [clojure.string :refer [blank?]]))
 
 (use '[clojure.pprint :only (pprint)])
@@ -16,9 +16,10 @@
   (pprint clause-data)
   (let [patterns (qextr/extract-patterns clause-data)
         [nodes edges] (patt-proc/patterns-processing patterns context)
+        [nodes edges] (vutils/replace-uuid-by-variables-names nodes edges)
         predicates (qextr/extract-predicates clause-data)
         where-expr-tree (where-proc/where-processing predicates)
-        finded-patterns (jmatch/match-query (qcont/get-qcontext-graph context)
+        finded-patterns (jmatch/match (qcont/get-qcontext-graph context)
                                             nodes edges where-expr-tree)]
     (pprint "finded-patterns")
     (pprint finded-patterns)))
@@ -55,12 +56,12 @@
   (let [patterns (qextr/extract-patterns clause-data)
         [new-nodes new-edges] (patt-proc/patterns-processing patterns context)
         context (->
-                  (utils/add-variables-to-context context new-nodes qcont/add-qcontext-nodes-var)
-                  (utils/add-variables-to-context new-edges qcont/add-qcontext-edges-var))
+                  (vutils/add-variables-to-context context new-nodes qcont/add-qcontext-nodes-var)
+                  (vutils/add-variables-to-context new-edges qcont/add-qcontext-edges-var))
         updated-graph (->
                         (qcont/get-qcontext-graph context)
-                        (jgraph/add-nodes (map utils/get-var-value new-nodes))
-                        (jgraph/add-edges (map utils/get-var-value new-edges)))
+                        (jgraph/add-nodes (map vutils/get-var-value new-nodes))
+                        (jgraph/add-edges (map vutils/get-var-value new-edges)))
         new-context (qcont/set-qcontext-graph context updated-graph)]
     (vtree/add-new-version! db updated-graph)
     new-context))
