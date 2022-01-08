@@ -30,16 +30,14 @@
   (println "index-from-many-nodes-test")
   (pprint [nA nB])
   (println "result")
-  (println (index-from-many [nA nB]))
-  )
+  (println (index-from-many [nA nB])))
 
 
 (deftest create-graph-demo
   (json/pprint (create-graph))
   (json/pprint (create-graph [node]))
   (json/pprint (create-graph [nA nB nC]))
-  (json/pprint (create-graph [nA nB nC] [edgeAB edgeAC edgeBA]))
-  )
+  (json/pprint (create-graph [nA nB nC] [edgeAB edgeAC edgeBA])))
 
 (deftest delete-one-node-from-one-node-graph-demo
   (println)
@@ -48,8 +46,7 @@
   (pprint nA)
   (println "result")
   (is (delete-nodes (create-graph [nA]) nA) (create-graph))
-  (json/pprint (delete-nodes (create-graph [nA]) nA))
-  )
+  (json/pprint (delete-nodes (create-graph [nA]) nA)))
 
 
 (deftest delete-one-node-demo
@@ -59,8 +56,7 @@
   (pprint nA)
   (println "result")
   (is (delete-nodes g-add-nodes nA) (create-graph [nB nC nD]))
-  (json/pprint (delete-nodes g-add-nodes nA))
-  )
+  (json/pprint (delete-nodes g-add-nodes nA)))
 
 (deftest delete-nodes-demo
   (println)
@@ -69,8 +65,7 @@
   (pprint [nA nB nC])
   (println "result")
   (is (delete-nodes g-add-nodes nA) (create-graph [nD]))
-  (json/pprint (delete-nodes g-add-nodes [nA nB nC]))
-  )
+  (json/pprint (delete-nodes g-add-nodes [nA nB nC])))
 
 (deftest add-one-edge-demo
   (println)
@@ -78,8 +73,7 @@
   (json/pprint g-add-nodes)
   (pprint edgeAB)
   (println "result")
-  (json/pprint (add-edges g-add-nodes [edgeAB]))
-  )
+  (json/pprint (add-edges g-add-nodes [edgeAB])))
 
 (deftest add-edges-demo
   (println)
@@ -87,8 +81,7 @@
   (json/pprint g-add-nodes)
   (pprint [edgeAB edgeAC edgeDA edgeDC edgeAB])
   (println "result")
-  (json/pprint (add-edges g-add-nodes [edgeAB edgeAC edgeDA edgeDC edgeAB]))
-  )
+  (json/pprint (add-edges g-add-nodes [edgeAB edgeAC edgeDA edgeDC edgeAB])))
 
 
 (def full-graph (add-edges g-add-nodes [edgeAB edgeAC edgeBA edgeDA edgeDC]))
@@ -99,8 +92,7 @@
   (json/pprint full-graph)
   (pprint edgeAB)
   (println "result")
-  (json/pprint (delete-edges full-graph [edgeAB]))
-  )
+  (json/pprint (delete-edges full-graph [edgeAB])))
 
 (deftest delete-edges-demo
   (println)
@@ -108,5 +100,4 @@
   (json/pprint full-graph)
   (pprint [edgeAB edgeBA edgeDC])
   (println "result")
-  (json/pprint (delete-edges full-graph [edgeAB edgeBA edgeDC]))
-  )
+  (json/pprint (delete-edges full-graph [edgeAB edgeBA edgeDC])))

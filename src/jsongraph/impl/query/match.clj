@@ -23,43 +23,9 @@
       ((second edge-data) :properties))))
 
 
-;;comparison signs map
-(def cs-map
-  {
-   :eq =  :ne not=
-   :gt >  :lt <
-   :ge >= :le <=
-   }
-  )
-
-(defn query-where-cs [query-prop-item]
-  (first (second query-prop-item)))
-
-(defn query-where-val [query-prop-item]
-  (second (second query-prop-item)))
-
-(defn query-where-key [query-prop-item]
-    (first query-prop-item))
 
 
 ;; match utils
-
-(defn match-each-where [node-prop query-where]
-  (every?
-    #((cs-map (query-where-cs %))
-      (node-prop (query-where-key %))
-      (query-where-val %))
-    (get-items query-where)))
-
-
-(defn match-where-properties [node query-node]
-  (let [node-prop   (get-field node :properties)
-        query-where (get-field query-node :where)  ; maybe nil
-        d (list-difference (keys query-where) (keys node-prop))]
-    (if (nil? d) true  ; query-where is any
-      (if (empty? d)
-        (match-each-where node-prop query-where)
-        (do (print (str "/Keys " (vec d) " not found/ ")) false)))))
 
 
 (defn match-properties [node query-node]
