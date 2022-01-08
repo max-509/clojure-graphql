@@ -34,6 +34,11 @@ user=> (type (assoc (make-map 8) :x 1 :y 2))  ; 10 items -> hash map.
 (defn print-and-pass [x]
   (do (println x) x))
 
+(defn pprint-list [lst]
+  (doseq [x lst] (clojure.pprint/pprint x)))
+
+(defn wrap [x]
+  (if (coll? x) x (list x)))
 
 (defn get-key [json & [idx]]
   (nth
@@ -60,6 +65,9 @@ user=> (type (assoc (make-map 8) :x 1 :y 2))  ; 10 items -> hash map.
 (defn valsSet [json]
   (set (vals json)))
 
+(defn select-vals [json -keys]
+  (map #(json %) -keys))
+
 (defn keys-intersection [json-1 json-2]
   (vec (intersection (keysSet json-1) (keysSet json-2))))
 
@@ -76,16 +84,19 @@ user=> (type (assoc (make-map 8) :x 1 :y 2))  ; 10 items -> hash map.
                                  "json-map-keys" (.keySet json-map) "\n")))))))
 
 (defn split-json [json] ; faster than (seq json) and (apply list json)
-  (map #(array-map (first %) (second %)) (vec json)))
+  (map (fn [[k v]] {k v}) json))
 
 (defn add-items [json-map items]
   (apply (partial merge json-map) items))
 
+(defn conj-key-in-vals [json]
+ (add-items {} (map (fn [[k v]] {k (map #(conj (wrap %) k) v)}) json)))
+
 (defn assoc-items [items]
    (loop [items items
           json (transient {})]
-      (if-let [item (first items)]
-        (recur (rest items) (assoc! json (first item) (merge (json (first item)) (second item))))
+      (if-let [[k v] (first items)]
+        (recur (rest items) (assoc! json k (merge (json k) v)))
         (persistent! json))))
 
 (defn delete-items [json-map [tag & tags]]
@@ -93,8 +104,7 @@ user=> (type (assoc (make-map 8) :x 1 :y 2))  ; 10 items -> hash map.
 
 (defn list-difference [list-1 list-2]
   (if (or (nil? list-1) (nil? list-2))
-    nil
-    (vec (difference (set list-1) (set list-2)))))
+    nil (vec (difference (set list-1) (set list-2)))))
 
 (defn subvec? [sub -vec]
   (if (empty? sub)
@@ -110,7 +120,7 @@ user=> (type (assoc (make-map 8) :x 1 :y 2))  ; 10 items -> hash map.
   (let [s1 (set json-1) s2 (set json-2)
         s1-s2 (difference s1 s2)]
     (if (and (empty? s1-s2) (< (count s1) (count s2)))
-      nil (add-items {} (vec s1-s2)))))
+      nil (add-items {} s1-s2))))
 
 (defn concat! [x y]
   (if (empty? y)
