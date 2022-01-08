@@ -13,6 +13,5 @@
 ; match
 
 (defn match-query [graph query]
-  (map
-    #(merge (select-keys (graph :adjacency) %))
-    (get-matched-ways (graph :adjacency) query)))
+  (let [ways (get-matched-ways (graph :adjacency) query)]
+  [ways (map #(merge (select-keys (graph :adjacency) %)) ways)]))

@@ -138,7 +138,7 @@
   (is (get-matched-nodes (graph-nA-nB :adjacency) query-node-matched-any) '(:A :B))
   (testing "no match")
   (is (get-matched-nodes (graph-empty :adjacency) query-node-matched-A) '())
-  (is (match-adj-edges-list (graph-empty :adjacency) query-node-matched-any) '()))
+  (is (get-matched-nodes (graph-empty :adjacency) query-node-matched-any) '()))
 
 
 (deftest get-match-adj-edges-graph-with-edges-demo
