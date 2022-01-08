@@ -1,0 +1,95 @@
+
+; uuid is clj-uuid
+; nil interpretation as any value
+; <label-name> is string
+; <property-json> is json (witch need cast into hash-map, use jsonista/read-value)
+;; example:
+;; (j/read-value "{\"dog\": {\"name\":\"Teppo\"}}" j/keyword-keys-object-mapper)
+;; ;; => {:dog {:name "Teppo"}}
+
+;;comparison signs (<cs> is any from: )
+;;   :eq =  :ne not=
+;;   :gt >  :lt <
+;;   :ge >= :le <=
+
+; Node ;
+
+() =>
+(gen-node nil nil)
+
+(n) =>
+(gen-node nil nil :n)
+
+
+; Node with labels ;
+
+(n:<node-label-string>) =>
+(gen-node [<node-label-string>] nil :n)
+
+(n:<node-label-string1> :<node-label-string2>) =>
+(gen-node [<node-label-string1> <node-label-string2>] nil :n)
+
+
+(n ...:<node-label-string-s>...) =>
+(gen-node [...:<node-label-string-s>...] nil :n)
+
+
+; Node with labels and property ;
+
+(n:<node-label-string-s> <node-property-json>) =>
+(gen-node [...:<node-label-string-s>...] <node-property-json> :n)
+
+; Node with edges ;
+
+(n)-[]->() =>
+(create-one-edge-adjacency
+    (gen-node nil nil :n) (gen-node nil nil)
+    nil nil)
+
+(n)-[...:<edge-label-string-s>...]->() =>
+(create-one-edge-adjacency
+    (gen-node nil nil :n) (gen-node nil nil)
+    [...:<edge-label-string-s>...] nil)
+
+(n)-[...:<edge-label-string-s>... :<edge-property-json>]->() =>
+(create-one-edge-adjacency
+    (gen-node nil nil :n) (gen-node nil nil)
+    [...:<edge-label-string-s>...] <edge-property-json>)
+
+
+; Node with edge and target node
+
+(n)-[:<edge-label-name>]->(k) =>
+(create-one-edge-adjacency
+    (gen-node nil nil :n) (gen-node nil nil :k)
+    [<edge-label-name>] nil)
+
+(n)-[:<edge-label-name>]->(k:<target-label-name>) =>
+(create-one-edge-adjacency
+    (gen-node nil nil :n) (gen-node <target-label-name> nil :k)
+    [<edge-label-name>] nil)
+
+; Node with edge, target node and another edge after
+
+(n)-[:<label-name-1>]->(k)-[:<label-name-2>]->()  =>
+
+(def N-n (gen-node nil nil :n))
+(def N-k (gen-node nil nil :k))
+(def edge-nk (gen-edge-data N-n N-k [:<label-name-1>] nil))
+
+(def N (gen-node nil nil))
+(def edge-k (gen-edge-data N-k N [:<label-name-2>] nil))
+
+(create-graph [N-n N-k N] [edge-nk edge-k])
+
+
+
+
+
+
+
+
+
+
+
+

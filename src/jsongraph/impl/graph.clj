@@ -22,8 +22,13 @@
     (if (boolean data-only?)
       graph-adj  {:adjacency  graph-adj})))
 
+(defn gen-edge
+  [source-idx target-idx
+   labels properties]
+ [[source-idx target-idx]
+  {:labels labels :properties properties}])
 
-(defn get-edge-start [edge-data]
+(defn get-edge-source [edge-data]
   (first (first edge-data)))
 
 (defn get-edge-target [edge-data]
@@ -36,8 +41,23 @@
   {:metadata   {}
    :adjacency  {}})
 
+(defn node-to-edges-data [node]
+  (map
+    #(gen-edge (get-key node) (first %)
+       ((second %) :labels) ((second %) :properties))
+    (get-field node :out-edges)))
+
+(defn adjacency-to-edges-data [adjacency]
+  (loop [nodes (split-json adjacency)
+         edges ()]
+    (if-let [node (first nodes)]
+      (recur
+        (rest nodes)
+        (concat edges (node-to-edges-data node)))
+      edges)))
+
 (defn convert-edge-to-adjacency [edge]
-  [(get-edge-start edge)
+  [(get-edge-source edge)
     {(get-edge-target edge)
      (get-edge-data edge)}])
 
@@ -113,21 +133,22 @@
   ([adjacency targets sources]
    (delete-in-edges adjacency [targets sources]))
 
-  ( [adjacency [targets sources]]
-   (let [wrapv #(if (coll? %) % [%])]
-    (loop [ targets (if (some? targets) (wrapv targets) (keys adjacency))
+  ([adjacency [targets sources]]
+   ;(let [wrapv #(if (coll? %) % [%])]
+     (loop [targets (if (some? targets) (wrap targets) (keys adjacency))
             adjacency (transient adjacency)
-            sources (wrapv sources)]
+            sources (wrap sources)]
 
-        (if (empty? targets)
-          (persistent! adjacency)
-          (recur
-            (rest targets)
-            (delete-in-edge-adjacency
-              adjacency
-              (first targets)
+       (if (empty? targets)
+         (persistent! adjacency)
+         (recur
+           (rest targets)
+           (delete-in-edge-adjacency
+             adjacency
+             (first targets)
              sources)
-            sources))))))
+           sources)));)
+           ))
 
 
 (defn delete-in-edges-in-all-node [adjacency targets]

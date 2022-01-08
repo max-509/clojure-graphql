@@ -5,7 +5,7 @@
             [jsongraph.impl.utils :refer [get-key get-field split-json concat!]]
             [dorothy.jvm :refer (render save! show!)]
             [jsongraph.impl.graph-test :refer [full-graph]]
-            [jsongraph.impl.query.match-test :refer [graph-with-edges]]))
+            [jsongraph.impl.query.match-test :refer [graph-with-edges big-graph]]))
 
 (use '[clojure.pprint :only (pprint)])
 
@@ -21,12 +21,12 @@
 
 
 
-(deftest get-graphviz-edges-in-text-format-test
+(deftest get-graphviz-edges-in-text-format-demo
   (pprint (get-graphviz-edges
     (first (split-json (full-graph :adjacency))))))
 
-(deftest graph-to-graphviz-save-test
-  (save! (graph-to-graphviz full-graph) (str path-to-images "full-graph.svg") {:format :svg}))
+(deftest graph-to-graphviz-save-demo
+  (save! (graph-to-graphviz big-graph) (str path-to-images "big-graph.svg") {:format :svg}))
 
 (defn wait [sec]
   (doseq [x (range sec)]
@@ -38,7 +38,7 @@
 (def wait-seconds (* 5 60))
 ; This test will be active `wait-seconds` seconds
 ; If you want stop test you need just stop runtime
-(deftest full-visualization-test
+(deftest full-visualization-demo
   (testing "text format")
   (pprint graph-with-edges)
   (println simple)

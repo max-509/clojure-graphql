@@ -34,6 +34,8 @@
 (def json-2 {:E 'e :F 'f :G 'g})
 (def json-3 {:A 'a :B 'b :C 'c :D 'd :E 'e :F 'f :G 'g})
 
+(def adj {:A [:B :C] :B [:A] :C [:A :D :B]})
+
 (deftest get-some-test
   (testing "get-key")
   (is (= (get-key json-1 0) :A))
@@ -57,15 +59,20 @@
   (testing "add-empty-items")
   (is (= (add-items {} {}) {}))
   (testing "delete-items")
-  (is (= (delete-items json-3 [:C :D :E]) {:A 'a :B 'b :F 'f :G 'g}))
-
-  )
+  (is (= (delete-items json-3 [:C :D :E]) {:A 'a :B 'b :F 'f :G 'g})))
 
 (deftest assoc-items-test
-    (println (assoc-items (list [:C {'c 1}] [:B {'b 1}] [:D {'d 1}] [:A {'a 1}] [:A {'h 1}])))
-)
+    (is (assoc-items
+          (list [:C {'c 1}] [:B {'b 1}] [:D {'d 1}] [:A {'a 1}] [:A {'h 1}]))
+        {:C {'c 1}, :B {'b 1}, :D {'d 1}, :A {'a 1, 'h 1}}))
 
-(deftest json-difference-test
+(deftest conj-key-in-test
+  (is (conj-key-in-vals adj)
+      {:A ((:A :B) (:A :C))
+       :B ((:B :A))
+       :C ((:C :A) (:C :D) (:C :B))}))
+
+(deftest json-difference-test-demo
     (is (= (json-difference json-3 json-2) json-1))
     (is (= (json-difference json-2 json-2) {}))
     (is (= (json-difference json-0 json-1) nil))
@@ -73,10 +80,12 @@
     (println (json-difference {:A [1 2 4] :B {:A [1 9 4] :B {:A [14] :B {} :C nil} :C 7} :C 8} {:A [1 2 4] :B {:A [1 2 4] :B {:A [14] :B {} :C nil} :C 7}})))
 
 (deftest list-difference-test
-    (println (list-difference nil [1 3])))
+    (is (list-difference nil [1 3]) nil))
 
 (deftest subvec-test
-    (is (subvec? [] [2 1 3])))
+    (is (subvec? [2 1] [2 1 3]))
+    (is (not (subvec? [6 7] [2 1 3])))
+    (is (not (subvec? [] [2 1 3]))))
 
 (deftest equal-test
     (is (lists-equal [1 2 3] [2 1 3]))

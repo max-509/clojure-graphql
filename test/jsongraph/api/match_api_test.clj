@@ -6,11 +6,11 @@
 
 (deftest match-nodes-demo
   (testing "match") (println "match")
-  (println (match-nodes nA query-node-matched-A))
-  (println (match-nodes nA query-node-matched-any))
+  (println (match-query graph-nA query-node-matched-A))
+  (println (match-query graph-nA query-node-matched-any))
   (testing "no match") (println "no match")
-  (println (match-nodes nA query-node-no-matched-lab))
-  (println (match-nodes nA query-node-no-matched)))
+  (println (match-query graph-nA query-node-no-matched-lab))
+  (println (match-query graph-nA query-node-no-matched)))
 
 (deftest match-query-graph-wo-edges-demo
   (testing "match") (println "match")
@@ -31,6 +31,11 @@
   (println " Source to any\t\t\t   ") (pprint (match-query graph-with-edges query-node-with-edge-matched-A-any))
   (println " Any to any\t\t\t\t   ") (pprint (match-query graph-with-edges query-node-with-edge-matched-any-any))
   (testing "no match") (println "NO Match")
-  (print " Source\t ") (println (match-query graph-with-edge query-node-with-edge-no-matched-A))
-  (print " Target\t ") (println (match-query graph-with-edge query-node-with-edge-no-matched-B))
-  (print " Edge\t ") (println (match-query graph-with-edge query-node-with-edge-no-matched-edge-AB)))
+  (print " Source\t ") (pprint (match-query graph-with-edge query-node-with-edge-no-matched-A))
+  (print " Target\t ") (pprint (match-query graph-with-edge query-node-with-edge-no-matched-B))
+  (print " Edge\t ") (pprint (match-query graph-with-edge query-node-with-edge-no-matched-edge-AB)))
+
+(deftest match-query-big-graph-demo
+  (pprint (match-query big-graph query-node-with-AB-AC-edges)))
+
+

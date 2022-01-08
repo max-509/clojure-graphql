@@ -53,7 +53,16 @@
 (def full-graph (add-edges g-add-nodes [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC]))
 (save-graph full-graph "./resources/graph_2.json")
 
-(deftest delete-adjacency-edge-test
+(deftest node-to-edges-data-demo
+  (pprint (first (split-json (full-graph :adjacency))))
+  (pprint (node-to-edges-data (first (split-json (full-graph :adjacency))))))
+
+(deftest adjacency-to-edges-data-demo
+  (pprint (full-graph :adjacency))
+  (pprint (adjacency-to-edges-data (full-graph :adjacency))))
+
+
+(deftest delete-adjacency-edge-demo
   (println)
   (println "delete-adjacency-edge-test")
   (json/pprint (full-graph :adjacency))

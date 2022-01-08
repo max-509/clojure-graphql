@@ -1,5 +1,8 @@
 (ns jsongraph.impl.query.match
-  (:require [jsongraph.impl.utils :refer :all]))
+  (:require [jsongraph.impl.utils :refer :all]
+            [jsongraph.impl.graph :refer [adjacency-to-edges-data
+                                          get-edge-source get-edge-target
+                                          get-edge-data]]))
 
 (use '[clojure.pprint :only (pprint)])
 
@@ -73,30 +76,54 @@
       (filter #(match-data (get-item json %) query-data) ks))));)
 
 (defn get-matched-arrows [adjacency source query-edge query-node-target]
-   (let [targets (match-json ((adjacency source) :out-edges) query-edge)]
+  ;(println "get-matched-arrows")
+  ;(print "query-edge ") (println query-edge)
+  ;(print "source ") (println source)
+  ;(println "source-edges") (pprint ((adjacency source) :out-edges) )
+  (let [targets (match-json ((adjacency source) :out-edges) query-edge)]
      (match-json (select-keys adjacency targets) query-node-target)))
 
 (defn get-matched-nodes [adjacency query-node]
   (match-json adjacency query-node))
 
-(defn get-matched-edges [adjacency query-node-source q-edge-data query-node-target]
+(defn get-matched-adj-edges [adjacency query-node-source q-edge-data query-node-target]
+  ;(println "query-node-source") (pprint query-node-source)
+  ;(println "adjacency") (pprint adjacency)
+  ;(println)
+  ;(println "q-edge-data")(pprint q-edge-data)
+  ;(println "query-node-target") (pprint query-node-target)
   (loop [sources (get-matched-nodes adjacency query-node-source)
          matched-edges (transient {})]
+    ;(print "matched-edges: ") (println matched-edges)
     (if-let [source (first sources)]
-       (recur (rest sources)
-              (assoc! matched-edges source
-                      (get-matched-arrows adjacency source q-edge-data query-node-target)))
-       (persistent! matched-edges))))
-
-(defn get-matched-query [adjacency query]
-  (let [[qnS qnT] (split-json query)   ;Node and edge only
-        query-edge (get-field qnS :out-edges)]
-    (if (nil? qnT) (get-matched-nodes adjacency qnS)
-      (get-matched-edges adjacency qnS query-edge qnT))))
+      (recur (rest sources)
+             (let [arrows (get-matched-arrows adjacency source q-edge-data query-node-target)]
+               (if (empty? arrows) matched-edges
+                 (assoc! matched-edges source arrows))))
+      (persistent! matched-edges))))
 
 
-(defn get-edges-by-match-adj-item [adjacency match-adj-item]
-  (map #(merge
-          (get-item adjacency (get-key match-adj-item))
-          (get-item adjacency %))
-    (get-val match-adj-item)))
+(defn match-adj-edges-list [adjacency query]
+  ;(println "match-edges-query")
+  ;(pprint query)
+  ;(println "adjacency-to-edges-data") (pprint (adjacency-to-edges-data query))
+  (map
+    #(get-matched-adj-edges adjacency
+        (get-item query (get-edge-source %))
+        {(get-edge-target %) (get-edge-data %)}
+        (get-item query (get-edge-target %)))
+    (adjacency-to-edges-data query)))
+
+(defn merge-by-keys [adj & [-keys]]
+ (apply concat (select-vals adj (if (some? -keys) -keys (keys adj)))))
+
+(defn merge-in-first [adj-edges conj-adj-edges]
+ (add-items {} (map (fn [[k v]] {k (merge-by-keys conj-adj-edges v)}) adj-edges)))
+
+(defn get-matched-ways [adjacency query]
+  (case (count (keys query))
+       1 (map wrap (get-matched-nodes adjacency query))
+       2 (merge-by-keys (conj-key-in-vals (first (match-adj-edges-list adjacency query))))
+       3 (let [[adj-edges-1 adj-edges-2] (match-adj-edges-list adjacency query)]
+             (merge-by-keys (conj-key-in-vals (merge-in-first adj-edges-1 (conj-key-in-vals adj-edges-2)))))
+       (println "too much length query" )))

@@ -32,12 +32,10 @@
     (delete-node-by-index graph (index-from-many nodes))))
 
 (defn gen-edge-data
-  [
-   source target
-   labels properties
-   ]
- [[(index source) (index target)]
-   {:labels labels :properties properties}])
+  [source target
+   labels properties]
+   (gen-edge (index source) (index target)
+     labels properties))
 
 (defn add-edges [graph edges]
   (merge
