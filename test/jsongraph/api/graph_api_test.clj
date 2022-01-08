@@ -19,7 +19,7 @@
 (def edgeDA  (gen-edge-data nD nA [:label-edgeDA] {:cost 8}))
 (def edgeDC  (gen-edge-data nD nC [:label-edgeDC] {:cost 34}))
 
-(deftest index-from-many-test
+(deftest index-from-many-demo
   (println)
   (println "index-from-many-for-single-node-test")
   (pprint nA)
@@ -34,17 +34,17 @@
   )
 
 
-(deftest create-graph-test
+(deftest create-graph-demo
   (json/pprint (create-graph))
   (json/pprint (create-graph [node]))
   (json/pprint (create-graph [nA nB nC]))
   (json/pprint (create-graph [nA nB nC] [edgeAB edgeAC edgeBA]))
   )
 
-(deftest create-one-edge-graph-test
+(deftest create-one-edge-graph-demo
   (json/pprint (create-one-edge-adjacency nA nB [:label-edgeAB] {:cost 1})))
 
-(deftest delete-one-node-from-one-node-graph-test
+(deftest delete-one-node-from-one-node-graph-demo
   (println)
   (println "delete-one-node-from-one-node-graph-test")
   (json/pprint (create-graph [nA]))
@@ -55,7 +55,7 @@
   )
 
 
-(deftest delete-one-node-test
+(deftest delete-one-node-demo
   (println)
   (println "delete-one-node-test")
   (json/pprint g-add-nodes)
@@ -65,7 +65,7 @@
   (json/pprint (delete-nodes g-add-nodes nA))
   )
 
-(deftest delete-nodes-test
+(deftest delete-nodes-demo
   (println)
   (println "delete-edges-test")
   (json/pprint g-add-nodes)
@@ -75,7 +75,7 @@
   (json/pprint (delete-nodes g-add-nodes [nA nB nC]))
   )
 
-(deftest add-one-edge-test
+(deftest add-one-edge-demo
   (println)
   (println "add-one-edge-test")
   (json/pprint g-add-nodes)
@@ -84,7 +84,7 @@
   (json/pprint (add-edges g-add-nodes [edgeAB]))
   )
 
-(deftest add-edges-test
+(deftest add-edges-demo
   (println)
   (println "add-edges-test")
   (json/pprint g-add-nodes)
@@ -96,7 +96,7 @@
 
 (def full-graph (add-edges g-add-nodes [edgeAB edgeAC edgeBA edgeDA edgeDC]))
 
-(deftest delete-one-edge-test
+(deftest delete-one-edge-demo
   (println)
   (println "delete-one-edges-test")
   (json/pprint full-graph)
@@ -105,7 +105,7 @@
   (json/pprint (delete-edges full-graph [edgeAB]))
   )
 
-(deftest delete-edges-test
+(deftest delete-edges-demo
   (println)
   (println "delete-edges-test")
   (json/pprint full-graph)

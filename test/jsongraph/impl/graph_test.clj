@@ -36,8 +36,7 @@
   (println "result")
   (json/pprint (adjacency-from-edges [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC]))
   (is (= (load-graph "./resources/adjacency-from-edges-test.json")
-         (adjacency-from-edges [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC])))
-  )
+         (adjacency-from-edges [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC]))))
 
 (deftest add-out-edges-to-adjacency-test
   (println)
@@ -59,40 +58,35 @@
   (println "delete-adjacency-edge-test")
   (json/pprint (full-graph :adjacency))
   (println  kA [kB])
-  (json/pprint (delete-adjacency-edge (full-graph :adjacency) kA [kB]))
-  )
+  (json/pprint (delete-adjacency-edge (full-graph :adjacency) kA [kB])))
 
 
-(deftest delete-in-edges-test
+(deftest delete-in-edges-demo
   (println)
   (println "delete-in-edge-test")
   (json/pprint (full-graph :adjacency))
   (println [kB kC] [kA])
-  (json/pprint (delete-in-edges (full-graph :adjacency) [kB kC] [kA]))
-  )
+  (json/pprint (delete-in-edges (full-graph :adjacency) [kB kC] [kA])))
 
-(deftest delete-edges-from-adjacency-test
+(deftest delete-edges-from-adjacency-demo
   (println)
   (println "delete-edges-from-adjacency-test")
   (json/pprint full-graph)
   (pprint [edgeAB edgeBA edgeBA-])
   (println "result")
-  (json/pprint (delete-edges-from-adjacency (full-graph :adjacency) [edgeAB edgeBA edgeBA-]))
-  )
+  (json/pprint (delete-edges-from-adjacency (full-graph :adjacency) [edgeAB edgeBA edgeBA-])))
 
-(deftest delete-edges-by-target-uuids-test
+(deftest delete-edges-by-target-uuids-demo
   (println)
   (println "delete-edges-by-target-uuids-test")
   (json/pprint full-graph)
   (pprint [kA kC])
   (println "result")
-  (json/pprint (delete-edges-by-target-indexes (full-graph :adjacency) [kA kC]))
-  )
+  (json/pprint (delete-edges-by-target-indexes (full-graph :adjacency) [kA kC])))
 
-(deftest delete-node-by-uuid-test
+(deftest delete-node-by-uuid-demo
   (println)
   (println "delete-node-by-uuid-test")
   (json/pprint full-graph)
   (println "nodes" [kA kC])
-  (json/pprint (delete-node-by-index full-graph [kA kC]))
-  )
+  (json/pprint (delete-node-by-index full-graph [kA kC])))
