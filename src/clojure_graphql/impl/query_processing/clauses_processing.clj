@@ -1,10 +1,13 @@
 (ns clojure-graphql.impl.query_processing.clauses_processing
   (:require [jsongraph.api.graph-api :as jgraph])
+  (:require [jsongraph.api.match-api :as jmatch])
   (:require [clojure-graphql.impl.query_extracter :as qextr])
   (:require [clojure-graphql.impl.versions-tree :as vtree])
   (:require [clojure-graphql.impl.query_processing.pattern-processing :as patt-proc])
   (:require [clojure-graphql.impl.query_processing.where-processing :as where-proc])
-  (:require [clojure-graphql.impl.query-context :as qcont]))
+  (:require [clojure-graphql.impl.query-context :as qcont])
+  (:require [clojure-graphql.impl.variables-utils :as utils])
+  (:require [clojure.string :refer [blank?]]))
 
 (use '[clojure.pprint :only (pprint)])
 
@@ -12,12 +15,13 @@
   (pprint "match")
   (pprint clause-data)
   (let [patterns (qextr/extract-patterns clause-data)
-        [new-context nodes edges] (patt-proc/patterns-processing patterns context)
-        ;[query-nodes] (where-proc/nodes2qnodes nodes edges)
+        [nodes edges] (patt-proc/patterns-processing patterns context)
         predicates (qextr/extract-predicates clause-data)
-        where-expr-tree (where-proc/where-processing predicates)]
-    (pprint "where-expr-tree")
-    (pprint where-expr-tree)))
+        where-expr-tree (where-proc/where-processing predicates)
+        finded-patterns (jmatch/match-query (qcont/get-qcontext-graph context)
+                                            nodes edges where-expr-tree)]
+    (pprint "finded-patterns")
+    (pprint finded-patterns)))
 
 (defn undo-processing [context db]
   (pprint "undo")
@@ -49,12 +53,15 @@
   (pprint "create")
   (pprint clause-data)
   (let [patterns (qextr/extract-patterns clause-data)
-        [new-context new-nodes new-edges] (patt-proc/patterns-processing patterns context)
+        [new-nodes new-edges] (patt-proc/patterns-processing patterns context)
+        context (->
+                  (utils/add-variables-to-context context new-nodes qcont/add-qcontext-nodes-var)
+                  (utils/add-variables-to-context new-edges qcont/add-qcontext-edges-var))
         updated-graph (->
-                        (qcont/get-qcontext-graph new-context)
-                        (jgraph/add-nodes new-nodes)
-                        (jgraph/add-edges new-edges))
-        new-context (qcont/set-qcontext-graph new-context updated-graph)]
+                        (qcont/get-qcontext-graph context)
+                        (jgraph/add-nodes (map utils/get-var-value new-nodes))
+                        (jgraph/add-edges (map utils/get-var-value new-edges)))
+        new-context (qcont/set-qcontext-graph context updated-graph)]
     (vtree/add-new-version! db updated-graph)
     new-context))
 

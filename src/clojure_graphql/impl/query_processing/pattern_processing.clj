@@ -2,14 +2,18 @@
   (:require [jsongraph.api.graph-api :as jgraph])
   (:require [clojure-graphql.impl.query_extracter :as qextr])
   (:require [clojure-graphql.impl.query-context :as qcont])
-  (:require [clojure-graphql.impl.lang2cloj :as l2cloj]))
+  (:require [clojure-graphql.impl.lang2cloj :as l2cloj])
+  (:require [clojure-graphql.impl.variables-utils :as vutils]))
 
 (use '[clojure.pprint :only (pprint)])
 
 (defn labels-processing [labels-data]
   (pprint "labels")
   (pprint labels-data)
-  (mapv (fn [label] (keyword (qextr/extract-label-data label))) labels-data))
+  (let [labels-vect (mapv (fn [label] (keyword (qextr/extract-label-data label))) labels-data)]
+    (if (empty? labels-vect)
+      nil
+      labels-vect)))
 
 (defn properties-processing [properties-data context]
   (pprint "properties")
@@ -30,7 +34,7 @@
                                                                                  val (qextr/extract-property-val prop-data)]
                                                                              [name (l2cloj/convert-prop-value val)]))
                                                                          properties)))
-      :default {})))
+      :default nil)))
 
 (defn node-processing [node-data context]
   (pprint "node")
@@ -40,14 +44,8 @@
                    (qextr/extract-variable-name-data))
         labels (labels-processing (qextr/extract-labels-data node-data))
         properties (properties-processing (qextr/extract-properties-data node-data) context)
-        generated-node (jgraph/gen-node labels properties)
-        [context generated-node] (if (some? var-name)
-                                   (let [var-by-name (qcont/get-qcontext-var context var-name)]
-                                     (if (= nil var-by-name)
-                                       [(qcont/add-qcontext-nodes-var context var-name generated-node) generated-node]
-                                       [context var-by-name]))
-                                   [context generated-node])]
-    [context generated-node]))
+        generated-node (vutils/create-variable var-name (jgraph/gen-node labels properties))]
+    generated-node))
 
 (defn relation-processing [prev-node relation-data next-node context]
   (pprint "prev-node")
@@ -72,33 +70,28 @@
         gen-edge-data (->
                         (conj source-target labels)
                         (conj properties))
-        generated-edge (apply jgraph/gen-edge-data gen-edge-data)
-        [context generated-edge] (if (some? var-name)
-                                   (let [var-by-name (qcont/get-qcontext-var context var-name)]
-                                     (if (= nil var-by-name)
-                                       [(qcont/add-qcontext-edges-var context var-name generated-edge) generated-edge]
-                                       [context var-by-name]))
-                                   [context generated-edge])]
-    [context generated-edge]))
+
+        generated-edge (vutils/create-variable var-name (apply jgraph/gen-edge-data gen-edge-data))]
+    generated-edge))
 
 (defn edge-node-processing [prev-node rest-edges-nodes context]
   (pprint "rest-edges-nodes")
   (pprint rest-edges-nodes)
   (let [nodes [prev-node]
         edges []]
-    (first (reduce (fn [[[context nodes edges] prev] edge-node]
+    (first (reduce (fn [[[nodes edges] prev] edge-node]
                      (let [relation-data (->
                                            (qextr/extract-first-pattern-elem edge-node)
                                            (qextr/extract-relation-data))
-                           [context next-node] (->
-                                                 (qextr/extract-second-pattern-elem edge-node)
-                                                 (qextr/extract-node-data)
-                                                 (node-processing context))
-                           [context edge] (relation-processing prev relation-data next-node context)
-                           nodes (cons next-node nodes)
-                           edges (cons edge edges)]
-                       [[context nodes edges] next-node]))
-                   [[context nodes edges] prev-node]
+                           next-node (->
+                                       (qextr/extract-second-pattern-elem edge-node)
+                                       (qextr/extract-node-data)
+                                       (node-processing context))
+                           edge (relation-processing (vutils/get-var-value prev) relation-data (vutils/get-var-value next-node) context)
+                           nodes (conj nodes next-node)
+                           edges (conj edges edge)]
+                       [[nodes edges] next-node]))
+                   [[nodes edges] prev-node]
                    (partition 2 rest-edges-nodes)))))
 
 (defn pattern-processing [pattern-data context]
@@ -106,18 +99,18 @@
   (pprint pattern-data)
   (let [node (qextr/extract-first-pattern-elem pattern-data)
         rest-edges-nodes (qextr/extract-rest-pattern-elems pattern-data)
-        [new-context processed-node] (node-processing (qextr/extract-node-data node) context)]
+        processed-node (node-processing (qextr/extract-node-data node) context)]
     (if (empty? rest-edges-nodes)
-      [new-context [processed-node] []]
-      (edge-node-processing processed-node rest-edges-nodes new-context))))
+      [[processed-node] []]
+      (edge-node-processing processed-node rest-edges-nodes context))))
 
 (defn patterns-processing
   [patterns context]
   (pprint "patterns")
   (pprint patterns)
-  (reduce (fn [[context nodes edges] pattern]
-            (let [[new-context new-nodes new-edges] (pattern-processing (qextr/extract-pattern-data pattern) context)]
-              [new-context (concat nodes new-nodes) (concat edges new-edges)]))
-          [context [] []]
+  (reduce (fn [[nodes edges] pattern]
+            (let [[new-nodes new-edges] (pattern-processing (qextr/extract-pattern-data pattern) context)]
+              [(concat nodes new-nodes) (concat edges new-edges)]))
+          [[] []]
           patterns))
 
