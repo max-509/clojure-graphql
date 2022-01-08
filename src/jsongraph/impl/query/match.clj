@@ -134,13 +134,23 @@
 (defn merge-by-keys [adj & [-keys]]
  (apply concat (select-vals adj (if (some? -keys) -keys (keys adj)))))
 
-(defn merge-in-first [adj-edges conj-adj-edges]
+(defn merge-tail-ways [adj-edges conj-adj-edges]
  (add-items {} (map (fn [[k v]] {k (merge-by-keys conj-adj-edges v)}) adj-edges)))
+
+
+;(merge-by-keys (conj-key-in-vals adj-edges)) deep = 1
+;(let [[adj-edges-1 adj-edges-2] (match-adj-edges-list adjacency query)] deep = 2
+;  (merge-by-keys (conj-key-in-vals (merge-tail-ways adj-edges-1 (conj-key-in-vals adj-edges-2)))))
 
 (defn get-matched-ways [adjacency query]
   (case (count (keys query))
-       1 (map wrap (get-matched-nodes adjacency query))
-       2 (merge-by-keys (conj-key-in-vals (first (match-adj-edges-list adjacency query))))
-       3 (let [[adj-edges-1 adj-edges-2] (match-adj-edges-list adjacency query)]
-             (merge-by-keys (conj-key-in-vals (merge-in-first adj-edges-1 (conj-key-in-vals adj-edges-2)))))
-       (println "too much length query" )))
+    0 (println "empty query")                               ; deep = 0
+    1 (map wrap (get-matched-nodes adjacency query))        ; deep = 1
+    (merge-by-keys                                          ; deep > 1
+        (loop [adj-edges-list (match-adj-edges-list adjacency query)
+               ways (conj-key-in-vals (first adj-edges-list))]
+          (if (some? (second adj-edges-list))
+            (recur
+              (rest adj-edges-list)
+              (conj-key-in-vals (merge-tail-ways (second adj-edges-list) ways)))
+             ways)))))
