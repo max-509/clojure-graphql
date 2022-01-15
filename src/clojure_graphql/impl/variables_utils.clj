@@ -1,7 +1,9 @@
 (ns clojure-graphql.impl.variables-utils
-  (:require [jsongraph.api.graph-api :as jgraph])
-  (:require [clojure.string :refer [blank?]])
-  (:require [clojure-graphql.impl.query-context :refer [get-qcontext-var]]))
+  (:require [clojure-graphql.impl.query-context :refer [get-qcontext-var]]
+            [clojure-graphql.impl.query-context :as qcont]
+            [clojure-graphql.impl.query_extracter :as qextr]
+            [clojure.string :refer [blank?]]
+            [jsongraph.api.graph-api :as jgraph]))
 
 (defn create-variable [var-name var-value]
   {:var-name var-name :var-value var-value})
@@ -19,9 +21,25 @@
               (if (not (blank? var-name))
                 (let [var-by-name (get-qcontext-var context var-name)]
                   (if (nil? var-by-name)
-                    (adder context var-name [var-val])
+                    (adder context var-name var-val)
                     context))
                 context)))
+          context
+          variables))
+
+(defn delete-by-vars [context variables]
+  (reduce (fn [acc-context variable]
+            (let [var-name (qextr/extract-variable-name-data variable)
+                  var (qcont/get-qcontext-var acc-context var-name)
+                  var-val (qcont/get-qcontext-var-val var)
+                  old-graph (qcont/get-qcontext-graph acc-context)
+                  new-graph (cond
+                              (= nil var) (throw (RuntimeException. "Error: in where clause must be operations with exists variable"))
+                              (qcont/qcontext-var-nodes? var) (jgraph/delete-nodes old-graph var-val)
+                              (qcont/qcontext-var-edges? var) (jgraph/delete-edges old-graph var-val)
+                              :default old-graph)
+                  acc-context (qcont/set-qcontext-graph acc-context new-graph)]
+              acc-context))
           context
           variables))
 
@@ -52,3 +70,26 @@
                                                    properties))))
                             edges-vars)]
     [(vals replaced-nodes) replaced-edges]))
+
+(defn filter-pattern-by-var [pattern]
+  (filter (fn [var-node]
+            (not (uuid? (first var-node))))
+          (seq pattern)))
+
+(defn filter-founded-patterns-by-var [founded-patterns]
+  (reduce (fn [[nodes edges] pattern]
+            (let [var-nodes (filter-pattern-by-var (first pattern))
+                  var-edges (filter-pattern-by-var (second pattern))]
+              [(conj nodes var-nodes) (conj edges var-edges)]))
+          [[] []]
+          founded-patterns))
+
+(defn reduce-founded-patterns-by-vars [founded-patterns]
+  (mapv (fn [var]
+          {:var-name (first var) :var-value (second var)})
+        (seq (reduce (fn [founded-patterns-by-vars patterns]
+                       (merge-with merge
+                                   founded-patterns-by-vars
+                                   (into {} patterns)))
+                     {}
+                     founded-patterns))))

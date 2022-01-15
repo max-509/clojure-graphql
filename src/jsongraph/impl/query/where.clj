@@ -1,5 +1,6 @@
 (ns jsongraph.impl.query.where
-  (:require [jsongraph.impl.graph :refer [get-edge-source get-edge-target]])
+  (:require [jsongraph.impl.graph :refer [get-edge-source get-edge-target get-edge-data]])
+  (:require [jsongraph.api.graph-api :refer [gen-edge-data gen-node]])
   (:require [clojure.string :refer [starts-with? ends-with? includes?]]))
 
 (defmacro xor
@@ -18,22 +19,22 @@
                            (and (not t#) fv#) (recur true (rest f#))
                            :else (recur t# (rest f#))))))))
 
-(defn get-node-type [node]
+(defn- get-node-type [node]
   (first node))
 
-(defn get-node-value [node]
+(defn- get-node-value [node]
   (second node))
 
-(defn node-bin-op? [node-type]
+(defn- node-bin-op? [node-type]
   (= :binary-op node-type))
 
-(defn node-un-op? [node-type]
+(defn- node-un-op? [node-type]
   (= :unary-op node-type))
 
-(defn node-pred? [node-type]
+(defn- node-pred? [node-type]
   (= :pred node-type))
 
-(defn like-regex? [s re]
+(defn- like-regex? [s re]
   (not= nil (re-find (re-pattern re) s)))
 
 (def comparing-operations-map
@@ -54,13 +55,13 @@
 (def un-ops-map
   {:neg (fn [x] (not x))})
 
-(defn compare-prop-val [property-val cmp-val cmp-op]
+(defn- compare-prop-val [property-val cmp-val cmp-op]
   (let [cmp-func (get comparing-operations-map cmp-op)]
     (if (some? cmp-func)
       (cmp-func property-val cmp-val)
       (throw (RuntimeException. (str "Error: Not supported comparing operation: " cmp-op))))))
 
-(defn field-check-processing [pattern check-value]
+(defn- field-check-processing [pattern check-value]
   (let [var-name (get (nth check-value 0) :name)
         prop-name (keyword (get (nth check-value 0) :property))
         cmp-op (nth check-value 1)
@@ -73,14 +74,14 @@
           false))
       (throw (RuntimeException. (str "Error: Variable with name '" var-name "' wasn't in MATCH-clause"))))))
 
-(defn predicate-processing [pattern pred]
+(defn- predicate-processing [pattern pred]
   (let [check-type (get pred :type)
         check-value (get pred :val)]
     (cond
       (= :field-check check-type) (field-check-processing pattern check-value)
       :default (throw (RuntimeException. (str "Error: Not supported predicate type: " check-type))))))
 
-(defn expr-tree-walk [pattern expr-tree]
+(defn- expr-tree-walk [pattern expr-tree]
   (let [node (first expr-tree)
         node-type (get-node-type node)
         node-value (get-node-value node)]
@@ -102,28 +103,44 @@
       :default (throw (RuntimeException. (str "Error: Not supported type of node expression: " node-type))))))
 
 
-(defn filtered-pattern? [pattern expr-tree]
-  (expr-tree-walk pattern expr-tree))
+(defn- filtered-pattern? [pattern expr-tree]
+  (if (nil? expr-tree)
+    true
+    (expr-tree-walk pattern expr-tree)))
 
 (defn where-filter [ways founded-patterns nodes edges expr-tree]
-  (filter (fn [[way pattern]]
-            (let [vars-uuids (mapv vector nodes way)
-                  varnames-to-uuids (into {} (map (fn [[var uuid]] [(get var :var-name) uuid]) vars-uuids))
-                  vars-nodes (into {} (map (fn [[var uuid]]
-                                             (let [var-name (get var :var-name)
-                                                   node (get pattern uuid)
-                                                   labels (node :labels)
-                                                   properties (node :properties)]
-                                               [var-name {:labels labels :properties properties}]))
-                                           vars-uuids))
-                  vars-edges (into {} (map (fn [var]
-                                             (let [var-name (get var :var-name)
-                                                   edge (get var :var-value)
-                                                   source (get varnames-to-uuids (get-edge-source edge))
-                                                   target (get varnames-to-uuids (get-edge-target edge))
-                                                   labels-properties (get (:out-edges (get pattern source)) target)]
-                                               [var-name labels-properties]))
-                                           edges))
-                  vars (merge vars-nodes vars-edges)]
-              (filtered-pattern? vars expr-tree)))
-          (mapv vector ways founded-patterns)))
+  (filter
+    (fn [[vars-nodes vars-edges]]
+      (let [labels-props-nodes (into {} (map (fn [[node-name node]]
+                                               (let [node-val (second (first (seq node)))
+                                                     labels (:labels node-val)
+                                                     properties (:properties node-val)]
+                                                 [node-name {:labels labels :properties properties}]))
+                                             (seq vars-nodes)))
+            labels-props-edges (into {} (map (fn [[edge-name edge]]
+                                               (let [labels-properties (get-edge-data edge)]
+                                                 [edge-name labels-properties]))
+                                             (seq vars-edges)))]
+        (filtered-pattern? (merge labels-props-nodes labels-props-edges) expr-tree)))
+    (map (fn [[way pattern]]
+           (let [vars-uuids (mapv vector nodes way)
+                 varnames-to-uuids (into {} (map (fn [[var uuid]] [(get var :var-name) uuid]) vars-uuids))
+                 vars-nodes (into {} (map (fn [[var uuid]]
+                                            (let [var-name (:var-name var)
+                                                  node (get pattern uuid)]
+                                              [var-name {uuid node}]))
+                                          vars-uuids))
+                 vars-edges (into {} (map (fn [var]
+                                            (let [var-name (:var-name var)
+                                                  edge (:var-value var)
+                                                  source-uuid (get varnames-to-uuids (get-edge-source edge))
+                                                  target-uuid (get varnames-to-uuids (get-edge-target edge))
+                                                  source {source-uuid (get pattern source-uuid)}
+                                                  target {target-uuid (get pattern target-uuid)}
+                                                  labels-properties (get (:out-edges (get source source-uuid)) target-uuid)
+                                                  labels (:labels labels-properties)
+                                                  properties (:properties labels-properties)]
+                                              [var-name (gen-edge-data source target labels properties)]))
+                                          edges))]
+             [vars-nodes vars-edges]))
+         (mapv vector ways founded-patterns))))

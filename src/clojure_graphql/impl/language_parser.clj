@@ -4,13 +4,14 @@
 (def create-rule
   (insta/parser
     "clauses = clause (<whitespaces> clause)*
-    clause = create | delete | match | undo
+    clause = create | delete | match | undo | saveviz
 
     (*----------------------------CLAUSES DESCRIPTION-----------------------*)
     create = <create-command> patterns
     delete = <delete-command> variables
     match = <match-command> patterns where
     undo = <undo-command>
+    saveviz = <saveviz-command> filepath
     (*----------------------------CLAUSES DESCRIPTION-----------------------*)
 
     (*----------------------------SUPPORT FOR CLAUSES-------------------------*)
@@ -94,7 +95,10 @@
     match-command = <('match' | 'MATCH' | 'Match')> <whitespaces>
     undo-command = <('undo' | 'UNDO' | 'Undo')> <whitespaces>?
     delete-command = <('delete' | 'DELETE' | 'Delete')> <whitespaces>
+    saveviz-command = <('saveviz' | 'SAVEVIZ' | 'Saveviz')> <whitespaces>
+
     where-command = <('where' | 'WHERE' | 'Where')> <whitespaces>
+
     and-command = <('and' | 'AND' | 'And')> <whitespaces>
     or-command = <('or' | 'OR' | 'Or')> <whitespaces>
     xor-command = <('xor' | 'XOR' | 'Xor')> <whitespaces>
@@ -114,6 +118,7 @@
     in-command = <('in' | 'IN' | 'In')> <whitespaces>
     (*--------------------------------COMMANDS---------------------------*)
 
+    <filepath> = #'^(?:[a-z]:)?[\\/\\\\]{0,2}(?:[.\\/\\\\ ](?![.\\/\\\\\\n])|[^<>:\"|?*.\\/\\\\ \\n])+$'
     <comma> = ',' <whitespaces>?
     <dquote> = '\"'
     <quote> = \"'\"

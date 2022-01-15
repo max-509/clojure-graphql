@@ -10,10 +10,10 @@
    :or-command       :binary-op
    :xor-command      :binary-op})
 
-(defn get-type-of-op [op]
+(defn- get-type-of-op [op]
   (get type-of-op op))
 
-(defn above-priority? [op1 op2]
+(defn- above-priority? [op1 op2]
   (if (= :left-bracket op2)
     false
     (if (= :negation-command op2)
@@ -22,25 +22,25 @@
         true
         (not (and (or (= :or-command op2) (= :xor-command op2)) (= :and-command op1)))))))
 
-(defn add-op-to-rpn [rpn op]
+(defn- add-op-to-rpn [rpn op]
   (conj rpn [(get-type-of-op op) op]))
 
-(defn add-pred-to-rpn [rpn pred]
+(defn- add-pred-to-rpn [rpn pred]
   (conj rpn [:pred pred]))
 
-(defn rpn-expr-predicate? [expr]
+(defn- rpn-expr-predicate? [expr]
   (= :pred (first expr)))
 
-(defn rpn-expr-unary-op? [expr]
+(defn- rpn-expr-unary-op? [expr]
   (= :unary-op (first expr)))
 
-(defn rpn-expr-binary-op? [expr]
+(defn- rpn-expr-binary-op? [expr]
   (= :binary-op (first expr)))
 
-(defn rpn-expr-value [expr]
+(defn- rpn-expr-value [expr]
   (second expr))
 
-(defn processing-token-binary-operator [op-stack rpn bin-op]
+(defn- processing-token-binary-operator [op-stack rpn bin-op]
   (loop [op-stack op-stack
          rpn rpn
          bin-op bin-op]
@@ -51,7 +51,7 @@
           (recur (rest op-stack) (add-op-to-rpn rpn last-op) bin-op)
           [(cons bin-op op-stack) rpn])))))
 
-(defn pop-ops-while-no-left-bracket [op-stack rpn]
+(defn- pop-ops-while-no-left-bracket [op-stack rpn]
   (loop [op-stack op-stack
          rpn rpn]
     (if (empty? op-stack)
@@ -61,7 +61,7 @@
           [(rest op-stack) rpn]
           (recur (rest op-stack) (add-op-to-rpn rpn op)))))))
 
-(defn inf-predicates-to-rpn
+(defn- inf-predicates-to-rpn
   ([predicates] (inf-predicates-to-rpn predicates (list :left-bracket) []))
   ([predicates op-stack rpn]
    (pprint "inf-predicates-to-rpn")
@@ -102,10 +102,10 @@
 (defmethod check-processing :pattern-check [check]          ;TODO: for future
   nil)
 
-(defn operator-processing [operator]
+(defn- operator-processing [operator]
   [(get-type-of-op operator) (l2cloj/convert-operator operator)])
 
-(defn rpn-predicates-to-bin-expr-tree [rpn]
+(defn- rpn-predicates-to-bin-expr-tree [rpn]
   (pprint "rpn")
   (pprint rpn)
   (let [trees-stack (reduce (fn [trees-stack expr]
