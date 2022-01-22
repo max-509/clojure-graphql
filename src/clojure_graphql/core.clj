@@ -1,7 +1,7 @@
 (ns clojure-graphql.core
-  (:require [clojure-graphql.impl.language_parser :as core-impl])
+  (:require [clojure-graphql.impl.language-parser :as core-impl])
   (:require [clojure-graphql.impl.versions-tree :as vtree]
-            [clojure-graphql.impl.query_processing.clauses_processing :as impl]))
+            [clojure-graphql.impl.query-processing.clauses-processing :as impl]))
 
 
 (defmacro defquery

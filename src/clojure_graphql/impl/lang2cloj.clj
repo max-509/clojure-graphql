@@ -1,5 +1,5 @@
 (ns clojure-graphql.impl.lang2cloj
-  (:require [clojure-graphql.impl.query_extracter :as qextr]))
+  (:require [clojure-graphql.impl.query-extracter :as qextr]))
 
 (def command-map
   {:lt-command          :lt

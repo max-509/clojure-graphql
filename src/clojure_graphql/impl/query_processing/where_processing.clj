@@ -1,4 +1,4 @@
-(ns clojure-graphql.impl.query_processing.where-processing
+(ns clojure-graphql.impl.query-processing.where-processing
   (:require [clojure-graphql.impl.predicates-extracter :as pextr])
   (:require [clojure-graphql.impl.lang2cloj :as l2cloj]))
 

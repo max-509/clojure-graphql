@@ -1,7 +1,7 @@
 (ns clojure-graphql.impl.variables-utils
   (:require [clojure-graphql.impl.query-context :refer [get-qcontext-var]]
             [clojure-graphql.impl.query-context :as qcont]
-            [clojure-graphql.impl.query_extracter :as qextr]
+            [clojure-graphql.impl.query-extracter :as qextr]
             [clojure.string :refer [blank?]]
             [jsongraph.api.graph-api :as jgraph]))
 
@@ -49,8 +49,8 @@
                                              node-var-value (get-var-value node-var)
                                              old-id (jgraph/index node-var-value)
                                              new-id (if (blank? node-var-name) old-id node-var-name)
-                                             labels (node-var-value :labels)
-                                             properties (node-var-value :properties)]
+                                             labels (jgraph/node-labels node-var-value)
+                                             properties (jgraph/node-properties node-var-value)]
                                          [old-id (create-variable new-id (jgraph/gen-node labels properties new-id))]))
                                      nodes-vars))
         replaced-edges (map (fn [edge-var]
@@ -93,3 +93,40 @@
                                    (into {} patterns)))
                      {}
                      founded-patterns))))
+
+(defn- get-labels-properties-from-nodes [nodes]
+  ;(clojure.pprint/pprint "nodes")
+  ;(clojure.pprint/pprint nodes)
+  ;(clojure.pprint/pprint (mapv
+  ;                         (fn [node]
+  ;                           (let [node-val (jgraph/node-val node)]
+  ;                             {:labels     (jgraph/node-labels node-val)
+  ;                              :properties (jgraph/node-properties node-val)}))
+  ;                         nodes))
+  (mapv
+    (fn [node]
+      (let [node-val (jgraph/node-val node)]
+        {:labels     (jgraph/node-labels node-val)
+         :properties (jgraph/node-properties node-val)}))
+    nodes))
+
+(defn- get-labels-properties-from-edges [edges]
+  (mapv
+    (fn [edge-val]
+      {:labels     (jgraph/edge-labels edge-val)
+       :properties (jgraph/edge-properties edge-val)})
+    edges))
+
+(defn get-labels-properties-from-vars [vars]
+  (into {} (map (fn [var]
+                  (let [var-name (first var)
+                        var-val (second var)
+                        val-type (first var-val)
+                        values (second var-val)]
+                    [var-name
+                     [val-type
+                      (cond
+                        (= :nodes val-type) (get-labels-properties-from-nodes values)
+                        (= :edges val-type) (get-labels-properties-from-edges values)
+                        :default (throw (RuntimeException. (str "Error: Not supported graph type" (name val-type)))))]]))
+                (seq vars))))

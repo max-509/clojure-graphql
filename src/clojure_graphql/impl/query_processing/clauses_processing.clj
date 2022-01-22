@@ -1,15 +1,18 @@
-(ns clojure-graphql.impl.query_processing.clauses_processing
-  (:require [jsongraph.api.graph-api :as jgraph])
-  (:require [jsongraph.api.match-api :as jmatch])
-  (:require [jsongraph.api.graphviz :as graphviz])
-  (:require [dorothy.jvm :refer (save!)])
-  (:require [clojure-graphql.impl.query_extracter :as qextr])
-  (:require [clojure-graphql.impl.versions-tree :as vtree])
-  (:require [clojure-graphql.impl.query_processing.pattern-processing :as patt-proc])
-  (:require [clojure-graphql.impl.query_processing.where-processing :as where-proc])
-  (:require [clojure-graphql.impl.query-context :as qcont])
-  (:require [clojure-graphql.impl.variables-utils :as vutils])
-  (:require [clojure.string :refer [blank?]]))
+(ns clojure-graphql.impl.query-processing.clauses-processing
+  (:require [dorothy.jvm :refer (save!)]
+            [clojure.string :refer [blank?]]
+
+            [jsongraph.api.graph-api :as jgraph]
+            [jsongraph.api.match-api :as jmatch]
+            [jsongraph.api.graphviz :as graphviz]
+
+            [clojure-graphql.impl.query-extracter :as qextr]
+            [clojure-graphql.impl.versions-tree :as vtree]
+            [clojure-graphql.impl.query-processing.pattern-processing :as patt-proc]
+            [clojure-graphql.impl.query-processing.where-processing :as where-proc]
+            [clojure-graphql.impl.query-processing.return-processing :as return-proc]
+            [clojure-graphql.impl.query-context :as qcont]
+            [clojure-graphql.impl.variables-utils :as vutils]))
 
 (use '[clojure.pprint :only (pprint)])
 
@@ -35,6 +38,15 @@
   (pprint "undo")
   (let [last-version-graph (vtree/undo! db)]
     (qcont/set-qcontext-graph context last-version-graph)))
+
+(defn return-processing [clause-data context]
+  (pprint "return-data")
+  (pprint clause-data)
+  (let [return-params (qextr/extract-return-params clause-data)
+        all-variables (vutils/get-labels-properties-from-vars (qcont/get-qcontext-vars context))]
+    (pprint "all-variables")
+    (pprint all-variables)
+    (qcont/set-qcontext-return context (return-proc/return-processing return-params all-variables))))
 
 (defn saveviz-processing [pathname context]
   (pprint "pathname")
@@ -75,6 +87,7 @@
 (defmethod clause-processing :delete [clause context db] (delete-processing (qextr/extract-clause-data clause) context db))
 (defmethod clause-processing :undo [clause context db] (undo-processing context db))
 (defmethod clause-processing :match [clause context db] (match-processing (qextr/extract-clause-data clause) context))
+(defmethod clause-processing :return [clause context db] (return-processing (qextr/extract-clause-data clause) context))
 (defmethod clause-processing :saveviz [clause context db] (saveviz-processing (qextr/extract-clause-data clause) context))
 
 (defn runner [db query params]

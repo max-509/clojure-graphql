@@ -18,6 +18,15 @@
 (defn edge-labels [edge]
   (:labels (second edge)))
 
+(defn node-val [node]
+  (first (vals node)))
+
+(defn node-properties [node-val]
+  (:properties node-val))
+
+(defn node-labels [node-val]
+  (:labels node-val))
+
 (defn gen-node
   [labels properties & [index]]
    {(if index index (uuid/v4)) (gen-adjacency-item [] {} labels properties)})

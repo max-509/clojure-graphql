@@ -1,10 +1,10 @@
-(ns clojure-graphql.impl.language_parser
+(ns clojure-graphql.impl.language-parser
   (:require [instaparse.core :as insta]))
 
 (def create-rule
   (insta/parser
     "clauses = clause (<whitespaces> clause)*
-    clause = create | delete | match | undo | saveviz
+    clause = create | delete | match | undo | saveviz | return
 
     (*----------------------------CLAUSES DESCRIPTION-----------------------*)
     create = <create-command> patterns
@@ -12,11 +12,20 @@
     match = <match-command> patterns where
     undo = <undo-command>
     saveviz = <saveviz-command> filepath
+    return = <return-command> return-params
     (*----------------------------CLAUSES DESCRIPTION-----------------------*)
 
     (*----------------------------SUPPORT FOR CLAUSES-------------------------*)
     where = <where-command> predicates | Epsilon
     (*----------------------------SUPPORT FOR CLAUSES-------------------------*)
+
+    (*----------------------------RETURN PARAMS-----------------------*)
+    return-params = (return-param (<comma> return-param)*) | all
+    return-param = (return-param-var | return-param-field)
+    return-param-var = variable-name
+    return-param-field = attribute
+    all = <asterisk>
+    (*----------------------------RETURN PARAMS-----------------------*)
 
     (*----------------------------PATTERN DESCRIPTION-----------------------*)
     patterns = pattern (<comma> pattern)*
@@ -33,7 +42,6 @@
     internal-properties = <left-curly-bracket> property (<whitespaces> property)* <right-curly-bracket>
     external-properties = <whitespaces>? <'$'> name <whitespaces>?
     property = field <':'> <whitespaces> data
-    field = name
     (*----------------------------PATTERN DESCRIPTION-----------------------*)
 
     (*----------------------------PREDICATES DESCRIPTION----------------------*)
@@ -46,8 +54,8 @@
     atom-predicate = not-command? field-check
 
 
-    label-check = variable-name labels
-    field-check = variable-name <'.'> field <whitespaces> comparing-operator data
+    label-check = var-labels
+    field-check = attribute <whitespaces> comparing-operator data
     <comparing-operator> = lt-command
                         | le-command
                         | gt-command
@@ -63,6 +71,9 @@
     (*----------------------------PREDICATES DESCRIPTION----------------------*)
 
     (*----------------------------DATA TYPES-------------------------------*)
+    <var-labels> = variable-name labels
+    <attribute> = variable-name <'.'> field
+    field = name
     variables = variable-name (<comma> variable-name)*
     variable-name = name | Epsilon
     <data> = string | integer | float | boolean | list
@@ -96,6 +107,7 @@
     undo-command = <('undo' | 'UNDO' | 'Undo')> <whitespaces>?
     delete-command = <('delete' | 'DELETE' | 'Delete')> <whitespaces>
     saveviz-command = <('saveviz' | 'SAVEVIZ' | 'Saveviz')> <whitespaces>
+    return-command = <('return' | 'RETURN' | 'Return')> <whitespaces>
 
     where-command = <('where' | 'WHERE' | 'Where')> <whitespaces>
 
@@ -120,6 +132,7 @@
 
     <filepath> = #'^(?:[a-z]:)?[\\/\\\\]{0,2}(?:[.\\/\\\\ ](?![.\\/\\\\\\n])|[^<>:\"|?*.\\/\\\\ \\n])+$'
     <comma> = ',' <whitespaces>?
+    <asterisk> = '*'
     <dquote> = '\"'
     <quote> = \"'\"
     <string-val> = #'[\\x20-\\x21\\x23-\\x26\\x28-x7E]+'
