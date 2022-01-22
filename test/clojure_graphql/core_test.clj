@@ -7,18 +7,18 @@
 
 ;(println (rest [1]))
 
-(defquery get-persons "create (a:Person:Manager {name: 'Emil' from: 'Sweden' klout: 99 list: [99 0 1] listt: []})-[b:ACTED_IN $A]->()
-                      match (a:Person) where a.name = 'Emil' AND a.klout < 100 AND NOT (a.klout > 50 OR a.from = 'Sweden')")
+(defquery get-persons "create (a:Person:Manager {name: 'Emil' from: 'Sweden' klout: 99 list: [99 0 1] listt: []})-[b:FRIEND $A]->(c:Person)-[d]->(e)
+                      match (a)-[]->() where a.name = 'Emil' AND a.klout < 100 AND NOT (a.klout < 0 OR a.from = 'Canada')")
 ;(defquery get-persons "create (a:Person:Manager $A)")
 
 ;(pprint (create-rule "match (a) WHERE a:Person AND a.condition = \"ASd\" AND a.salary > 10"))
 
 (def db (init-db))
 
-(pprint db)
+;(pprint db)
 
 (get-persons db {:A {:name "Egor" :cost 1000}})
-
+;
 (pprint db)
 ;;
 (print-last-version db)
@@ -34,3 +34,13 @@
 ;(defquery test-query "create (:Person :Manager {:name \"Emil\", :from \"Sweden\", :klout 99}) - [:FRIEND {:duration \"Forever\"}] -> (:Person :Director {:name \"Frank\", :from \"USA\"})")
 
 ;(test-query 1)
+
+;(def node (transient {:labels [:a :b :c] :props {:cost 100}}))
+;(def adj-list {:node1 node})
+;(pprint "Before assoc:")
+;(pprint (:labels node))
+;(pprint (:labels (:node1 adj-list)))
+;(assoc! node :labels (conj (:labels node) :d))
+;(pprint "After assoc:")
+;(pprint (:labels node))
+;(pprint (:labels (:node1 adj-list)))

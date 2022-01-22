@@ -55,7 +55,7 @@
   (let [var-name-data (rest variable)]
     (if (seq var-name-data)
       (first var-name-data)
-      nil)))
+      "")))
 
 (defn extract-labels-data [graph-element-data]
   (rest (nth graph-element-data 1)))

@@ -9,13 +9,19 @@ Example of match-query:
 
 Arguments for match:
 
-- List of nodes-edges:
+- List of nodes:
 
 ```clojure
 [
- {:var-name "a" :var-value [:node <node-value-generated-by-gen-node>]}
- {:var-name "b" :var-value [:edge <edge-value-generated-by-gen-edge>]}
- {:var-name "" :var-value [:node <node-value-generated-by-gen-node>]} ; Node without name
+ {:var-name "a" :var-value <node-value-generated-by-gen-node>}
+ {:var-name "" :var-value <node-value-generated-by-gen-node>} ; Node without name
+ ]
+```
+
+- List of edges:
+```clojure
+[
+ {:var-name "b" :var-value <edge-value-generated-by-gen-edge>}
  ]
 ```
 

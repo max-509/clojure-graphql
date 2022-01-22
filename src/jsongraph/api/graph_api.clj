@@ -6,7 +6,17 @@
 
   (:import (java.io File)))
 
+(defn edge-source [edge]
+  (get-edge-source edge))
 
+(defn edge-target [edge]
+  (get-edge-target edge))
+
+(defn edge-properties [edge]
+  (:properties (second edge)))
+
+(defn edge-labels [edge]
+  (:labels (second edge)))
 
 (defn gen-node
   [labels properties & [index]]
