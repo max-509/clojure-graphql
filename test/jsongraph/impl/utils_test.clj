@@ -63,8 +63,8 @@
 
 (deftest assoc-items-test
     (is (assoc-items
-          (list [:C {'c 1}] [:B {'b 1}] [:D {'d 1}] [:A {'a 1}] [:A {'h 1}]))
-        {:C {'c 1}, :B {'b 1}, :D {'d 1}, :A {'a 1, 'h 1}}))
+          (list [:C {'c 1}] [:B {'b 1}] [:D {'d 1}] [:A {'a 1}] [:A {'h 1}] [:A {'a 2}]))
+        {:C {'c 1}, :B {'b 1}, :D {'d 1}, :A {'a 2, 'h 1}}))
 
 (deftest conj-key-in-test
   (is (conj-key-in-vals adj)

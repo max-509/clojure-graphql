@@ -51,7 +51,7 @@
          nodes (transient []) edges (transient [])]
     (if (empty? graph)
       (str
-        "digraph {\n fontname=\"Comic Sans MS\"\n node [ fontsize = 18 color=blue penwidth=2.0 fillcolor=grey style=filled]\n edge [penwidth=1.5 fontsize = 18]\n"
+        "digraph {\n fontname=\"Comic Sans MS\"\n node [fontsize = 24 width=0.5 shape=circle style=filled color=green penwidth=2.0 fillcolor=white style=filled]\n edge [penwidth=1.5 fontsize = 18]\n"
 
         (join "\n" (persistent! nodes))
         "\n\n"

@@ -2,7 +2,9 @@
   (:require [clojure.test :refer :all]
             [jsongraph.impl.graph :refer :all]
             [jsongraph.impl.utils :refer :all]
-            [jsongraph.api.graph-api :refer [gen-node add-nodes gen-edge-data add-edges save-graph load-graph index]]
+            [jsongraph.api.graph-api :refer [gen-node add-nodes
+                                             gen-edge-data add-edges
+                                             save-graph load-graph index]]
             [clojure.data.json :as json]))
 
 (use '[clojure.pprint :only (pprint)])
@@ -51,7 +53,7 @@
 
 
 (def full-graph (add-edges g-add-nodes [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC]))
-(save-graph full-graph "./resources/graph_2.json")
+;(save-graph full-graph "./resources/graph_2.json")
 
 (deftest node-to-edges-data-demo
   (pprint (first (split-json (full-graph :adjacency))))
