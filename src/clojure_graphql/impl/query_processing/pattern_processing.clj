@@ -58,7 +58,7 @@
                         (conj source-target labels)
                         (conj properties))
 
-        generated-edge (vutils/create-variable var-name (apply jgraph/gen-edge-data gen-edge-data))]
+        generated-edge (vutils/create-variable var-name [(apply jgraph/gen-edge-data gen-edge-data)])]
     generated-edge))
 
 (defn edge-node-processing [prev-node rest-edges-nodes context]

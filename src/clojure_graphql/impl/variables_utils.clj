@@ -16,31 +16,31 @@
 (defn get-var-name [var]
   (:var-name var))
 
-(defn- replace-edges-by-variables [edges variables]
-  (reduce (fn [replaced-edges edge]
-            (let [edge-name (get-var-name edge)
-                  edge-value (get-var-value edge)
-                  edge-source (jgraph/edge-source edge-value)
-                  edge-target (jgraph/edge-target edge-value)
-                  var-by-name (get variables edge-name)]
-              (if (nil? var-by-name)
-                (conj replaced-edges {:var-name edge-name :var-value [edge-value]})
-                (let [var-by-name-type (first var-by-name)
-                      var-by-name-values (second var-by-name)]
-                  (if (not= :edges var-by-name-type)
-                    (throw (RuntimeException. (str "Error: variable " edge-name
-                                                   " must be edge, actual type: " (name var-by-name-type))))
-                    (conj replaced-edges
-                          {:var-name  edge-name
-                           :var-value (mapv (fn [var-by-name-value]
-                                              (jgraph/gen-edge-data
-                                                edge-source
-                                                edge-target
-                                                (jgraph/edge-labels var-by-name-value)
-                                                (jgraph/edge-properties var-by-name-value)))
-                                            var-by-name-values)}))))))
-          []
-          edges))
+;(defn- replace-edges-by-variables [edges variables]
+;  (reduce (fn [replaced-edges edge]
+;            (let [edge-name (get-var-name edge)
+;                  edge-value (get-var-value edge)
+;                  edge-source (jgraph/edge-source edge-value)
+;                  edge-target (jgraph/edge-target edge-value)
+;                  var-by-name (get variables edge-name)]
+;              (if (nil? var-by-name)
+;                (conj replaced-edges {:var-name edge-name :var-value [edge-value]})
+;                (let [var-by-name-type (first var-by-name)
+;                      var-by-name-values (second var-by-name)]
+;                  (if (not= :edges var-by-name-type)
+;                    (throw (RuntimeException. (str "Error: variable " edge-name
+;                                                   " must be edge, actual type: " (name var-by-name-type))))
+;                    (conj replaced-edges
+;                          {:var-name  edge-name
+;                           :var-value (mapv (fn [var-by-name-value]
+;                                              (jgraph/gen-edge-data
+;                                                edge-source
+;                                                edge-target
+;                                                (jgraph/edge-labels var-by-name-value)
+;                                                (jgraph/edge-properties var-by-name-value)))
+;                                            var-by-name-values)}))))))
+;          []
+;          edges))
 
 (defn- replace-edges-by-nodes [node-index var-nodes var-edges]
   (let [var-nodes-indexes (map (fn [var-node] (first (keys var-node))) var-nodes)]
@@ -59,11 +59,11 @@
                                          (= node-index edge-source) (mapv (fn [var-node-idx]
                                                                             (jgraph/gen-edge-data var-node-idx edge-target
                                                                                                   edge-labels edge-properties))
-                                                                          var-nodes-indexes)
+                                                                          (filter #(not= % edge-target) var-nodes-indexes))
                                          (= node-index edge-target) (mapv (fn [var-node-idx]
                                                                             (jgraph/gen-edge-data edge-source var-node-idx
                                                                                                   edge-labels edge-properties))
-                                                                          var-nodes-indexes)
+                                                                          (filter #(not= edge-source %) var-nodes-indexes))
                                          :default [edge])))
                                    var-edge-value))}))
       var-edges)))
@@ -86,8 +86,7 @@
           nodes))
 
 (defn replace-nodes-edges-by-variables [nodes edges variables]
-  (let [replaced-edges (replace-edges-by-variables edges variables)
-        [filtered-nodes replaced-edges] (filter-nodes-by-variables nodes replaced-edges variables)]
+  (let [[filtered-nodes replaced-edges] (filter-nodes-by-variables nodes edges variables)]
     [filtered-nodes replaced-edges]))
 
 (defn add-variables-to-context [context variables adder]
@@ -128,7 +127,7 @@
                                      nodes-vars))
         replaced-edges (map (fn [edge-var]
                               (let [edge-var-name (get-var-name edge-var)
-                                    edge-var-value (get-var-value edge-var)
+                                    [edge-var-value] (get-var-value edge-var)
                                     source-id (jgraph/edge-source edge-var-value)
                                     target-id (jgraph/edge-target edge-var-value)
                                     labels (jgraph/edge-labels edge-var-value)

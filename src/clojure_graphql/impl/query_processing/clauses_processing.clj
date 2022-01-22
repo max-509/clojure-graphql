@@ -67,10 +67,6 @@
         [new-nodes new-edges] (patt-proc/patterns-processing patterns context)
         [new-nodes new-edges] (vutils/replace-nodes-edges-by-variables new-nodes new-edges
                                                                        (qcont/get-qcontext-vars context))
-        a (pprint "new-nodes")
-        a (pprint new-nodes)
-        a (pprint "new-edges")
-        a (pprint new-edges)
         context (->
                   (vutils/add-variables-to-context context new-nodes qcont/add-qcontext-nodes-var)
                   (vutils/add-variables-to-context new-edges qcont/add-qcontext-edges-var))

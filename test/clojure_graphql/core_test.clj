@@ -9,7 +9,8 @@
 
 (defquery get-persons "create (a:Person:Manager {name: 'Emil' from: 'Sweden' klout: 99 list: [99 0 1] listt: []})-[b:FRIEND $A]->(c:Person)-[d:VRAG {god: 1999}]->(e)
                       match (a)-[b]->(c)
-                      create (a)-[b]->(c)
+                      create (a)-[b:NENAVIDIT]->(c)
+                      match (a)-[b]->(c)
                       return a.name, a.from, a.surname, b, c, k")
 ;(defquery get-persons "create (a:Person:Manager $A)")
 
