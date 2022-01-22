@@ -104,10 +104,6 @@
  (add-items {} (map (fn [[k v]] {k (merge-by-keys conj-adj-edges v)}) adj-edges)))
 
 
-;(merge-by-keys (conj-key-in-vals adj-edges)) deep = 1
-;(let [[adj-edges-1 adj-edges-2] (match-adj-edges-list adjacency query)] deep = 2
-;  (merge-by-keys (conj-key-in-vals (merge-tail-ways adj-edges-1 (conj-key-in-vals adj-edges-2)))))
-
 (defn get-matched-ways [adjacency query]
   (case (count (keys query))
     0 (println "empty query")                               ; deep = 0
@@ -120,3 +116,17 @@
               (rest adj-edges-list)
               (conj-key-in-vals (merge-tail-ways (second adj-edges-list) ways)))
              ways)))))
+
+; IDEA: do universal map ways to json like format
+; for node it is just set {:A :B} (interpreted as list)
+; adj-edges format usage only when ways are represent edges
+; what about ((:B :C :A) (:A :C :B)) ways
+(defn ways-to-adj-edges [ways]
+  "edge ways is list of two elements list items
+   example ((:A :B) (:A :C) (:C :A))
+   adj-edges example
+   {:A (:B :C)
+    :C (:A)}"
+  (if (= (count (first ways)) 2)
+    (assoc-items ways)
+    (println "ways is not edge ways")))

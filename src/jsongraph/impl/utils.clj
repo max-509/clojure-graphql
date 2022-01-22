@@ -93,11 +93,17 @@ user=> (type (assoc (make-map 8) :x 1 :y 2))  ; 10 items -> hash map.
  (add-items {} (map (fn [[k v]] {k (map #(conj (wrap %) k) v)}) json)))
 
 (defn assoc-items [items]
-   (loop [items items
+  " items is
+      list of item (item is [key value])
+    merge-func is
+      merge for map type item value
+      conj for another types item value"
+   (let [f-merge (if (map? (second (first items))) merge conj)]
+    (loop [items items
           json (transient {})]
       (if-let [[k v] (first items)]
-        (recur (rest items) (assoc! json k (merge (json k) v)))
-        (persistent! json))))
+        (recur (rest items) (assoc! json k (f-merge (json k) v)))
+        (persistent! json)))))
 
 (defn delete-items [json-map [tag & tags]]
   (apply (partial dissoc json-map) tag tags))

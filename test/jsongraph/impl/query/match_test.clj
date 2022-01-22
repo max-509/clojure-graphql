@@ -163,9 +163,9 @@
   (is (merge-by-keys
         {:A '((:A :B) (:A :C)) ; <-
          :B '((:B :A))         ; <-
-         :C '((:C :A) (:C :D) (:C :B))
-         }   [:A :B]
-        )
+         :C '((:C :A) (:C :D) (:C :B))}
+        [:A :B])
+
       '((:A :B) (:A :C) (:B :A))))
 
 (deftest get-matched-ways-graph-wo-edges-test

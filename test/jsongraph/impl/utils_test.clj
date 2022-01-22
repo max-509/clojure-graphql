@@ -65,13 +65,15 @@
   )
 
 (deftest assoc-items-test
-    (is (assoc-items
-          (list [:C {'c 1}] [:B {'b 1}] [:D {'d 1}] [:A {'a 1}] [:A {'h 1}] [:A {'a 2}]))
-        {:C {'c 1}, :B {'b 1}, :D {'d 1}, :A {'a 2, 'h 1}}))
+  (is (assoc-items
+        (list [:C {'c 1}] [:B {'b 1}] [:D {'d 1}] [:A {'a 1}] [:A {'h 1}] [:A {'a 2}]))
+      '{:C {'c 1}, :B {'b 1}, :D {'d 1}, :A {'a 2, 'h 1}})
+  (is (assoc-items '((:C :A) (:C :D) (:C :B) (:B :A) (:A :B) (:A :C)))
+      '{:C (:B :D :A) :B (:A) :A (:C :B)}))
 
 (deftest conj-key-in-test
   (is (conj-key-in-vals adj)
-      {:A ((:A :B) (:A :C))
+     '{:A ((:A :B) (:A :C))
        :B ((:B :A))
        :C ((:C :A) (:C :D) (:C :B))}))
 
