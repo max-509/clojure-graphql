@@ -1,4 +1,4 @@
-(ns clojure-graphql.impl.query_extracter)
+(ns clojure-graphql.impl.query-extracter)
 
 ; With postfix data - args type of [:elem data]
 ; Without postfix data - args type of [data]
@@ -96,3 +96,18 @@
 
 (defn extract-predicates [clause-params]
   (second (second clause-params)))
+
+(defn extract-return-params [clause-data]
+  (let [return-params (rest (first clause-data))]
+    (if (= (first (first return-params)) :all)
+      :all
+      return-params)))
+
+(defn extract-return-param-data [return-param]
+  (let [return-param-type (first (second return-param))
+        return-param-val (rest (second return-param))]
+    (cond
+      (= :return-param-field return-param-type) {:var-name (second (first return-param-val))
+                                                 :field (keyword (second (second return-param-val)))}
+      (= :return-param-var return-param-type) {:var-name (second (first return-param-val))}
+      :default (throw (RuntimeException. (str "Error: Not supported return param type" (name return-param-type)))))))

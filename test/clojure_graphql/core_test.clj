@@ -1,14 +1,16 @@
 (ns clojure-graphql.core-test
   (:require [clojure.test :refer :all]
             [clojure-graphql.core :refer :all]
-            [clojure-graphql.impl.language_parser :refer :all]))
+            [clojure-graphql.impl.language-parser :refer :all]))
 
 (use '[clojure.pprint :only (pprint)])
 
 ;(println (rest [1]))
 
-(defquery get-persons "create (a:Person:Manager {name: 'Emil' from: 'Sweden' klout: 99 list: [99 0 1] listt: []})-[b:FRIEND $A]->(c:Person)-[d]->(e)
-                      match (a)-[]->() where a.name = 'Emil' AND a.klout < 100 AND NOT (a.klout < 0 OR a.from = 'Canada')")
+(defquery get-persons "create (a:Person:Manager {name: 'Emil' from: 'Sweden' klout: 99 list: [99 0 1] listt: []})-[b:FRIEND $A]->(c:Person)-[d:VRAG {god: 1999}]->(e)
+                      match (a)-[b]->(c)
+                      create (a)-[b]->(c)
+                      return a.name, a.from, a.surname, b, c, k")
 ;(defquery get-persons "create (a:Person:Manager $A)")
 
 ;(pprint (create-rule "match (a) WHERE a:Person AND a.condition = \"ASd\" AND a.salary > 10"))
@@ -17,11 +19,12 @@
 
 ;(pprint db)
 
-(get-persons db {:A {:name "Egor" :cost 1000}})
+(def return-persons (get-persons db {:A {:name "Egor" :cost 1000}}))
+(clojure.pprint/pprint return-persons)
 ;
-(pprint db)
-;;
-(print-last-version db)
+;(pprint db)
+;;;
+;(print-last-version db)
 
 ;(with-session [session (get-session local_db)]
 ;              (get-persons session))
