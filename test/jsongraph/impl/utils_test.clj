@@ -53,13 +53,16 @@
   (is (not= (get-item json-1 :B) {:C 'c}))
   )
 
-(deftest add-delete-test
+(deftest add-delete-filter-test
   (testing "add-items")
   (is (= (add-items json-1 json-2) json-3))
   (testing "add-empty-items")
   (is (= (add-items {} {}) {}))
   (testing "delete-items")
-  (is (= (delete-items json-3 [:C :D :E]) {:A 'a :B 'b :F 'f :G 'g})))
+  (is (= (delete-items json-3 [:C :D :E]) {:A 'a :B 'b :F 'f :G 'g}))
+  (testing "filter-nils")
+  (is (= (filter-nil {:A 'a :B nil :F 'f}) {:A 'a :F 'f}))
+  )
 
 (deftest assoc-items-test
     (is (assoc-items
