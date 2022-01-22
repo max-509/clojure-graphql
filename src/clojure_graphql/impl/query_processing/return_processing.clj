@@ -23,7 +23,7 @@
                       field (:field return-param-data)
                       var (get all-variables var-name)]
                   (if (nil? var)
-                    {}
+                    {var-name nil}
                     (if (nil? field)
                       {var-name var}
                       (let [var-type (first var)

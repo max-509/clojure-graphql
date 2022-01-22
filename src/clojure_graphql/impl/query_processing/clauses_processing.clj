@@ -44,8 +44,6 @@
   (pprint clause-data)
   (let [return-params (qextr/extract-return-params clause-data)
         all-variables (vutils/get-labels-properties-from-vars (qcont/get-qcontext-vars context))]
-    (pprint "all-variables")
-    (pprint all-variables)
     (qcont/set-qcontext-return context (return-proc/return-processing return-params all-variables))))
 
 (defn saveviz-processing [pathname context]
@@ -59,25 +57,27 @@
     context))
 
 (defn delete-processing [clause-data context db]
-  (pprint "delete")
-  (pprint clause-data)
   (let [variables (qextr/extract-variables clause-data)
         new-context (vutils/delete-by-vars context variables)]
     (vtree/add-new-version! db (qcont/get-qcontext-graph new-context))
     new-context))
 
 (defn create-processing [clause-data context db]
-  (pprint "create")
-  (pprint clause-data)
   (let [patterns (qextr/extract-patterns clause-data)
         [new-nodes new-edges] (patt-proc/patterns-processing patterns context)
+        [new-nodes new-edges] (vutils/replace-nodes-edges-by-variables new-nodes new-edges
+                                                                       (qcont/get-qcontext-vars context))
+        a (pprint "new-nodes")
+        a (pprint new-nodes)
+        a (pprint "new-edges")
+        a (pprint new-edges)
         context (->
                   (vutils/add-variables-to-context context new-nodes qcont/add-qcontext-nodes-var)
                   (vutils/add-variables-to-context new-edges qcont/add-qcontext-edges-var))
         updated-graph (->
                         (qcont/get-qcontext-graph context)
                         (jgraph/add-nodes (map vutils/get-var-value new-nodes))
-                        (jgraph/add-edges (map vutils/get-var-value new-edges)))
+                        (jgraph/add-edges (apply concat (map vutils/get-var-value new-edges))))
         new-context (qcont/set-qcontext-graph context updated-graph)]
     (vtree/add-new-version! db updated-graph)
     new-context))
@@ -91,8 +91,6 @@
 (defmethod clause-processing :saveviz [clause context db] (saveviz-processing (qextr/extract-clause-data clause) context))
 
 (defn runner [db query params]
-  (pprint "query")
-  (pprint query)
   (let [last-version-graph (vtree/get-last-version db)
         context-after-query (reduce (fn [context clause] (clause-processing clause context db))
                                     (qcont/get-qcontext last-version-graph params)

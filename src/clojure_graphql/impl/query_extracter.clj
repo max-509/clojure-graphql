@@ -107,7 +107,7 @@
   (let [return-param-type (first (second return-param))
         return-param-val (rest (second return-param))]
     (cond
-      (= :return-param-field return-param-type) {:var-name (keyword (second (first return-param-val)))
+      (= :return-param-field return-param-type) {:var-name (second (first return-param-val))
                                                  :field (keyword (second (second return-param-val)))}
-      (= :return-param-var return-param-type) {:var-name (keyword (second (first return-param-val)))}
+      (= :return-param-var return-param-type) {:var-name (second (first return-param-val))}
       :default (throw (RuntimeException. (str "Error: Not supported return param type" (name return-param-type)))))))

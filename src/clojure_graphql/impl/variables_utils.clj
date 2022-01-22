@@ -1,8 +1,10 @@
 (ns clojure-graphql.impl.variables-utils
-  (:require [clojure-graphql.impl.query-context :refer [get-qcontext-var]]
+  (:require [clojure.string :refer [blank?]]
+
+            [clojure-graphql.impl.query-context :refer [get-qcontext-var]]
             [clojure-graphql.impl.query-context :as qcont]
             [clojure-graphql.impl.query-extracter :as qextr]
-            [clojure.string :refer [blank?]]
+
             [jsongraph.api.graph-api :as jgraph]))
 
 (defn create-variable [var-name var-value]
@@ -14,15 +16,86 @@
 (defn get-var-name [var]
   (:var-name var))
 
+(defn- replace-edges-by-variables [edges variables]
+  (reduce (fn [replaced-edges edge]
+            (let [edge-name (get-var-name edge)
+                  edge-value (get-var-value edge)
+                  edge-source (jgraph/edge-source edge-value)
+                  edge-target (jgraph/edge-target edge-value)
+                  var-by-name (get variables edge-name)]
+              (if (nil? var-by-name)
+                (conj replaced-edges {:var-name edge-name :var-value [edge-value]})
+                (let [var-by-name-type (first var-by-name)
+                      var-by-name-values (second var-by-name)]
+                  (if (not= :edges var-by-name-type)
+                    (throw (RuntimeException. (str "Error: variable " edge-name
+                                                   " must be edge, actual type: " (name var-by-name-type))))
+                    (conj replaced-edges
+                          {:var-name  edge-name
+                           :var-value (mapv (fn [var-by-name-value]
+                                              (jgraph/gen-edge-data
+                                                edge-source
+                                                edge-target
+                                                (jgraph/edge-labels var-by-name-value)
+                                                (jgraph/edge-properties var-by-name-value)))
+                                            var-by-name-values)}))))))
+          []
+          edges))
+
+(defn- replace-edges-by-nodes [node-index var-nodes var-edges]
+  (let [var-nodes-indexes (map (fn [var-node] (first (keys var-node))) var-nodes)]
+    (mapv
+      (fn [var-edge]
+        (let [var-edge-name (get-var-name var-edge)
+              var-edge-value (get-var-value var-edge)]
+          {:var-name  var-edge-name
+           :var-value (apply concat
+                             (mapv (fn [edge]
+                                     (let [edge-source (jgraph/edge-source edge)
+                                           edge-target (jgraph/edge-target edge)
+                                           edge-labels (jgraph/edge-labels edge)
+                                           edge-properties (jgraph/edge-properties edge)]
+                                       (cond
+                                         (= node-index edge-source) (mapv (fn [var-node-idx]
+                                                                            (jgraph/gen-edge-data var-node-idx edge-target
+                                                                                                  edge-labels edge-properties))
+                                                                          var-nodes-indexes)
+                                         (= node-index edge-target) (mapv (fn [var-node-idx]
+                                                                            (jgraph/gen-edge-data edge-source var-node-idx
+                                                                                                  edge-labels edge-properties))
+                                                                          var-nodes-indexes)
+                                         :default [edge])))
+                                   var-edge-value))}))
+      var-edges)))
+
+(defn- filter-nodes-by-variables [nodes edges variables]
+  (reduce (fn [[filtered-nodes replaced-edges] node]
+            (let [node-name (get-var-name node)
+                  node-value (get-var-value node)
+                  node-index (jgraph/index node-value)
+                  var-by-name (get variables node-name)]
+              (if (nil? var-by-name)
+                [(cons node filtered-nodes) replaced-edges]
+                (let [var-by-name-type (first var-by-name)
+                      var-by-name-values (second var-by-name)]
+                  (if (not= :nodes var-by-name-type)
+                    (throw (RuntimeException. (str "Error: variable " node-name
+                                                   " must be node, actual type: " (name var-by-name-type))))
+                    [filtered-nodes (replace-edges-by-nodes node-index var-by-name-values replaced-edges)])))))
+          [[] edges]
+          nodes))
+
+(defn replace-nodes-edges-by-variables [nodes edges variables]
+  (let [replaced-edges (replace-edges-by-variables edges variables)
+        [filtered-nodes replaced-edges] (filter-nodes-by-variables nodes replaced-edges variables)]
+    [filtered-nodes replaced-edges]))
+
 (defn add-variables-to-context [context variables adder]
   (reduce (fn [context var]
             (let [var-name (get-var-name var)
                   var-val (get-var-value var)]
               (if (not (blank? var-name))
-                (let [var-by-name (get-qcontext-var context var-name)]
-                  (if (nil? var-by-name)
-                    (adder context var-name var-val)
-                    context))
+                (adder context var-name var-val)
                 context)))
           context
           variables))
@@ -80,29 +153,21 @@
   (reduce (fn [[nodes edges] pattern]
             (let [var-nodes (filter-pattern-by-var (first pattern))
                   var-edges (filter-pattern-by-var (second pattern))]
-              [(conj nodes var-nodes) (conj edges var-edges)]))
+              [(concat nodes var-nodes) (concat edges var-edges)]))
           [[] []]
           founded-patterns))
 
 (defn reduce-founded-patterns-by-vars [founded-patterns]
   (mapv (fn [var]
           {:var-name (first var) :var-value (second var)})
-        (seq (reduce (fn [founded-patterns-by-vars patterns]
-                       (merge-with merge
+        (seq (reduce (fn [founded-patterns-by-vars pattern]
+                       (merge-with into
                                    founded-patterns-by-vars
-                                   (into {} patterns)))
+                                   {(first pattern) (second pattern)}))
                      {}
                      founded-patterns))))
 
 (defn- get-labels-properties-from-nodes [nodes]
-  ;(clojure.pprint/pprint "nodes")
-  ;(clojure.pprint/pprint nodes)
-  ;(clojure.pprint/pprint (mapv
-  ;                         (fn [node]
-  ;                           (let [node-val (jgraph/node-val node)]
-  ;                             {:labels     (jgraph/node-labels node-val)
-  ;                              :properties (jgraph/node-properties node-val)}))
-  ;                         nodes))
   (mapv
     (fn [node]
       (let [node-val (jgraph/node-val node)]

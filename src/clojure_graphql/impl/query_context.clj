@@ -1,6 +1,7 @@
 (ns clojure-graphql.impl.query-context
-  (:require [jsongraph.api.graph-api :as jgraph])
-  (:require [clojure.string :refer [blank?]]))
+  (:require [clojure.string :refer [blank?]]
+
+            [jsongraph.api.graph-api :as jgraph]))
 
 (use '[clojure.pprint :only (pprint)])
 
@@ -47,15 +48,14 @@
       (get name))))
 
 (defn add-qcontext-edges-var [qcontext var edges]
-  (let [edges (if (seq? edges) edges [edges])]
-    (assoc qcontext :vars (merge (get-qcontext-vars qcontext) {(keyword var) [:edges edges]}))))
+  (assoc qcontext :vars (merge (get-qcontext-vars qcontext) {var [:edges edges]})))
 
 (defn add-qcontext-nodes-var [qcontext var nodes]
   (let [nodes (mapv (fn [n] {(first n) (second n)}) (seq nodes))]
-    (assoc qcontext :vars (merge (get-qcontext-vars qcontext) {(keyword var) [:nodes nodes]}))))
+    (assoc qcontext :vars (merge (get-qcontext-vars qcontext) {var [:nodes nodes]}))))
 
 (defn set-qcontext-graph [qcontext graph]
   (assoc qcontext :graph graph))
 
 (defn set-qcontext-return [qcontext ret-val]
-  (assoc qcontext :return  ret-val))
+  (assoc qcontext :return ret-val))

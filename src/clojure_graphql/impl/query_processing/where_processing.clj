@@ -1,8 +1,6 @@
 (ns clojure-graphql.impl.query-processing.where-processing
-  (:require [clojure-graphql.impl.predicates-extracter :as pextr])
-  (:require [clojure-graphql.impl.lang2cloj :as l2cloj]))
-
-(use '[clojure.pprint :only (pprint)])
+  (:require [clojure-graphql.impl.predicates-extracter :as pextr]
+            [clojure-graphql.impl.lang2cloj :as l2cloj]))
 
 (def type-of-op
   {:negation-command :unary-op
@@ -64,10 +62,6 @@
 (defn- inf-predicates-to-rpn
   ([predicates] (inf-predicates-to-rpn predicates (list :left-bracket) []))
   ([predicates op-stack rpn]
-   (pprint "inf-predicates-to-rpn")
-   (pprint predicates)
-   (pprint op-stack)
-   (pprint rpn)
    (let [[new-op-stack new-rpn] (reduce
                                   (fn [[op-stack rpn] token]
                                     (if (pextr/predicate? token)
@@ -106,8 +100,6 @@
   [(get-type-of-op operator) (l2cloj/convert-operator operator)])
 
 (defn- rpn-predicates-to-bin-expr-tree [rpn]
-  (pprint "rpn")
-  (pprint rpn)
   (let [trees-stack (reduce (fn [trees-stack expr]
                               (let [expr-value (rpn-expr-value expr)]
                                 (cond
@@ -128,8 +120,6 @@
       (throw (RuntimeException. "Error: Stack with tree's expression must has one element at end, bad rpn-expression")))))
 
 (defn where-processing [predicates]
-  (pprint "where")
-  (pprint predicates)
   (if (empty? predicates)
     nil
     (let [[op-stack rpn] (inf-predicates-to-rpn predicates)]

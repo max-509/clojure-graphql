@@ -53,8 +53,10 @@
 (defn gen-edge-data
   [source target
    labels properties]
-   (gen-edge (index source) (index target)
-     labels properties))
+  (let [source (if (uuid? source) source (index source))
+        target (if (uuid? target) target (index target))]
+    (gen-edge source target
+              labels properties)))
 
 (defn add-edges [graph edges]
   (merge

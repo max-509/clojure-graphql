@@ -1,23 +1,18 @@
 (ns clojure-graphql.impl.query-processing.pattern-processing
-  (:require [jsongraph.api.graph-api :as jgraph])
-  (:require [clojure-graphql.impl.query-extracter :as qextr])
-  (:require [clojure-graphql.impl.query-context :as qcont])
-  (:require [clojure-graphql.impl.lang2cloj :as l2cloj])
-  (:require [clojure-graphql.impl.variables-utils :as vutils]))
+  (:require [clojure-graphql.impl.query-extracter :as qextr]
+            [clojure-graphql.impl.query-context :as qcont]
+            [clojure-graphql.impl.lang2cloj :as l2cloj]
+            [clojure-graphql.impl.variables-utils :as vutils]
 
-(use '[clojure.pprint :only (pprint)])
+            [jsongraph.api.graph-api :as jgraph]))
 
 (defn labels-processing [labels-data]
-  (pprint "labels")
-  (pprint labels-data)
   (let [labels-vect (mapv (fn [label] (keyword (qextr/extract-label-data label))) labels-data)]
     (if (empty? labels-vect)
       nil
       labels-vect)))
 
 (defn properties-processing [properties-data context]
-  (pprint "properties")
-  (pprint properties-data)
   (let [params (qcont/get-qcontext-params context)
         properties-data-type (qextr/extract-properties-data-type properties-data)]
     (cond
@@ -37,8 +32,6 @@
       :default nil)))
 
 (defn node-processing [node-data context]
-  (pprint "node")
-  (pprint node-data)
   (let [var-name (->
                    (qextr/extract-variable node-data)
                    (qextr/extract-variable-name-data))
@@ -48,12 +41,6 @@
     generated-node))
 
 (defn relation-processing [prev-node relation-data next-node context]
-  (pprint "prev-node")
-  (pprint prev-node)
-  (pprint "relation")
-  (pprint relation-data)
-  (pprint "next-node")
-  (pprint next-node)
   (let [left-dash (qextr/extract-left-dash relation-data)
         right-dash (qextr/extract-right-dash relation-data)
         edge (qextr/extract-edge relation-data)
@@ -75,8 +62,6 @@
     generated-edge))
 
 (defn edge-node-processing [prev-node rest-edges-nodes context]
-  (pprint "rest-edges-nodes")
-  (pprint rest-edges-nodes)
   (let [nodes [prev-node]
         edges []]
     (first (reduce (fn [[[nodes edges] prev] edge-node]
@@ -95,8 +80,6 @@
                    (partition 2 rest-edges-nodes)))))
 
 (defn pattern-processing [pattern-data context]
-  (pprint "pattern")
-  (pprint pattern-data)
   (let [node (qextr/extract-first-pattern-elem pattern-data)
         rest-edges-nodes (qextr/extract-rest-pattern-elems pattern-data)
         processed-node (node-processing (qextr/extract-node-data node) context)]
@@ -106,11 +89,8 @@
 
 (defn patterns-processing
   [patterns context]
-  (pprint "patterns")
-  (pprint patterns)
   (reduce (fn [[nodes edges] pattern]
             (let [[new-nodes new-edges] (pattern-processing (qextr/extract-pattern-data pattern) context)]
               [(concat nodes new-nodes) (concat edges new-edges)]))
           [[] []]
           patterns))
-

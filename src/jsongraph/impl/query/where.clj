@@ -1,7 +1,8 @@
 (ns jsongraph.impl.query.where
-  (:require [jsongraph.impl.graph :refer [get-edge-source get-edge-target get-edge-data]])
-  (:require [jsongraph.api.graph-api :refer [gen-edge-data gen-node]])
-  (:require [clojure.string :refer [starts-with? ends-with? includes?]]))
+  (:require [clojure.string :refer [starts-with? ends-with? includes?]]
+
+            [jsongraph.api.graph-api :refer [gen-edge-data gen-node]]
+            [jsongraph.impl.graph :refer [get-edge-source get-edge-target get-edge-data]]))
 
 (defmacro xor
   "Evaluates exprs one at a time, from left to right.  If only one form returns
@@ -117,7 +118,7 @@
                                                      properties (:properties node-val)]
                                                  [node-name {:labels labels :properties properties}]))
                                              (seq vars-nodes)))
-            labels-props-edges (into {} (map (fn [[edge-name edge]]
+            labels-props-edges (into {} (map (fn [[edge-name [edge]]]
                                                (let [labels-properties (get-edge-data edge)]
                                                  [edge-name labels-properties]))
                                              (seq vars-edges)))]
@@ -140,7 +141,7 @@
                                                   labels-properties (get (:out-edges (get source source-uuid)) target-uuid)
                                                   labels (:labels labels-properties)
                                                   properties (:properties labels-properties)]
-                                              [var-name (gen-edge-data source target labels properties)]))
+                                              [var-name [(gen-edge-data source target labels properties)]]))
                                           edges))]
              [vars-nodes vars-edges]))
          (mapv vector ways founded-patterns))))
