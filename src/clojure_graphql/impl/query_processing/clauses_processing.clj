@@ -4,6 +4,7 @@
 
             [jsongraph.api.graph-api :as jgraph]
             [jsongraph.api.match-api :as jmatch]
+            [jsongraph.api.set-api :as jset]
             [jsongraph.api.graphviz :as graphviz]
 
             [clojure-graphql.impl.query-extracter :as qextr]
@@ -11,14 +12,11 @@
             [clojure-graphql.impl.query-processing.pattern-processing :as patt-proc]
             [clojure-graphql.impl.query-processing.where-processing :as where-proc]
             [clojure-graphql.impl.query-processing.return-processing :as return-proc]
+            [clojure-graphql.impl.query-processing.set-processing :as set-proc]
             [clojure-graphql.impl.query-context :as qcont]
             [clojure-graphql.impl.variables-utils :as vutils]))
 
-(use '[clojure.pprint :only (pprint)])
-
 (defn match-processing [clause-data context]
-  (pprint "match")
-  (pprint clause-data)
   (let [patterns (qextr/extract-patterns clause-data)
         [nodes edges] (patt-proc/patterns-processing patterns context)
         [nodes edges] (vutils/replace-uuid-by-variables-names nodes edges)
@@ -34,21 +32,24 @@
                   (vutils/add-variables-to-context founded-edges-by-vars qcont/add-qcontext-edges-var))]
     context))
 
+(defn set-processing [clause-data context db]
+  (let [set-params (qextr/extract-set-params clause-data)
+        [set-results context] (set-proc/set-processing set-params context)
+        graph (jset/SET set-results (qcont/get-qcontext-graph context))
+        context (qcont/set-qcontext-graph context graph)]
+    (vtree/add-new-version! db graph)
+    context))
+
 (defn undo-processing [context db]
-  (pprint "undo")
   (let [last-version-graph (vtree/undo! db)]
     (qcont/set-qcontext-graph context last-version-graph)))
 
 (defn return-processing [clause-data context]
-  (pprint "return-data")
-  (pprint clause-data)
   (let [return-params (qextr/extract-return-params clause-data)
         all-variables (vutils/get-labels-properties-from-vars (qcont/get-qcontext-vars context))]
     (qcont/set-qcontext-return context (return-proc/return-processing return-params all-variables))))
 
 (defn saveviz-processing [pathname context]
-  (pprint "pathname")
-  (pprint pathname)
   (let [graph (qcont/get-qcontext-graph context)
         pathname (first pathname)
         graphviz-graph (graphviz/graph-to-graphviz graph)]
@@ -83,6 +84,7 @@
 (defmethod clause-processing :delete [clause context db] (delete-processing (qextr/extract-clause-data clause) context db))
 (defmethod clause-processing :undo [clause context db] (undo-processing context db))
 (defmethod clause-processing :match [clause context db] (match-processing (qextr/extract-clause-data clause) context))
+(defmethod clause-processing :set [clause context db] (set-processing (qextr/extract-clause-data clause) context db))
 (defmethod clause-processing :return [clause context db] (return-processing (qextr/extract-clause-data clause) context))
 (defmethod clause-processing :saveviz [clause context db] (saveviz-processing (qextr/extract-clause-data clause) context))
 

@@ -108,6 +108,36 @@
         return-param-val (rest (second return-param))]
     (cond
       (= :return-param-field return-param-type) {:var-name (second (first return-param-val))
-                                                 :field (keyword (second (second return-param-val)))}
+                                                 :field    (keyword (second (second return-param-val)))}
       (= :return-param-var return-param-type) {:var-name (second (first return-param-val))}
       :default (throw (RuntimeException. (str "Error: Not supported return param type" (name return-param-type)))))))
+
+(defn extract-set-params [clause-data]
+  (rest (first clause-data)))
+
+(defn extract-set-param-data [set-param]
+  (second set-param))
+
+(defn extract-set-param-data-command [set-param-data]
+  (first set-param-data))
+
+(defn extract-set-param-data-params [set-param-data]
+  (rest set-param-data))
+
+(defn extract-set-param-var-name [set-param-data-params]
+  (second (first set-param-data-params)))
+
+(defn extract-set-param-assign-field [set-param-assign]
+  (keyword (second (second set-param-assign))))
+
+(defn extract-set-param-assign-value [set-param-assign]
+  (nth set-param-assign 2))
+
+(defn extract-set-param-assign-value-type [set-param-assign-value]
+  (first set-param-assign-value))
+
+(defn extract-set-param-assign-value-val [set-param-assign-value]
+  (second set-param-assign-value))
+
+(defn extract-set-param-labels-data [set-param-labels]
+  (rest (second set-param-labels)))

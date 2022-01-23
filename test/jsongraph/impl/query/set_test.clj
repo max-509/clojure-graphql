@@ -26,13 +26,13 @@
     (println "query set:" set-query-A)
     (print "matched ways: ") (println ways-A)
     (println "!! delete :weight in :A!!")
-    (println "result:") (pprint (SET adjacency ways-A set-query-A))
+    (println "result:") (pprint (set_impl adjacency ways-A set-query-A))
 
     (println "\n>SET all nodes")
     (println "query set:" set-query-any)
     (print "matched ways: ") (println ways-any)
     (println "!! add :new = \"str\" for all!!")
-    (println "result:") (pprint (SET adjacency ways-any set-query-any))))
+    (println "result:") (pprint (set_impl adjacency ways-any set-query-any))))
 
 (deftest set-edge-demo
   (let [adjacency (graph-with-edges :adjacency)
@@ -44,10 +44,10 @@
     (println "query set:" set-query-A-any)
     (print "matched ways: ") (println ways-A-any)
     (println "!! delete :danger in :A to any!!")
-    (println "result:") (pprint (SET adjacency ways-A-any set-query-A-any))
+    (println "result:") (pprint (set_impl adjacency ways-A-any set-query-A-any))
 
     (println "\n>SET all edges")
     (println "query set:" set-query-any-any)
     (print "matched ways: ") (println ways-any-any)
     (println "!! add :new = \"str\" and delete :cost for all!!")
-    (println "result:") (pprint (SET adjacency ways-any-any set-query-any-any))))
+    (println "result:") (pprint (set_impl adjacency ways-any-any set-query-any-any))))

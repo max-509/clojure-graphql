@@ -4,12 +4,13 @@
 (def create-rule
   (insta/parser
     "clauses = clause (<whitespaces> clause)*
-    clause = create | delete | match | undo | saveviz | return
+    clause = create | delete | match | set | undo | return | saveviz
 
     (*----------------------------CLAUSES DESCRIPTION-----------------------*)
     create = <create-command> patterns
     delete = <delete-command> variables
     match = <match-command> patterns where
+    set = <set-command> set-params
     undo = <undo-command>
     saveviz = <saveviz-command> filepath
     return = <return-command> return-params
@@ -18,6 +19,14 @@
     (*----------------------------SUPPORT FOR CLAUSES-------------------------*)
     where = <where-command> predicates | Epsilon
     (*----------------------------SUPPORT FOR CLAUSES-------------------------*)
+
+    (*----------------------------SET PARAMS-----------------------*)
+    set-params = set-param (<comma> set-param)*
+    set-param = assign-command | label-command
+    label-command = var-labels
+    assign-command = attribute <whitespaces> <eq-command> (data | null | external-param)
+    external-param = <'$'> name
+    (*----------------------------SET PARAMS-----------------------*)
 
     (*----------------------------RETURN PARAMS-----------------------*)
     return-params = (return-param (<comma> return-param)*) | all
@@ -87,6 +96,7 @@
     integer = #'-?[0-9]+'
     float = #'-?([0-9]+.[0-9]+ | (INF | inf) | (NAN | nan))'
     boolean = 'True' | 'TRUE' | 'true' | 'False' | 'FALSE' | 'false'
+    null = <('null' | 'NULL')>
     (*----------------------------DATA TYPES-------------------------------*)
 
     (*-------------------------------------SPECIAL CONSTRUCTS--------------------------------*)
@@ -104,6 +114,7 @@
     (*--------------------------------COMMANDS---------------------------*)
     create-command = <('create' | 'CREATE' | 'Create')> <whitespaces>
     match-command = <('match' | 'MATCH' | 'Match')> <whitespaces>
+    set-command = <('set' | 'SET' | 'Set')> <whitespaces>
     undo-command = <('undo' | 'UNDO' | 'Undo')> <whitespaces>?
     delete-command = <('delete' | 'DELETE' | 'Delete')> <whitespaces>
     saveviz-command = <('saveviz' | 'SAVEVIZ' | 'Saveviz')> <whitespaces>

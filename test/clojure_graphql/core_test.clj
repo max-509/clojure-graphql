@@ -8,10 +8,9 @@
 ;(println (rest [1]))
 
 (defquery get-persons "create (a:Person:Manager {name: 'Emil' from: 'Sweden' klout: 99 list: [99 0 1] listt: []})-[b:FRIEND $A]->(c:Person)-[d:VRAG {god: 1999}]->(e)
-                      match (a)-[b]->(c)
-                      create (a)-[b:NENAVIDIT]->(c)
-                      match (a)-[b]->(c)
-                      return a.name, a.from, a.surname, b, c, k")
+                      set a:EMIL, b.cost = 5000, d.god = null, e.name = $A
+                      delete c, a, b
+                      return a, b, c, d, e")
 ;(defquery get-persons "create (a:Person:Manager $A)")
 
 ;(pprint (create-rule "match (a) WHERE a:Person AND a.condition = \"ASd\" AND a.salary > 10"))

@@ -70,7 +70,7 @@
           query-data))))))
 
 
-(defn SET [adjacency ways set-query]
+(defn set_impl [adjacency ways set-query]
   (case (count (first ways))
     0 (println "match answer empty")             ;ways empty
     1 (set-nodes adjacency ways set-query)       ;nodes

@@ -3,8 +3,6 @@
 
             [jsongraph.api.graph-api :as jgraph]))
 
-(use '[clojure.pprint :only (pprint)])
-
 (defn get-qcontext [graph params]
   {:graph      graph
    :params     params
@@ -38,7 +36,7 @@
 (defn get-qcontext-param [qcontext name]
   (->
     (get-qcontext-params qcontext)
-    (get name)))
+    (get (keyword name))))
 
 (defn get-qcontext-var [qcontext name]
   (if (blank? name)
@@ -53,6 +51,9 @@
 (defn add-qcontext-nodes-var [qcontext var nodes]
   (let [nodes (mapv (fn [n] {(first n) (second n)}) (seq nodes))]
     (assoc qcontext :vars (merge (get-qcontext-vars qcontext) {var [:nodes nodes]}))))
+
+(defn delete-qcontext-var [qcontext var]
+  (assoc qcontext :vars (dissoc (get-qcontext-vars qcontext) var)))
 
 (defn set-qcontext-graph [qcontext graph]
   (assoc qcontext :graph graph))
