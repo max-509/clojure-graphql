@@ -3,47 +3,56 @@
             [clojure-graphql.core :refer :all]
             [clojure-graphql.impl.language-parser :refer :all]))
 
-(use '[clojure.pprint :only (pprint)])
 
-;(println (rest [1]))
+(defquery create+return "create (a:Person:Manager {name: 'Emil' klout: 99 list: [99 0 1] listt: []})-[b:FRIEND $A]->(c:Person {from: 'Sweden'})-[d:ENEMY {year: 1999}]->(e)
+                        return a, b, c, d, e")
 
-(defquery get-persons "create (a:Person:Manager {name: 'Emil' from: 'Sweden' klout: 99 list: [99 0 1] listt: []})-[b:FRIEND $A]->(c:Person)-[d:VRAG {god: 1999}]->(e)
-                      set a:EMIL, b.cost = 5000, d.god = null, e.name = $A
-                      delete a, b, c, d, e
-                      return a, b, c, d, e")
-;(defquery get-persons "create (a:Person:Manager $A)")
+(defquery match "match (a)-[b]->(c)
+                return a, b, c")
 
-;(pprint (create-rule "match (a) WHERE a:Person AND a.condition = \"ASd\" AND a.salary > 10"))
+(defquery delete "match (a) where a.name = 'Emil'
+                delete a
+                match (a) where a.name = 'Emil'
+                return a")
+
+(defquery undo "undo")
+
+(defquery SET "match ()-[b:FRIEND]->()
+               set b.name = 'Vladimir'
+               set b:BEST_FRIEND
+               return *")
+
+(defquery create-between-exists "match (a:Manager)
+                                 match (b {from: 'Sweden'})
+                                 create (a)-[c:NEW]->(b)
+                                 match (a)-[c]->(b)
+                                 return *")
 
 (def db (init-db))
 
-;(pprint db)
+(def return+create-persons (create+return db {:A {:name "Egor" :cost 1000}}))
 
-(def return-persons (get-persons db {:A {:name "Egor" :cost 1000}}))
-(clojure.pprint/pprint return-persons)
-;
-;(pprint db)
-;;;
-;(print-last-version db)
+(clojure.pprint/pprint "create+return")
+(clojure.pprint/pprint return+create-persons)
 
-;(with-session [session (get-session local_db)]
-;              (get-persons session))
+(def match-persons (match db))
 
-;(with-session [session (get-session (connect "db"))]
-;              (run-query session get-persons)
-;              (run-query session  create-person))
+(clojure.pprint/pprint "match")
+(clojure.pprint/pprint match-persons)
 
+(def delete-persons (delete db))
 
-;(defquery test-query "create (:Person :Manager {:name \"Emil\", :from \"Sweden\", :klout 99}) - [:FRIEND {:duration \"Forever\"}] -> (:Person :Director {:name \"Frank\", :from \"USA\"})")
+(clojure.pprint/pprint "delete")
+(clojure.pprint/pprint delete-persons)
 
-;(test-query 1)
+(undo db)
 
-;(def node (transient {:labels [:a :b :c] :props {:cost 100}}))
-;(def adj-list {:node1 node})
-;(pprint "Before assoc:")
-;(pprint (:labels node))
-;(pprint (:labels (:node1 adj-list)))
-;(assoc! node :labels (conj (:labels node) :d))
-;(pprint "After assoc:")
-;(pprint (:labels node))
-;(pprint (:labels (:node1 adj-list)))
+(def set-persons (SET db))
+
+(clojure.pprint/pprint "SET")
+(clojure.pprint/pprint set-persons)
+
+(def create-between-exists-persons (create-between-exists db))
+
+(clojure.pprint/pprint "create-between-exists")
+(clojure.pprint/pprint create-between-exists-persons)

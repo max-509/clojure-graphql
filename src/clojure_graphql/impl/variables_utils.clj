@@ -122,8 +122,8 @@
                                              node-var-value (get-var-value node-var)
                                              old-id (jgraph/index node-var-value)
                                              new-id (if (blank? node-var-name) old-id node-var-name)
-                                             labels (jgraph/node-labels node-var-value)
-                                             properties (jgraph/node-properties node-var-value)]
+                                             labels (jgraph/node-labels (jgraph/node-val node-var-value))
+                                             properties (jgraph/node-properties (jgraph/node-val node-var-value))]
                                          [old-id (create-variable new-id (jgraph/gen-node labels properties new-id))]))
                                      nodes-vars))
         replaced-edges (map (fn [edge-var]
