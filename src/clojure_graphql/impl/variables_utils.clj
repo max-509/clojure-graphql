@@ -105,7 +105,6 @@
                   var (qcont/get-qcontext-var acc-context var-name)
                   var-val (qcont/get-qcontext-var-val var)
                   old-graph (qcont/get-qcontext-graph acc-context)
-                  a (clojure.pprint/pprint var)
                   new-graph (cond
                               (qcont/qcontext-var-nodes? var) (jgraph/delete-nodes old-graph var-val)
                               (qcont/qcontext-var-edges? var) (jgraph/delete-edges old-graph var-val)

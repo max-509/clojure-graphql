@@ -167,7 +167,7 @@
                        adjacency targets source))
          adjacency-item (adjacency source)]
      (if (nil? adjacency-item)
-       adjacency
+       (persistent! adjacency)
        (persistent!
          (assoc!
            adjacency
