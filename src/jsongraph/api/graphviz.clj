@@ -1,64 +1,49 @@
 (ns jsongraph.api.graphviz
   (:require [clojure.test :refer :all]
             [clojure.string :refer [join]]
+
+            [dorothy.core :refer [dot digraph graph-attrs node-attrs edge-attrs]]
+            [dorothy.jvm :refer [show! save!]]
             [jsongraph.impl.utils :refer [get-key get-field split-json concat!]]))
 
 
-(defn- get-label [node]
-  (let [label (first (get-field node :labels))]
-    (if (keyword? label) (name label) "data")))
+(defn- labels-properties2graphviz-label [labels-properties]
+  {:label (str
+            (join (:labels labels-properties))
+            (if-let [props (seq (:properties labels-properties))]
+              (str "\\l{\\l"
+                   (join ";\\l" (map (fn [[field val]] (str field " " val))
+                                     props))
+                   "\\l}")
+              ""))})
 
-(defn- get-property [node]
-    (loop [properties (seq (get-field node :properties))
-           graphviz-props []]
-      (if-let [prop (first properties)]
-        (recur
-          (rest properties)
-          (conj graphviz-props
-                (str
-                  "\\" \" (name (first prop)) "\\"\"" : " (last prop))))
-        (if (empty? graphviz-props)
-          "" (str ":{\\l  " (join "\\l  " graphviz-props) "}")))))
+(defn graph2graphviz [graph]
+  (let [graph (seq (graph :adjacency))
+        options [(node-attrs {:fontsize  16 :width 0.5
+                              :shape     :circle :style :filled
+                              :color     :green :penwidth 2.0
+                              :fillcolor :white})
+                 (edge-attrs {:penwidth 1.5 :fontsize 14})]]
+    (->
+      (digraph
+        (concat options
+                (reduce (fn [graphviz-elements [key value]]
+                          (let [str-key (if (keyword? key) (name key) (str key))
+                                graphviz-node [str-key (labels-properties2graphviz-label value)]
+                                graphviz-edges (mapv (fn [[out-node-key edge-value]]
+                                                       [str-key (if (keyword? out-node-key) (name out-node-key) (str out-node-key))
+                                                        (labels-properties2graphviz-label edge-value)])
+                                                     (seq (:out-edges value)))]
+                            (concat (conj graphviz-elements graphviz-node) graphviz-edges)))
+                        []
+                        graph)))
+      dot)))
 
+(defn save-graphviz
+  ([graph path] (save-graphviz graph path :png))
+  ([graph path format] (-> (graph2graphviz graph)
+                           (save! path {:format format}))))
 
-(defn get-graphviz-node [node]
-  (str "\t" (name (get-key node))
-       " ["
-       "label = \""
-            (get-label node)
-            (get-property node)
-       "\"]"))
-
-(defn get-graphviz-edge [idx-source idx-target label property]
-  (str "\t" idx-source " -> " idx-target " [ label = \"" label property"\" ]"))
-
-(defn get-graphviz-edges [adj-item]
-  (let [idx-source (name (get-key adj-item))]
-    (loop [out-edges (split-json (get-field adj-item :out-edges))
-           graphviz-edges (transient [])]
-      (if (empty? out-edges)
-        (persistent! graphviz-edges)
-        (recur
-          (rest out-edges)
-          (conj! graphviz-edges
-                 (get-graphviz-edge
-                   idx-source (name (get-key (first out-edges)))
-                   (get-label (first out-edges)) (get-property (first out-edges)))))))))
-
-
-(defn graph-to-graphviz [graph]
-  (loop [graph (split-json (graph :adjacency))
-         nodes (transient []) edges (transient [])]
-    (if (empty? graph)
-      (str
-        "digraph {\n fontname=\"Comic Sans MS\"\n node [fontsize = 24 width=0.5 shape=circle style=filled color=green penwidth=2.0 fillcolor=white style=filled]\n edge [penwidth=1.5 fontsize = 18]\n"
-
-        (join "\n" (persistent! nodes))
-        "\n\n"
-        (join "\n" (persistent! edges))
-        "\n}")
-      (recur
-        (rest graph)
-        (conj! nodes (get-graphviz-node (first graph)))
-        (concat! edges (get-graphviz-edges (first graph)))
-        ))))
+(defn show-graphviz [graph]
+  (-> (graph2graphviz graph)
+      show!))

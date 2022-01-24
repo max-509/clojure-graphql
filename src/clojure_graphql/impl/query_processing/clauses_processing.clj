@@ -1,11 +1,10 @@
 (ns clojure-graphql.impl.query-processing.clauses-processing
-  (:require [dorothy.jvm :refer (save!)]
-            [clojure.string :refer [blank?]]
+  (:require [clojure.string :refer [blank? last-index-of join]]
 
             [jsongraph.api.graph-api :as jgraph]
             [jsongraph.api.match-api :as jmatch]
             [jsongraph.api.set-api :as jset]
-            [jsongraph.api.graphviz :as graphviz]
+            [jsongraph.api.graphviz :as jgraphviz]
 
             [clojure-graphql.impl.query-extracter :as qextr]
             [clojure-graphql.impl.versions-tree :as vtree]
@@ -49,12 +48,14 @@
         all-variables (vutils/get-labels-properties-from-vars (qcont/get-qcontext-vars context))]
     (qcont/set-qcontext-return context (return-proc/return-processing return-params all-variables))))
 
-(defn saveviz-processing [pathname context]
+(defn saveviz-processing [clause-data context]
   (let [graph (qcont/get-qcontext-graph context)
-        pathname (first pathname)
-        graphviz-graph (graphviz/graph-to-graphviz graph)]
-    (println graphviz-graph)
-    (save! graphviz-graph pathname {:format :svg})
+        pathname (first clause-data)
+        format-idx (last-index-of pathname ".")
+        [pathname format] (if (nil? format-idx) [(str pathname ".png") "png"]
+                                                [pathname (join (drop (+ format-idx 1) pathname))])
+        ]
+    (jgraphviz/save-graphviz graph pathname (keyword format))
     context))
 
 (defn delete-processing [clause-data context db]

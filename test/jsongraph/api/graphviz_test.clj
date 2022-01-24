@@ -20,13 +20,8 @@
    }" )
 
 
-
-(deftest get-graphviz-edges-in-text-format-demo
-  (pprint (get-graphviz-edges
-    (first (split-json (full-graph :adjacency))))))
-
 (deftest graph-to-graphviz-save-demo
-  (save! (graph-to-graphviz big-graph) (str path-to-images "big-graph.svg") {:format :svg}))
+  (save! (graph2graphviz big-graph) (str path-to-images "big-graph.svg") {:format :svg}))
 
 (defn wait [sec]
   (doseq [x (range sec)]
@@ -42,16 +37,16 @@
   (testing "text format")
   (pprint graph-with-edges)
   (println simple)
-  (println (graph-to-graphviz graph-with-edges))
+  (println (graph2graphviz graph-with-edges))
 
   (testing "show and save")
   (show! simple)
   (save! simple (str path-to-images "simple.svg") {:format :svg})
 
-  (show!  (graph-to-graphviz full-graph))
-  (save! (graph-to-graphviz full-graph) (str path-to-images "full-graph.svg") {:format :svg})
+  (show! (graph2graphviz full-graph))
+  (save! (graph2graphviz full-graph) (str path-to-images "full-graph.svg") {:format :svg})
 
-  (show!  (graph-to-graphviz graph-with-edges))
-  (save! (graph-to-graphviz graph-with-edges) (str path-to-images "graph-with-edges.svg") {:format :svg})
+  (show! (graph2graphviz graph-with-edges))
+  (save! (graph2graphviz graph-with-edges) (str path-to-images "graph-with-edges.svg") {:format :svg})
 
   (wait wait-seconds))

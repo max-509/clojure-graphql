@@ -1,7 +1,10 @@
 (ns clojure-graphql.core
-  (:require [clojure-graphql.impl.language-parser :as core-impl])
-  (:require [clojure-graphql.impl.versions-tree :as vtree]
-            [clojure-graphql.impl.query-processing.clauses-processing :as impl]))
+  (:require [clojure-graphql.impl.language-parser :as core-impl]
+
+            [clojure-graphql.impl.versions-tree :as vtree]
+            [clojure-graphql.impl.query-processing.clauses-processing :as impl]
+
+            [jsongraph.api.graphviz :as jgraphviz]))
 
 
 (defmacro defquery
@@ -13,6 +16,10 @@
 
 (defn init-db []
   (vtree/init-db))
+
+(defn show-last-version [db]
+  (-> (vtree/get-last-version db)
+      jgraphviz/show-graphviz))
 
 (defn print-last-version [db]
   (clojure.pprint/pprint (vtree/get-last-version db)))
