@@ -4,8 +4,8 @@
             [clojure-graphql.impl.language-parser :refer :all]))
 
 
-(defquery test-query "create (a:Person:Manager {name: 'Emil' klout: 99 list: [99 0 1] listt: []})-[b:FRIEND]->(c:Person {from: 'Sweden'})-[d:ENEMY {year: 1999}]->(e)
-                      saveviz test" )
+(defquery test-query "loadjson test.json
+                      saveviz test.svg" )
 
 (def db (init-db))
 (test-query db)

@@ -4,7 +4,7 @@
 (def create-rule
   (insta/parser
     "clauses = clause (<whitespaces> clause)*
-    clause = create | delete | match | set | undo | return | saveviz
+    clause = create | delete | match | set | undo | return | saveviz | savejson | loadjson
 
     (*----------------------------CLAUSES DESCRIPTION-----------------------*)
     create = <create-command> patterns
@@ -12,8 +12,10 @@
     match = <match-command> patterns where
     set = <set-command> set-params
     undo = <undo-command>
-    saveviz = <saveviz-command> filepath
     return = <return-command> return-params
+    saveviz = <saveviz-command> filepath
+    savejson = <savejson-command> filepath
+    loadjson = <loadjson-command> filepath
     (*----------------------------CLAUSES DESCRIPTION-----------------------*)
 
     (*----------------------------SUPPORT FOR CLAUSES-------------------------*)
@@ -117,8 +119,10 @@
     set-command = <('set' | 'SET' | 'Set')> <whitespaces>
     undo-command = <('undo' | 'UNDO' | 'Undo')> <whitespaces>?
     delete-command = <('delete' | 'DELETE' | 'Delete')> <whitespaces>
-    saveviz-command = <('saveviz' | 'SAVEVIZ' | 'Saveviz')> <whitespaces>
     return-command = <('return' | 'RETURN' | 'Return')> <whitespaces>
+    saveviz-command = <('saveviz' | 'SAVEVIZ' | 'Saveviz')> <whitespaces>
+    savejson-command = <('savejson' | 'SAVEJSON' | 'Savejson')> <whitespaces>
+    loadjson-command = <('loadjson' | 'LOADJSON' | 'Loadjson')> <whitespaces>
 
     where-command = <('where' | 'WHERE' | 'Where')> <whitespaces>
 
@@ -141,7 +145,7 @@
     in-command = <('in' | 'IN' | 'In')> <whitespaces>
     (*--------------------------------COMMANDS---------------------------*)
 
-    <filepath> = #'^(?:[a-z]:)?[\\/\\\\]{0,2}(?:[.\\/\\\\ ](?![.\\/\\\\\\n])|[^<>:\"|?*.\\/\\\\ \\n])+$'
+    <filepath> = #'(\\/?([a-zA-z0-9]+\\/)*[a-zA-zz0-9]+(\\.[a-zA-Zz0-9]+)?)'
     <comma> = ',' <whitespaces>?
     <asterisk> = '*'
     <dquote> = '\"'

@@ -48,16 +48,6 @@
         all-variables (vutils/get-labels-properties-from-vars (qcont/get-qcontext-vars context))]
     (qcont/set-qcontext-return context (return-proc/return-processing return-params all-variables))))
 
-(defn saveviz-processing [clause-data context]
-  (let [graph (qcont/get-qcontext-graph context)
-        pathname (first clause-data)
-        format-idx (last-index-of pathname ".")
-        [pathname format] (if (nil? format-idx) [(str pathname ".png") "png"]
-                                                [pathname (join (drop (+ format-idx 1) pathname))])
-        ]
-    (jgraphviz/save-graphviz graph pathname (keyword format))
-    context))
-
 (defn delete-processing [clause-data context db]
   (let [variables (qextr/extract-variables clause-data)
         new-context (vutils/delete-by-vars context variables)]
@@ -80,6 +70,28 @@
     (vtree/add-new-version! db updated-graph)
     new-context))
 
+(defn saveviz-processing [clause-data context]
+  (let [graph (qcont/get-qcontext-graph context)
+        pathname (first clause-data)
+        format-idx (last-index-of pathname ".")
+        [pathname format] (if (nil? format-idx) [(str pathname ".png") "png"]
+                                                [pathname (join (drop (+ format-idx 1) pathname))])
+        ]
+    (jgraphviz/save-graphviz graph pathname (keyword format))
+    context))
+
+(defn savejson-processing [clause-data context]
+  (let [pathname (first clause-data)
+        graph (qcont/get-qcontext-graph context)]
+    (jgraph/save-graph graph pathname)
+    context))
+
+(defn loadjson-processing [clause-data context db]
+  (let [pathname (first clause-data)
+        new-graph (jgraph/load-graph pathname)]
+    (vtree/add-new-version! db new-graph)
+    (qcont/set-qcontext-graph context new-graph)))
+
 (defmulti clause-processing (fn [clause context db] (qextr/extract-clause-name clause)))
 (defmethod clause-processing :create [clause context db] (create-processing (qextr/extract-clause-data clause) context db))
 (defmethod clause-processing :delete [clause context db] (delete-processing (qextr/extract-clause-data clause) context db))
@@ -88,6 +100,8 @@
 (defmethod clause-processing :set [clause context db] (set-processing (qextr/extract-clause-data clause) context db))
 (defmethod clause-processing :return [clause context db] (return-processing (qextr/extract-clause-data clause) context))
 (defmethod clause-processing :saveviz [clause context db] (saveviz-processing (qextr/extract-clause-data clause) context))
+(defmethod clause-processing :savejson [clause context db] (savejson-processing (qextr/extract-clause-data clause) context))
+(defmethod clause-processing :loadjson [clause context db] (loadjson-processing (qextr/extract-clause-data clause) context db))
 
 (defn runner [db query params]
   (let [last-version-graph (vtree/get-last-version db)
