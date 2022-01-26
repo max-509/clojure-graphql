@@ -92,15 +92,13 @@ user=> (type (assoc (make-map 8) :x 1 :y 2))  ; 10 items -> hash map.
 (defn conj-key-in-vals [json]
  (add-items {} (map (fn [[k v]] {k (map #(conj (wrap %) k) v)}) json)))
 
-(defn assoc-items [items]
-  " items is
-      list of item (item is [key value])
-    merge-func is
-      merge for map type item value
-      conj for another types item value"
+(defn merge-by-keys [adj & [-keys]]
+ (apply concat (select-vals adj (if (some? -keys) -keys (keys adj)))))
+
+(defn assoc-items [items & [json]]
    (let [f-merge (if (map? (second (first items))) merge conj)]
     (loop [items items
-          json (transient {})]
+          json (transient (if (some? json) json {}))]
       (if-let [[k v] (first items)]
         (recur (rest items) (assoc! json k (f-merge (json k) v)))
         (persistent! json)))))
@@ -111,9 +109,13 @@ user=> (type (assoc (make-map 8) :x 1 :y 2))  ; 10 items -> hash map.
 (defn filter-nil [json-map]
   (into {} (filter #(some? (second %)) json-map)))
 
-(defn list-difference [list-1 list-2]
-  (if (or (nil? list-1) (nil? list-2))
-    nil (vec (difference (set list-1) (set list-2)))))
+(defn list-difference [list-1 list-2 & lists]
+  (if (or (nil? list-1) (nil? list-2)) nil
+      (vec (difference (set list-1) (set list-2) (map set lists)))))
+
+(defn list-intersection [list-1 list-2 & lists]
+  (if (or (nil? list-1) (nil? list-2)) nil
+     (vec (intersection (set list-1) (set list-2) (map set lists)))))
 
 (defn subvec? [sub -vec]
   (if (empty? sub)
@@ -138,7 +140,7 @@ user=> (type (assoc (make-map 8) :x 1 :y 2))  ; 10 items -> hash map.
       (conj! x (first y))
       (rest y))))
 
-(defn gen-json-by-keys [-keys & -val]
+(defn gen-json-by-keys [-keys & [-val]]
   (loop [json (transient {})
          -keys -keys]
     (if (empty? -keys)

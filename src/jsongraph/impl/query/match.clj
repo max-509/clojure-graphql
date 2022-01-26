@@ -97,9 +97,6 @@
         (get-item query (get-edge-target %)))
     (adjacency-to-edges-data query)))
 
-(defn merge-by-keys [adj & [-keys]]
- (apply concat (select-vals adj (if (some? -keys) -keys (keys adj)))))
-
 (defn merge-tail-ways [adj-edges conj-adj-edges]
  (add-items {} (map (fn [[k v]] {k (merge-by-keys conj-adj-edges v)}) adj-edges)))
 

@@ -1,5 +1,6 @@
 (ns jsongraph.api.graph-api
   (:require
+    [jsongraph.impl.index :refer [add-labels-in-index delete-labels-in-index]]
     [jsongraph.impl.graph :refer :all]
     [jsongraph.impl.utils :refer [get-key get-field add-items split-json]]
     [clj-uuid :as uuid] [jsonista.core :as j])
@@ -85,3 +86,14 @@
 
 (defn load-graph [^String path]
   (j/read-value (File. path) (j/object-mapper {:decode-key-fn true})))
+
+(defn add-labels-index [graph labels & [metadata-only]]
+  (if (boolean metadata-only) (add-labels-in-index graph labels)
+   (graph-from-meta-adj
+     (add-labels-in-index graph labels)
+     (graph :adjacency))))
+
+(defn delete-labels-index [graph labels]
+  (graph-from-meta-adj
+     (delete-labels-in-index (graph :metadata) labels)
+     (graph :adjacency)))
