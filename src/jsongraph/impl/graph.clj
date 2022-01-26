@@ -1,32 +1,30 @@
 (ns jsongraph.impl.graph
-  (:require [jsongraph.impl.utils :refer :all]
-            [clojure.set :refer :all]
-            [clojure.data :refer :all]))
+    (:require [jsongraph.impl.utils :refer :all]
+              [clojure.set :refer :all]
+              [clojure.data :refer :all]))
 
 (defn gen-adjacency-item
   [in-edges out-edges labels properties]
   {
-   :in-edges   in-edges
-   :out-edges  out-edges
+   :in-edges  in-edges
+   :out-edges out-edges
 
-   :labels     labels
+   :labels    labels
    :properties properties})
 
 (defn assoc-out-edges-adjacency-item
-  [adjacency-item out-edges]
+  [adjacency-item  out-edges]
   (assoc adjacency-item :out-edges out-edges))
 
 (defn apply-to-adjacency
-  [graph-adj func args & [data-only?]]
-  (let [graph-adj (func (graph-adj :adjacency graph-adj) args)]
-    (if (boolean data-only?)
-      graph-adj {:adjacency graph-adj})))
+  [graph-adj func args]
+  (func (graph-adj :adjacency graph-adj) args))
 
 (defn gen-edge
   [source-idx target-idx
    labels properties]
-  [[source-idx target-idx]
-   {:labels labels :properties properties}])
+ [[source-idx target-idx]
+  {:labels labels :properties properties}])
 
 (defn get-edge-source [edge-data]
   (first (first edge-data)))
@@ -37,9 +35,12 @@
 (defn get-edge-data [edge-data]
   (second edge-data))
 
+(defn graph-from-meta-adj [metadata adjacency]
+  {:metadata   metadata
+   :adjacency  adjacency})
+
 (defn gen-empty-graph []
-  {:metadata  {}
-   :adjacency {}})
+  (graph-from-meta-adj {} {}))
 
 (defn node-to-edges-data [node]
   (map
@@ -203,18 +204,16 @@
       (keys edges) (map keys (vals edges)))))
 
 (defn delete-node-by-index [graph idx-nodes]
-  (let [nodes-tags (vec idx-nodes)]
-    (merge
-      (get-item graph :metadata)
+  (let [idx-nodes  (vec idx-nodes)]
+   (graph-from-meta-adj
+    (graph :metadata)
       (-> graph
           (apply-to-adjacency
             delete-items
-            nodes-tags true)
-
+            idx-nodes)
           (apply-to-adjacency
             delete-edges-by-target-indexes
-            nodes-tags true)
-
+            idx-nodes)
           (apply-to-adjacency
             delete-in-edges-in-all-node
-            nodes-tags)))))
+            idx-nodes)))))

@@ -1,7 +1,7 @@
 (ns jsongraph.api.graph-api
   (:require
     [jsongraph.impl.graph :refer :all]
-    [jsongraph.impl.utils :refer [get-key get-field get-item add-items split-json]]
+    [jsongraph.impl.utils :refer [get-key get-field add-items split-json]]
     [clj-uuid :as uuid] [jsonista.core :as j])
 
   (:import (java.io File)))
@@ -41,13 +41,13 @@
 
 
 (defn add-nodes [graph nodes]
-  (merge
-    (get-item graph :metadata)
+  (graph-from-meta-adj
+    (graph :metadata)
     (apply-to-adjacency graph add-items nodes)))
 
 (defn delete-nodes [graph nodes]
-  (merge
-    (get-item graph :metadata)
+  (graph-from-meta-adj
+    (graph :metadata)
     (delete-node-by-index graph (index-from-many nodes))))
 
 (defn gen-edge-data
@@ -59,16 +59,14 @@
               labels properties)))
 
 (defn add-edges [graph edges]
-  (merge
-    (get-item graph :metadata)
-    (apply-to-adjacency
-      graph add-out-edges! edges)))
+  (graph-from-meta-adj
+    (graph :metadata)
+    (apply-to-adjacency graph add-out-edges! edges)))
 
 (defn delete-edges [graph edges]
-  (merge
-    (get-item graph :metadata)
-    (apply-to-adjacency
-      graph delete-edges-from-adjacency edges)))
+  (graph-from-meta-adj
+    (graph :metadata)
+    (apply-to-adjacency graph delete-edges-from-adjacency edges)))
 
 (defn create-graph
   ([] (gen-empty-graph))
