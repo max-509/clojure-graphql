@@ -109,7 +109,7 @@
     true
     (expr-tree-walk pattern expr-tree)))
 
-(defn where-filter [ways founded-patterns nodes edges expr-tree]
+(defn where-filter [nodes-edges-groups expr-tree]
   (filter
     (fn [[vars-nodes vars-edges]]
       (let [labels-props-nodes (into {} (map (fn [[node-name node]]
@@ -118,30 +118,9 @@
                                                      properties (:properties node-val)]
                                                  [node-name {:labels labels :properties properties}]))
                                              (seq vars-nodes)))
-            labels-props-edges (into {} (map (fn [[edge-name [edge]]]
+            labels-props-edges (into {} (map (fn [[edge-name edge]]
                                                (let [labels-properties (get-edge-data edge)]
                                                  [edge-name labels-properties]))
                                              (seq vars-edges)))]
         (filtered-pattern? (merge labels-props-nodes labels-props-edges) expr-tree)))
-    (map (fn [[way pattern]]
-           (let [vars-uuids (mapv vector nodes way)
-                 varnames-to-uuids (into {} (map (fn [[var uuid]] [(get var :var-name) uuid]) vars-uuids))
-                 vars-nodes (into {} (map (fn [[var uuid]]
-                                            (let [var-name (:var-name var)
-                                                  node (get pattern uuid)]
-                                              [var-name {uuid node}]))
-                                          vars-uuids))
-                 vars-edges (into {} (map (fn [var]
-                                            (let [var-name (:var-name var)
-                                                  edge (:var-value var)
-                                                  source-uuid (get varnames-to-uuids (get-edge-source edge))
-                                                  target-uuid (get varnames-to-uuids (get-edge-target edge))
-                                                  source {source-uuid (get pattern source-uuid)}
-                                                  target {target-uuid (get pattern target-uuid)}
-                                                  labels-properties (get (:out-edges (get source source-uuid)) target-uuid)
-                                                  labels (:labels labels-properties)
-                                                  properties (:properties labels-properties)]
-                                              [var-name [(gen-edge-data source target labels properties)]]))
-                                          edges))]
-             [vars-nodes vars-edges]))
-         (mapv vector ways founded-patterns))))
+    nodes-edges-groups))
