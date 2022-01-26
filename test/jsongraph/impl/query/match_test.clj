@@ -112,16 +112,26 @@
     query-node-matched-A query-node-matched-B
     nil (assoc prop-edge-AB :cost -1)))
 
+(def query-node-with-edge-no-matched-AB
+  (single-edge-query
+    query-node-matched-A query-node-matched-A
+    nil prop-edge-AB))
+
+(def query-loop-AA
+  (single-edge-query
+    query-node-matched-A query-node-matched-A
+    nil nil))
+
 
 ;Tests
 
 (deftest match-data-test
   (testing "match")
-  (is (match-data nA query-node-matched-A))
-  (is (match-data nA query-node-matched-any))
+  (is (match-data? nA query-node-matched-A))
+  (is (match-data? nA query-node-matched-any))
   (testing "no match")
-  (is (not (match-data nA query-node-no-matched-lab)))
-  (is (not (match-data nA query-node-no-matched))))
+  (is (not (match-data? nA query-node-no-matched-lab)))
+  (is (not (match-data? nA query-node-no-matched))))
 
 
 (deftest match-json-test
@@ -134,61 +144,55 @@
 
 (deftest get-match-adj-edges-graph-wo-edges-test
   (testing "match")
-  (is (get-matched-nodes (graph-nA :adjacency) query-node-matched-A) '(:A))
-  (is (get-matched-nodes (graph-nA-nB :adjacency) query-node-matched-any) '(:A :B))
+  (is (get-matched-nodes graph-nA query-node-matched-A) '(:A))
+  (is (get-matched-nodes graph-nA-nB query-node-matched-any) '(:A :B))
+  (is (get-matched-nodes big-graph query-node-matched-any) '(:A :B :C :D))
   (testing "no match")
-  (is (get-matched-nodes (graph-empty :adjacency) query-node-matched-A) '())
-  (is (get-matched-nodes (graph-empty :adjacency) query-node-matched-any) '()))
+  (is (get-matched-nodes graph-empty query-node-matched-A) '())
+  (is (get-matched-nodes graph-empty query-node-matched-any) '()))
 
 
 (deftest get-match-adj-edges-graph-with-edges-demo
   (testing "match")(println "Match")
-  (print " Any nodes\t\t\t\t   ") (println (get-matched-nodes (graph-with-edge :adjacency) query-node-matched-any))
-  (print " Source in graph with edge ") (println (get-matched-nodes (graph-with-edge :adjacency) query-node-matched-A))
-  (print " Full edge\t\t\t\t   ") (println (match-adj-edges-list (graph-with-edge :adjacency) query-node-with-edge-matched-AB))
-  (print " Any nodes in big graph\t   ") (println (get-matched-nodes (graph-with-edges :adjacency) query-node-matched-any))
-  (print " Source to any\t\t\t   ") (println (match-adj-edges-list (graph-with-edges :adjacency) query-node-with-edge-matched-A-any))
-  (print " Any to any\t\t\t\t   ") (println (match-adj-edges-list (graph-with-edges :adjacency) query-node-with-edge-matched-any-any))
+  (print " Any nodes\t\t\t\t   ") (println (get-matched-nodes graph-with-edge query-node-matched-any))
+  (print " Source in graph with edge ") (println (get-matched-nodes graph-with-edge query-node-matched-A))
+  (print " Full edge\t\t\t\t   ") (println (match-adj-edges-list graph-with-edge query-node-with-edge-matched-AB))
+  (print " Any nodes in big graph\t   ") (println (get-matched-nodes graph-with-edges query-node-matched-any))
+  (print " Source to any\t\t\t   ") (println (match-adj-edges-list graph-with-edges query-node-with-edge-matched-A-any))
+  (print " Any to any\t\t\t\t   ") (println (match-adj-edges-list graph-with-edges query-node-with-edge-matched-any-any))
   (testing "no match") (println "NO Match")
-  (print " Source\t ") (println (match-adj-edges-list (graph-with-edge :adjacency) query-node-with-edge-no-matched-A))
-  (print " Target\t ") (println (match-adj-edges-list (graph-with-edge :adjacency) query-node-with-edge-no-matched-B))
-  (print " Edge\t ") (println (match-adj-edges-list (graph-with-edge :adjacency) query-node-with-edge-no-matched-edge-AB)))
+  (print " Source\t ") (println (match-adj-edges-list graph-with-edge query-node-with-edge-no-matched-A))
+  (print " Target\t ") (println (match-adj-edges-list graph-with-edge query-node-with-edge-no-matched-B))
+  (print " Edge\t ") (println (match-adj-edges-list graph-with-edge query-node-with-edge-no-matched-edge-AB)))
 
 (deftest match-adj-edges-query-big-graph-demo
-  (pprint (match-adj-edges-list (big-graph :adjacency) query-node-with-AB-AC-edges)))
+  (pprint (match-adj-edges-list big-graph query-node-with-AB-AC-edges)))
 
 ;==========================================================================
 
-(deftest merge-by-keys-test
-  (is (merge-by-keys
-        {:A '((:A :B) (:A :C)) ; <-
-         :B '((:B :A))         ; <-
-         :C '((:C :A) (:C :D) (:C :B))}
-        [:A :B])
-
-      '((:A :B) (:A :C) (:B :A))))
-
 (deftest get-matched-ways-graph-wo-edges-test
-  (testing "match") (println "match")
-  (is (get-matched-ways (graph-nA :adjacency) query-node-matched-A) '((:A)))
-  (is (get-matched-ways (graph-nA-nB :adjacency) query-node-matched-any) '((:A) (:B)))
-  (testing "no match") (println "no match")
-  (is (get-matched-ways (graph-empty :adjacency) query-node-matched-A) '())
-  (is (get-matched-ways (graph-empty :adjacency) query-node-matched-any) '()))
+  (testing "match")
+  (is (get-matched-ways graph-nA query-node-matched-A) '((:A)))
+  (is (get-matched-ways graph-nA-nB query-node-matched-any) '((:A) (:B)))
+  (testing "no match")
+  (is (get-matched-ways graph-empty query-node-matched-A) '())
+  (is (get-matched-ways graph-empty query-node-matched-any) '()))
 
 
 (deftest get-matched-ways-graph-with-edges-demo
   (testing "match")(println "Match")
-  (print " Any nodes\t\t\t\t   ") (println (get-matched-ways (graph-with-edge :adjacency) query-node-matched-any))
-  (print " Source in graph with edge ") (println (get-matched-ways (graph-with-edge :adjacency) query-node-matched-A))
-  (print " Full edge\t\t\t\t   ") (println (get-matched-ways (graph-with-edge :adjacency) query-node-with-edge-matched-AB))
-  (print " Any nodes in big graph\t   ") (println (get-matched-ways (graph-with-edges :adjacency) query-node-matched-any))
-  (print " Source to any\t\t\t   ") (println (get-matched-ways (graph-with-edges :adjacency) query-node-with-edge-matched-A-any))
-  (print " Any to any\t\t\t\t   ") (println (get-matched-ways (graph-with-edges :adjacency) query-node-with-edge-matched-any-any))
+  (print " Any nodes\t\t\t\t   ") (println (get-matched-ways graph-with-edge query-node-matched-any))
+  (print " Source in graph with edge ") (println (get-matched-ways graph-with-edge query-node-matched-A))
+  (print " Full edge\t\t\t\t   ") (println (get-matched-ways graph-with-edge query-node-with-edge-matched-AB))
+  (print " Any nodes in big graph\t   ") (println (get-matched-ways graph-with-edges query-node-matched-any))
+  (print " Source to any\t\t\t   ") (println (get-matched-ways graph-with-edges query-node-with-edge-matched-A-any))
+  (print " Any to any\t\t\t\t   ") (println (get-matched-ways graph-with-edges query-node-with-edge-matched-any-any))
   (testing "no match") (println "NO Match")
-  (print " Source\t ") (println (get-matched-ways (graph-with-edge :adjacency) query-node-with-edge-no-matched-A))
-  (print " Target\t ") (println (get-matched-ways (graph-with-edge :adjacency) query-node-with-edge-no-matched-B))
-  (print " Edge\t ") (println (get-matched-ways (graph-with-edge :adjacency) query-node-with-edge-no-matched-edge-AB)))
+  (print " Source\t ") (println (get-matched-ways graph-with-edge query-node-with-edge-no-matched-A))
+  (print " Target\t ") (println (get-matched-ways graph-with-edge query-node-with-edge-no-matched-B))
+  (print " Edge\t ") (println (get-matched-ways graph-with-edge query-node-with-edge-no-matched-edge-AB)))
 
 (deftest get-matched-ways-big-graph-demo
-  (println (get-matched-ways (big-graph :adjacency) query-node-with-AB-AC-edges)))
+  (println (get-matched-ways big-graph query-loop-AA))
+  (println (get-matched-ways big-graph query-node-with-edge-no-matched-AB))
+  (println (get-matched-ways big-graph query-node-with-AB-AC-edges)))

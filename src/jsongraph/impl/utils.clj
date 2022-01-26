@@ -68,20 +68,13 @@ user=> (type (assoc (make-map 8) :x 1 :y 2))  ; 10 items -> hash map.
 (defn select-vals [json -keys]
   (map #(json %) -keys))
 
-(defn keys-intersection [json-1 json-2]
-  (vec (intersection (keysSet json-1) (keysSet json-2))))
+(defn list-difference [list-1 list-2 & lists]
+  (if (or (nil? list-1) (nil? list-2)) nil
+      (vec (difference (set list-1) (set list-2) (map set lists)))))
 
-(defn get-items [json-map & -keys]
-  (if (empty? -keys)
-    (vec (set json-map))
-    (let [d (difference
-              (set -keys)
-              (.keySet json-map))]
-      (if (empty? d)
-         (select-keys json-map -keys)
-         (throw (Throwable. (str "\nKeys " (vec d) " not found\n"
-                                 "-keys" (set -keys) "\n"
-                                 "json-map-keys" (.keySet json-map) "\n")))))))
+(defn list-intersection [list-1 list-2 & lists]
+  (if (or (nil? list-1) (nil? list-2)) nil
+     (vec (intersection (set list-1) (set list-2) (map set lists)))))
 
 (defn split-json [json] ; faster than (seq json) and (apply list json)
   (map (fn [[k v]] {k v}) json))
@@ -94,6 +87,12 @@ user=> (type (assoc (make-map 8) :x 1 :y 2))  ; 10 items -> hash map.
 
 (defn merge-by-keys [adj & [-keys]]
  (apply concat (select-vals adj (if (some? -keys) -keys (keys adj)))))
+
+(defn intersection-by-keys [json -keys]
+  (if (nil? json) nil
+      (apply list-intersection
+         (select-vals json -keys))))
+
 
 (defn assoc-items [items & [json]]
    (let [f-merge (if (map? (second (first items))) merge conj)]
@@ -109,14 +108,6 @@ user=> (type (assoc (make-map 8) :x 1 :y 2))  ; 10 items -> hash map.
 (defn filter-nil [json-map]
   (into {} (filter #(some? (second %)) json-map)))
 
-(defn list-difference [list-1 list-2 & lists]
-  (if (or (nil? list-1) (nil? list-2)) nil
-      (vec (difference (set list-1) (set list-2) (map set lists)))))
-
-(defn list-intersection [list-1 list-2 & lists]
-  (if (or (nil? list-1) (nil? list-2)) nil
-     (vec (intersection (set list-1) (set list-2) (map set lists)))))
-
 (defn subvec? [sub -vec]
   (if (empty? sub)
     false (subset? (set sub) (set -vec))))
@@ -124,8 +115,6 @@ user=> (type (assoc (make-map 8) :x 1 :y 2))  ; 10 items -> hash map.
 (defn lists-equal [list-1 list-2]
    (= (set list-1) (set list-2)))
 
-(defn keys-equal [json-1 json-2]
-   (= (.keySet json-1) (.keySet json-2)))
 
 (defn json-difference [json-1 json-2]
   (let [s1 (set json-1) s2 (set json-2)

@@ -45,13 +45,7 @@
   (testing "get-key")
   (is (= (get-val json-1 0) 'a))
   (is (= (get-val json-1) (get-val json-1 0)))
-  (is (not= (get-val json-1 2) 'a))
-
-  (testing "get-item")
-  (is (= (get-item json-1 :A) {:A 'a}))
-  (is (= (get-items json-1 :A :D) {:A 'a :D 'd}))
-  (is (not= (get-item json-1 :B) {:C 'c}))
-  )
+  (is (not= (get-val json-1 2) 'a)))
 
 (deftest add-delete-filter-test
   (testing "add-items")
@@ -61,15 +55,37 @@
   (testing "delete-items")
   (is (= (delete-items json-3 [:C :D :E]) {:A 'a :B 'b :F 'f :G 'g}))
   (testing "filter-nils")
-  (is (= (filter-nil {:A 'a :B nil :F 'f}) {:A 'a :F 'f}))
-  )
+  (is (= (filter-nil {:A 'a :B nil :F 'f}) {:A 'a :F 'f})))
 
 (deftest assoc-items-test
   (is (assoc-items
+        (list [:B {'b 1}] [:D {'d 1}] [:A {'a 1}] [:A {'h 1}])
+        {:C {'e 6} :D {'k 9}})
+      '{:C {e 6}, :D {k 9, d 1}, :B {b 1}, :A {a 1, h 1}})
+  (is (assoc-items
         (list [:C {'c 1}] [:B {'b 1}] [:D {'d 1}] [:A {'a 1}] [:A {'h 1}] [:A {'a 2}]))
-      '{:C {'c 1}, :B {'b 1}, :D {'d 1}, :A {'a 2, 'h 1}})
+      '{:C {c 1} :B {b 1} :D {d 1} :A {a 2 h 1}})
   (is (assoc-items '((:C :A) (:C :D) (:C :B) (:B :A) (:A :B) (:A :C)))
       '{:C (:B :D :A) :B (:A) :A (:C :B)}))
+
+(deftest merge-by-keys-test
+  (is (nil? (merge-by-keys nil [:A :B])))
+  (is (nil? (merge-by-keys nil [])))
+  (is (merge-by-keys {} [:A :B]) '())
+  (is (merge-by-keys {} []) '())
+  (is (merge-by-keys json-3 []) '())
+  (is (merge-by-keys json-3 [:A :B]) ('a 'b))
+  (is
+    (merge-by-keys
+        {:A '((:A :B) (:A :C))
+         :B '((:B :A))}
+        [:C]) '())
+  (is (merge-by-keys
+        {:A '((:A :B) (:A :C)) ; <-
+         :B '((:B :A))         ; <-
+         :C '((:C :A) (:C :D) (:C :B))}
+        [:A :B :D])
+      '((:A :B) (:A :C) (:B :A))))
 
 (deftest conj-key-in-test
   (is (conj-key-in-vals adj)
@@ -98,5 +114,4 @@
     (is (not (lists-equal [1 2 5] [1 3 5]))))
 
 (deftest -test
-    (println (keys (transient {:A 'a})))
-)
+    (println (disj (keysSet {:l1 '() :l2 '() :v0 '()}) :v0) ))
