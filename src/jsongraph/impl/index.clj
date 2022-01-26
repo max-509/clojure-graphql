@@ -1,9 +1,8 @@
 (ns jsongraph.impl.index
-  (:require [clj-uuid :as uuid]
-            [jsongraph.impl.utils :refer [wrap assoc-items delete-items keysSet
-                                          gen-json-by-keys merge-by-keys list-intersection]]))
+  (:require
+    [jsongraph.impl.utils :refer [wrap assoc-items delete-items keysSet uuid-v0
+                                  gen-json-by-keys merge-by-keys list-intersection]]))
 
-(def uuid-v0 (uuid/v0))
 
 (defn add-node-in-index-map [adjacency node-index index-map]
   (let [labels ((adjacency node-index) :labels)]

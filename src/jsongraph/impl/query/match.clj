@@ -55,6 +55,7 @@
       (match-properties? data query-data)));)
 
 (defn match-json [json query-data & [labels-checked?]]
+  ;(print "match-json json ") (pprint json)
   (if (empty? json) '()
    (let [ks (keys json)]
      ;(println "labels-checked?" labels-checked?)
@@ -71,12 +72,18 @@
      (match-json (select-keys adjacency targets) query-node-target)))
 
 (defn get-matched-nodes [graph query-node]
-  (if-let [index-map ((graph :metadata) :index)]
-    (match-json ;use labels index
-      (select-keys (graph :adjacency)
-          (intersection-by-keys index-map (get-field query-node :labels)))
-      query-node true)
-    (match-json (graph :adjacency) query-node)))
+  ;(println "graph" graph)
+  ;(println "index-map" ((graph :metadata) :index))
+  ;(println "labels" (get-field query-node :labels))
+  (let [index-map ((graph :metadata) :index)
+        labels (get-field query-node :labels)]
+    (if (and (some? index-map) (some? labels))
+      (match-json ;use labels index
+        (select-keys (graph :adjacency)
+          (intersection-by-keys index-map labels))
+        query-node true)
+
+        (match-json (graph :adjacency) query-node))))
 
 (defn get-matched-adj-edges [graph query-node-source q-edge-data query-node-target]
   ;(println "query-node-source") (pprint query-node-source)

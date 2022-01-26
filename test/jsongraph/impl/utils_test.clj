@@ -103,6 +103,13 @@
 (deftest list-difference-test
     (is (list-difference nil [1 3]) nil))
 
+(deftest list-difference-test
+  (is (nil? (list-intersection)))
+  (is (list-intersection '()) '())
+  (is (list-intersection '(:N)) '(:N))
+  (is (list-intersection '(:A :N :I) '(:N :I)) '(:N :I))
+  (is (apply list-intersection ['(:A :N :I) '(:I :A)]) '(:I :A)))
+
 (deftest subvec-test
     (is (subvec? [2 1] [2 1 3]))
     (is (not (subvec? [6 7] [2 1 3])))

@@ -36,6 +36,6 @@
   (print " Edge\t ") (pprint (match-query graph-with-edge query-node-with-edge-no-matched-edge-AB)))
 
 (deftest match-query-big-graph-demo
-  (pprint (match-query big-graph query-node-with-AB-AC-edges)))
-
-
+  (println (match-query big-graph query-loop-AA))
+  (println (match-query big-graph query-node-with-edge-no-matched-AB))
+  (println (match-query big-graph query-node-with-AB-AC-edges)))

@@ -1,7 +1,10 @@
 (ns jsongraph.impl.utils
   (:require
+    [clj-uuid :as uuid]
     [clojure.data.json :as json]
     [clojure.set :refer :all]))
+
+(def uuid-v0 (uuid/v0))
 
 (comment How work array-map and hash-map
   An array-map maintains the insertion order of the keys.
@@ -50,8 +53,6 @@ user=> (type (assoc (make-map 8) :x 1 :y 2))  ; 10 items -> hash map.
     (vals json)
     (if (some? idx) idx 0)))
 
-(defn get-item [json -key]
-  (select-keys json [-key]))
 
 (defn get-field [json -key]
   ((get-val json) -key))
@@ -62,8 +63,6 @@ user=> (type (assoc (make-map 8) :x 1 :y 2))  ; 10 items -> hash map.
 (defn keysSet [json]
   (set (keys json)))
 
-(defn valsSet [json]
-  (set (vals json)))
 
 (defn select-vals [json -keys]
   (map #(json %) -keys))
@@ -72,9 +71,13 @@ user=> (type (assoc (make-map 8) :x 1 :y 2))  ; 10 items -> hash map.
   (if (or (nil? list-1) (nil? list-2)) nil
       (vec (difference (set list-1) (set list-2) (map set lists)))))
 
-(defn list-intersection [list-1 list-2 & lists]
-  (if (or (nil? list-1) (nil? list-2)) nil
-     (vec (intersection (set list-1) (set list-2) (map set lists)))))
+(defn list-intersection
+  ([] nil)
+  ([list-1] list-1)
+  ([list-1 list-2]
+   (seq (intersection (set list-1) (set list-2))))
+  ([list-1 list-2 & lists]
+     (seq (intersection (set list-1) (set list-2) (map set lists)))))
 
 (defn split-json [json] ; faster than (seq json) and (apply list json)
   (map (fn [[k v]] {k v}) json))
@@ -90,8 +93,7 @@ user=> (type (assoc (make-map 8) :x 1 :y 2))  ; 10 items -> hash map.
 
 (defn intersection-by-keys [json -keys]
   (if (nil? json) nil
-      (apply list-intersection
-         (select-vals json -keys))))
+      (apply list-intersection (select-vals json (if (some? -keys) -keys (disj (keysSet json) uuid-v0))))))
 
 
 (defn assoc-items [items & [json]]
