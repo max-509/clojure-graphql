@@ -9,9 +9,6 @@
 ; structure matching
 ;; USE GRAPH API ;;
 
-; where matching
-
-
 ; match
 
 (defn match-query [graph query & [only-ways]]

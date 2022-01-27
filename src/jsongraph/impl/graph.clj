@@ -16,12 +16,6 @@
   [adjacency-item  out-edges]
   (assoc adjacency-item :out-edges (merge (:out-edges adjacency-item) out-edges)))
 
-(defn apply-to-adjacency
-  [graph-adj func args & [data-only?]]
-  (let [graph-adj (func (graph-adj :adjacency graph-adj) args)]
-    (if (boolean data-only?)
-      graph-adj {:adjacency graph-adj})))
-
 (defn gen-edge
   [source-idx target-idx
    labels properties]
@@ -137,7 +131,6 @@
    (delete-in-edges adjacency [targets sources]))
 
   ([adjacency [targets sources]]
-   ;(let [wrapv #(if (coll? %) % [%])]
    (loop [targets (if (some? targets) (wrap targets) (keys adjacency))
           adjacency (transient adjacency)
           sources (wrap sources)]
@@ -150,8 +143,7 @@
            adjacency
            (first targets)
            sources)
-         sources)))                                         ;)
-   ))
+         sources)))))
 
 
 (defn delete-in-edges-in-all-node [adjacency targets]
@@ -206,18 +198,10 @@
       (keys edges) (map keys (vals edges)))))
 
 (defn delete-node-by-index [graph idx-nodes]
-  (let [nodes-tags (vec idx-nodes)]
-    (merge
-      (get-item graph :metadata)
-      (-> graph
-          (apply-to-adjacency
-            delete-items
-            nodes-tags true)
-
-          (apply-to-adjacency
-            delete-edges-by-target-indexes
-            nodes-tags true)
-
-          (apply-to-adjacency
-            delete-in-edges-in-all-node
-            nodes-tags)))))
+  (let [idx-nodes (wrap idx-nodes)]
+    (graph-from-meta-adj
+      (graph :metadata)
+      (-> (graph :adjacency)
+          (delete-items idx-nodes)
+          (delete-edges-by-target-indexes idx-nodes)
+          (delete-in-edges-in-all-node idx-nodes)))))

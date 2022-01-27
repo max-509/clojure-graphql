@@ -107,23 +107,7 @@ user=> (type (assoc (make-map 8) :x 1 :y 2))  ; 10 items -> hash map.
 (defn delete-items [json-map [tag & tags]]
   (apply (partial dissoc json-map) tag tags))
 
-(defn keys-intersection [json-1 json-2]
-  (vec (intersection (keysSet json-1) (keysSet json-2))))
 
-(defn get-items [json-map & -keys]
-  (if (empty? -keys)
-    (vec (set json-map))
-    (let [d (difference
-              (set -keys)
-              (.keySet json-map))]
-      (if (empty? d)
-        (select-keys json-map -keys)
-        (throw (Throwable. (str "\nKeys " (vec d) " not found\n"
-                                "-keys" (set -keys) "\n"
-                                "json-map-keys" (.keySet json-map) "\n")))))))
-
-(defn get-item [json -key]
-  (select-keys json [-key]))
 
 (defn filter-nil [json-map]
   (into {} (filter #(some? (second %)) json-map)))

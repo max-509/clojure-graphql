@@ -99,5 +99,8 @@
   (println)
   (println "delete-node-by-uuid-test")
   (json/pprint full-graph)
+  (println "node" [kC])
+  (json/pprint (delete-node-by-index full-graph kC))
+  (println)
   (println "nodes" [kA kC])
   (json/pprint (delete-node-by-index full-graph [kA kC])))
