@@ -1,0 +1,55 @@
+{
+  "A" : {
+    "in-edges" : [ ],
+    "out-edges" : {
+      "B" : {
+        "labels" : [ "AB" ],
+        "properties" : {
+          "cost" : 68,
+          "danger" : 10
+        }
+      },
+      "C" : {
+        "labels" : [ "AC" ],
+        "properties" : {
+          "cost" : 56,
+          "danger" : 3
+        }
+      }
+    },
+    "labels" : [ "lab-A" ],
+    "properties" : {
+      "money" : 100,
+      "age" : 21,
+      "weight" : 50
+    }
+  },
+  "B" : {
+    "in-edges" : [ "A", "C" ],
+    "out-edges" : { },
+    "labels" : [ "lab-B" ],
+    "properties" : {
+      "money" : 380,
+      "age" : 30,
+      "weight" : 64
+    }
+  },
+  "C" : {
+    "in-edges" : [ "A" ],
+    "out-edges" : {
+      "B" : {
+        "labels" : [ "CB" ],
+        "properties" : {
+          "cost" : 40,
+          "danger" : 5
+        }
+      }
+    },
+    "labels" : [ "lab-C" ],
+    "properties" : {
+      "money" : 270,
+      "age" : 18,
+      "weight" : 48
+    }
+  }
+}

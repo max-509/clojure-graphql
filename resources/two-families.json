@@ -1,0 +1,99 @@
+{
+  "metadata" : { },
+  "adjacency" : {
+    "9c105213-44b2-4c37-a12d-dd150056491a" : {
+      "in-edges" : [ ],
+      "out-edges" : {
+        "3e20106b-bef7-455b-bf7d-7b69585c6a5e" : {
+          "labels" : [ "DAUGHTER" ],
+          "properties" : null
+        }
+      },
+      "labels" : [ "FEMALE" ],
+      "properties" : {
+        "name" : "Dasha"
+      }
+    },
+    "3e20106b-bef7-455b-bf7d-7b69585c6a5e" : {
+      "in-edges" : [ "94fbc2c7-a387-4abd-803a-d71caf58d723", "9c105213-44b2-4c37-a12d-dd150056491a", "82138593-c260-4f05-abcb-b7d394b22e2c" ],
+      "out-edges" : { },
+      "labels" : null,
+      "properties" : {
+        "name" : "Oleg"
+      }
+    },
+    "94fbc2c7-a387-4abd-803a-d71caf58d723" : {
+      "in-edges" : [ ],
+      "out-edges" : {
+        "3e20106b-bef7-455b-bf7d-7b69585c6a5e" : {
+          "labels" : [ "SON" ],
+          "properties" : null
+        }
+      },
+      "labels" : [ "MALE" ],
+      "properties" : {
+        "name" : "Dima"
+      }
+    },
+    "82138593-c260-4f05-abcb-b7d394b22e2c" : {
+      "in-edges" : [ ],
+      "out-edges" : {
+        "3e20106b-bef7-455b-bf7d-7b69585c6a5e" : {
+          "labels" : [ "DAUGHTER" ],
+          "properties" : null
+        }
+      },
+      "labels" : [ "FEMALE" ],
+      "properties" : {
+        "name" : "Lyuba"
+      }
+    },
+    "b5b00d2f-629a-4ad7-aee0-073cedb9ac0c" : {
+      "in-edges" : [ ],
+      "out-edges" : {
+        "af979c48-dec3-436d-a737-34a6db42ec87" : {
+          "labels" : [ "DAUGHTER" ],
+          "properties" : null
+        }
+      },
+      "labels" : [ "FEMALE" ],
+      "properties" : {
+        "name" : "Katya"
+      }
+    },
+    "af979c48-dec3-436d-a737-34a6db42ec87" : {
+      "in-edges" : [ "1401d1f4-051c-4fe0-8f8c-a4e3cf873523", "b5b00d2f-629a-4ad7-aee0-073cedb9ac0c", "594a8340-d9f6-4901-a4a6-161aebf2e247" ],
+      "out-edges" : { },
+      "labels" : null,
+      "properties" : {
+        "name" : "Roman"
+      }
+    },
+    "1401d1f4-051c-4fe0-8f8c-a4e3cf873523" : {
+      "in-edges" : [ ],
+      "out-edges" : {
+        "af979c48-dec3-436d-a737-34a6db42ec87" : {
+          "labels" : [ "SON" ],
+          "properties" : null
+        }
+      },
+      "labels" : [ "MALE" ],
+      "properties" : {
+        "name" : "Kirill"
+      }
+    },
+    "594a8340-d9f6-4901-a4a6-161aebf2e247" : {
+      "in-edges" : [ ],
+      "out-edges" : {
+        "af979c48-dec3-436d-a737-34a6db42ec87" : {
+          "labels" : [ "DAUGHTER" ],
+          "properties" : null
+        }
+      },
+      "labels" : [ "FEMALE" ],
+      "properties" : {
+        "name" : "Lera"
+      }
+    }
+  }
+}

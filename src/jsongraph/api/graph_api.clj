@@ -3,7 +3,9 @@
     [jsongraph.impl.index :refer [add-labels-in-index delete-labels-in-index]]
     [jsongraph.impl.graph :refer :all]
     [jsongraph.impl.utils :refer [get-key get-field add-items split-json]]
-    [clj-uuid :as uuid] [jsonista.core :as j])
+    [clj-uuid :as uuid]
+    [jsonista.core :as j]
+    [clojure.walk :refer [keywordize-keys]])
 
   (:import (java.io File)
            (java.util UUID)))
@@ -87,12 +89,6 @@
   (split-json (graph :adjacency)))
 
 
-(defn save-graph [graph ^String path]
-  (j/write-value (File. path) graph (j/object-mapper {:pretty true :encode-key-fn true})))
-
-(defn load-graph [^String path]
-  (j/read-value (File. path) (j/object-mapper {:decode-key-fn true})))
-
 (defn add-labels-index [graph labels & [metadata-only]]
   (if (boolean metadata-only) (add-labels-in-index graph labels)
    (graph-from-meta-adj
@@ -103,3 +99,34 @@
   (graph-from-meta-adj
      (delete-labels-in-index (graph :metadata) labels)
      (graph :adjacency)))
+
+
+(defn save-graph [graph ^String filename]
+  (j/write-value (File. (str "./resources/" filename)) graph (j/object-mapper {:pretty true :encode-key-fn true})))
+
+
+(defn pars-adj-from-json [graph]
+  (let [map-kw-list (fn [coll] (mapv #(keyword %) coll))
+        n-indexes (sort (keys graph))
+        graph-new (transient {})]
+    (do
+      (doseq [n-index n-indexes]
+        (assoc!
+          graph-new (keyword n-index)
+          (let [adj-item (graph n-index)]
+            (if (some?  (adj-item "out-edges"))
+              (gen-adjacency-item
+                (map-kw-list (adj-item "in-edges"))
+                (pars-adj-from-json (adj-item "out-edges"))
+                (map-kw-list (adj-item "labels"))
+                (keywordize-keys (adj-item "properties")))
+              ;out-edges data
+              {:labels (map-kw-list (adj-item "labels"))
+               :properties (keywordize-keys (adj-item "properties"))}))))
+      (persistent! graph-new))))
+
+
+(defn load-graph [^String filename & [deep-decode]]
+  (if (boolean deep-decode)
+    (pars-adj-from-json (j/read-value (File. (str "./resources/" filename))))
+    (keywordize-keys    (j/read-value (File. (str "./resources/" filename))))))

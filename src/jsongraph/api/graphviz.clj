@@ -8,30 +8,39 @@
 
 
 (defn- labels-properties2graphviz-label [labels-properties]
-  {:label (str
-            (join (:labels labels-properties))
-            (if-let [props (seq (:properties labels-properties))]
-              (str "\\l{\\l"
-                   (join ";\\l" (map (fn [[field val]] (str field " " val))
+  (let [label (labels-properties :labels)
+        props (seq (labels-properties :properties))]
+    {:label (str
+            (join label) (if (and (some? label) (some? props)) " : " "")
+            (if (some? props)
+              (str "{" (if (some? label) "\\l" "")
+                   (join ";\\l" (map (fn [[field val]] (str (name field) " : " val))
                                      props))
-                   "\\l}")
-              ""))})
+                   "}")
+              ""))}))
+
+(defn- to-str [key]
+  (if (keyword? key) (name key) (str key)))
+
+
+(def options
+  [(node-attrs {:fontsize  16 :width 0.5
+                :shape     :circle :style :filled
+                :color     :green :penwidth 2.0
+                :fillcolor :white})
+   (edge-attrs {:penwidth 1.5 :fontsize 14})])
+
 
 (defn graph2graphviz [graph]
-  (let [graph (seq (graph :adjacency))
-        options [(node-attrs {:fontsize  16 :width 0.5
-                              :shape     :circle :style :filled
-                              :color     :green :penwidth 2.0
-                              :fillcolor :white})
-                 (edge-attrs {:penwidth 1.5 :fontsize 14})]]
+  (let [graph (seq (graph :adjacency))]
     (->
       (digraph
         (concat options
                 (reduce (fn [graphviz-elements [key value]]
-                          (let [str-key (if (keyword? key) (name key) (str key))
+                          (let [str-key (to-str key)
                                 graphviz-node [str-key (labels-properties2graphviz-label value)]
                                 graphviz-edges (mapv (fn [[out-node-key edge-value]]
-                                                       [str-key (if (keyword? out-node-key) (name out-node-key) (str out-node-key))
+                                                       [str-key (to-str out-node-key)
                                                         (labels-properties2graphviz-label edge-value)])
                                                      (seq (:out-edges value)))]
                             (concat (conj graphviz-elements graphviz-node) graphviz-edges)))
@@ -39,10 +48,13 @@
                         graph)))
       dot)))
 
+(def path-to-images "./resources/images/")
 (defn save-graphviz
-  ([graph path] (save-graphviz graph path :png))
-  ([graph path format] (-> (graph2graphviz graph)
-                           (save! path {:format format}))))
+  ([graph filename] (save-graphviz graph filename :png))
+  ([graph filename format]
+   (println "save to:" (str path-to-images filename))
+   (-> (graph2graphviz graph)
+       (save! (str path-to-images filename) {:format format}))))
 
 (defn show-graphviz [graph]
   (-> (graph2graphviz graph)

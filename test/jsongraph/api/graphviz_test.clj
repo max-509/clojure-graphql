@@ -9,8 +9,6 @@
 
 (use '[clojure.pprint :only (pprint)])
 
-(def path-to-images "./resources/images/")
-
  (def simple
    "digraph {
        A [label = nil color=black]
@@ -21,7 +19,7 @@
 
 
 (deftest graph-to-graphviz-save-demo
-  (save! (graph2graphviz big-graph) (str path-to-images "big-graph.svg") {:format :svg}))
+  (save-graphviz big-graph "big-graph.svg" :svg))
 
 (defn wait [sec]
   (doseq [x (range sec)]
@@ -41,12 +39,11 @@
 
   (testing "show and save")
   (show! simple)
-  (save! simple (str path-to-images "simple.svg") {:format :svg})
 
-  (show! (graph2graphviz full-graph))
-  (save! (graph2graphviz full-graph) (str path-to-images "full-graph.svg") {:format :svg})
+  (show-graphviz full-graph)
+  (save-graphviz full-graph "full-graph.svg" :svg)
 
-  (show! (graph2graphviz graph-with-edges))
-  (save! (graph2graphviz graph-with-edges) (str path-to-images "graph-with-edges.svg") {:format :svg})
+  (show-graphviz graph-with-edges)
+  (save-graphviz graph-with-edges "graph-with-edges.svg" :svg)
 
   (wait wait-seconds))

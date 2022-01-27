@@ -1,26 +1,24 @@
 {"A":
-    {"in-edges":["B", "D"],
-     "out-edges":{"B":{"cost":1}, "C":{"cost":4}},
-     "name":null,
-     "labels":[],
-     "properties":{}},
-    "B":
-    {"in-edges":["A"],
-     "out-edges":{"A":{"cost":3}},
-     "name":null,
-     "labels":[],
-     "properties":{}},
-    "C":
-    {"in-edges":["A", "D"],
-     "out-edges":{},
-     "name":null,
-     "labels":[],
-     "properties":{}},
-    "D":
-    {"in-edges":[],
-     "out-edges":{"A":{"cost":8}, "C":{"cost":34}},
-     "name":null,
-     "labels":[],
-     "properties":{}}}
-
-   
+ {"in-edges":["B", "D"],
+  "out-edges":
+  {"B":{"labels":[], "properties":{"cost":1}},
+   "C":{"labels":[], "properties":{"cost":4}}},
+  "labels":["A"],
+  "properties":{}},
+ "B":
+ {"in-edges":["A"],
+  "out-edges":{"A":{"labels":[], "properties":{"cost":3}}},
+  "labels":["B"],
+  "properties":{}},
+ "C":
+ {"in-edges":["A", "D"],
+  "out-edges":{},
+  "labels":["C"],
+  "properties":{}},
+ "D":
+ {"in-edges":[],
+  "out-edges":
+  {"A":{"labels":[], "properties":{"cost":8}},
+   "C":{"labels":[], "properties":{"cost":34}}},
+  "labels":["D"],
+  "properties":{}}}

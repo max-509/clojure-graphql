@@ -47,8 +47,8 @@
   (pprint [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC])
   (println "result")
   (json/pprint (add-out-edges! (g-add-nodes :adjacency) [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC]))
-  ;(is (= (load-graph "./resources/add-out-edges-to-adjacency-test.json")
-  ;            (add-out-edges (g-add-nodes :adjacency) [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC])))
+  ;(is (= (load-graph "add-out-edges-to-adjacency-test.json")
+  ;       (add-out-edges! (g-add-nodes :adjacency) [edgeAB edgeAC edgeBA edgeBA- edgeDA edgeDC])))
   )
 
 

@@ -1,5 +1,6 @@
 (ns jsongraph.api.graph-api-test
   (:require [clojure.test :refer :all]
+            [jsongraph.impl.query.match-test :refer [graph-with-edges]]
             [jsongraph.api.graph-api :refer :all]
             [clojure.data.json :as json]))
 
@@ -101,3 +102,10 @@
   (pprint [edgeAB edgeBA edgeDC])
   (println "result")
   (json/pprint (delete-edges full-graph [edgeAB edgeBA edgeDC])))
+
+(deftest save-load-graph-demo
+  (pprint (graph-with-edges :adjacency))
+  (save-graph (graph-with-edges :adjacency) "graph-with-edges.json")
+  (let [loaded-graph (load-graph "graph-with-edges.json" true)]
+    (pprint loaded-graph)
+    (println (= (graph-with-edges :adjacency) loaded-graph))))
