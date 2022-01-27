@@ -21,7 +21,7 @@
   (let [set-param-params (qextr/extract-set-param-data-params set-param-data)
         var-name (qextr/extract-set-param-var-name set-param-params)
         labels-data (qextr/extract-set-param-labels-data set-param-params)
-        labels-vect (mapv (fn [label] (keyword (qextr/extract-label-data label))) labels-data)]
+        labels-vect (mapv (fn [label] (qextr/extract-label-data label)) labels-data)]
     {var-name {:labels labels-vect :properties {}}}))
 
 (defn- merge-labels-props

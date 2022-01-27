@@ -7,7 +7,7 @@
             [jsongraph.api.graph-api :as jgraph]))
 
 (defn labels-processing [labels-data]
-  (let [labels-vect (mapv (fn [label] (keyword (qextr/extract-label-data label))) labels-data)]
+  (let [labels-vect (mapv (fn [label] (qextr/extract-label-data label)) labels-data)]
     (if (empty? labels-vect)
       nil
       labels-vect)))
@@ -58,7 +58,7 @@
                         (conj source-target labels)
                         (conj properties))
 
-        generated-edge (vutils/create-variable var-name [(apply jgraph/gen-edge-data gen-edge-data)])]
+        generated-edge (vutils/create-variable var-name (apply jgraph/gen-edge-data gen-edge-data))]
     generated-edge))
 
 (defn edge-node-processing [prev-node rest-edges-nodes context]

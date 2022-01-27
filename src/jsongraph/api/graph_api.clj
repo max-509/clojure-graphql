@@ -5,7 +5,8 @@
     [jsongraph.impl.utils :refer [get-key get-field add-items split-json]]
     [clj-uuid :as uuid] [jsonista.core :as j])
 
-  (:import (java.io File)))
+  (:import (java.io File)
+           (java.util UUID)))
 
 (defn edge-source [edge]
   (get-edge-source edge))
@@ -30,7 +31,7 @@
 
 (defn gen-node
   [labels properties & [index]]
-   {(if index index (uuid/v4)) (gen-adjacency-item [] {} labels properties)})
+   {(if index index (keyword (str (uuid/v4)))) (gen-adjacency-item [] {} labels properties)})
 
 (defn index [node]
   (get-key node))
@@ -51,11 +52,16 @@
     (graph :metadata)
     (delete-node-by-index graph (index-from-many nodes))))
 
+(defn- keyword->uuid [kw]
+  (try
+    (UUID/fromString (name kw))
+    (catch Exception e nil)))
+
 (defn gen-edge-data
   [source target
    labels properties]
-  (let [source (if (uuid? source) source (index source))
-        target (if (uuid? target) target (index target))]
+  (let [source (if (not (nil? (keyword->uuid source))) source (index source))
+        target (if (not (nil? (keyword->uuid target))) target (index target))]
     (gen-edge source target
               labels properties)))
 
@@ -82,7 +88,7 @@
 
 
 (defn save-graph [graph ^String path]
-  (j/write-value (File. path) graph (j/object-mapper {:pretty true})))
+  (j/write-value (File. path) graph (j/object-mapper {:pretty true :encode-key-fn true})))
 
 (defn load-graph [^String path]
   (j/read-value (File. path) (j/object-mapper {:decode-key-fn true})))

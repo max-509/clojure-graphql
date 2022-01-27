@@ -5,7 +5,8 @@
             [clojure-graphql.impl.query-context :as qcont]
             [clojure-graphql.impl.query-extracter :as qextr]
 
-            [jsongraph.api.graph-api :as jgraph]))
+            [jsongraph.api.graph-api :as jgraph])
+  (:import (java.util UUID)))
 
 (defn create-variable [var-name var-value]
   {:var-name var-name :var-value var-value})
@@ -85,15 +86,29 @@
           [[] edges]
           nodes))
 
+(defn- wrap-edge-values-to-vector [edges]
+  (mapv (fn [var-edge]
+          (let [name (get-var-name var-edge)
+                value (get-var-value var-edge)
+                value (if (vector? (first (first value))) value [value])]
+            (create-variable name value)))
+        edges))
+
 (defn replace-nodes-edges-by-variables [nodes edges variables]
-  (let [[filtered-nodes replaced-edges] (filter-nodes-by-variables nodes edges variables)]
+  (let [edges (wrap-edge-values-to-vector edges)
+        [filtered-nodes replaced-edges] (filter-nodes-by-variables nodes edges variables)]
     [filtered-nodes replaced-edges]))
+
+(defn- keyword->uuid [kw]
+  (try
+    (UUID/fromString (name kw))
+    (catch Exception e nil)))
 
 (defn add-variables-to-context [context variables adder]
   (reduce (fn [context var]
             (let [var-name (get-var-name var)
                   var-val (get-var-value var)]
-              (if (and (not (uuid? var-name)) (not (blank? var-name)))
+              (if (and (nil? (keyword->uuid var-name)) (not (blank? var-name)))
                 (adder context var-name var-val)
                 context)))
           context
@@ -128,13 +143,13 @@
                                      nodes-vars))
         replaced-edges (map (fn [edge-var]
                               (let [edge-var-name (get-var-name edge-var)
-                                    [edge-var-value] (get-var-value edge-var)
+                                    edge-var-value (get-var-value edge-var)
                                     source-id (jgraph/edge-source edge-var-value)
                                     target-id (jgraph/edge-target edge-var-value)
                                     labels (jgraph/edge-labels edge-var-value)
                                     properties (jgraph/edge-properties edge-var-value)]
                                 (create-variable (if (blank? edge-var-name)
-                                                   (clj-uuid/v4)
+                                                   (keyword (str (clj-uuid/v4)))
                                                    edge-var-name)
                                                  (jgraph/gen-edge-data
                                                    (get-var-value (get replaced-nodes source-id))
@@ -146,7 +161,7 @@
 
 (defn filter-pattern-by-var [pattern]
   (filter (fn [var-node]
-            (not (uuid? (first var-node))))
+            (nil? (keyword->uuid (first var-node))))
           (seq pattern)))
 
 (defn filter-founded-patterns-by-var [founded-patterns]

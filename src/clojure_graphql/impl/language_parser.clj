@@ -3,7 +3,7 @@
 
 (def create-rule
   (insta/parser
-    "clauses = clause (<whitespaces> clause)*
+    "clauses = <whitespaces>? clause (<whitespaces> clause)*
     clause = create | delete | match | set | undo | return | saveviz | savejson | loadjson
 
     (*----------------------------CLAUSES DESCRIPTION-----------------------*)
@@ -147,12 +147,12 @@
     in-command = <('in' | 'IN' | 'In')> <whitespaces>
     (*--------------------------------COMMANDS---------------------------*)
 
-    <filepath> = #'(\\/?([a-zA-z0-9]+\\/)*[a-zA-zz0-9]+(\\.[a-zA-Zz0-9]+)?)'
+    <filepath> = #'(\\/?([a-zA-Z0-9_-]+\\/)*[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)?)'
     <comma> = ',' <whitespaces>?
     <asterisk> = '*'
     <dquote> = '\"'
     <quote> = \"'\"
-    <string-val> = #'[\\x20-\\x21\\x23-\\x26\\x28-x7E]+'
+    <string-val> = #'[\\x20-\\x21\\x23-\\x26\\x28-\\x7A]+'
     <name> = #'[a-zA-Z_$][a-zA-Z_$0-9]*'
     <digit> = #'[0-9]'
     <whitespaces> = #'\\s+'"))
