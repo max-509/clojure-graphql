@@ -90,6 +90,7 @@
                                     context (->
                                               (vutils/add-variables-to-context context new-nodes qcont/add-qcontext-nodes-var)
                                               (vutils/add-variables-to-context new-edges qcont/add-qcontext-edges-var))
+
                                     updated-graph (->
                                                     (qcont/get-qcontext-graph context)
                                                     (jgraph/add-nodes (map vutils/get-var-value new-nodes))
@@ -119,9 +120,10 @@
 
 (defn loadjson-processing [clause-data context db]
   (let [pathname (first clause-data)
-        new-graph (jgraph/load-graph pathname)]
+        new-graph (jgraph/load-graph pathname)
+        context (qcont/set-qcontext-graph context new-graph)]
     (vtree/add-new-version! db new-graph)
-    (qcont/set-qcontext-graph context new-graph)))
+    context))
 
 (defmulti clause-processing (fn [clause context db] (qextr/extract-clause-name clause)))
 (defmethod clause-processing :create [clause context db] (create-processing (qextr/extract-clause-data clause) context db))

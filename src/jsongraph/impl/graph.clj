@@ -14,11 +14,13 @@
 
 (defn assoc-out-edges-adjacency-item
   [adjacency-item  out-edges]
-  (assoc adjacency-item :out-edges out-edges))
+  (assoc adjacency-item :out-edges (merge (:out-edges adjacency-item) out-edges)))
 
 (defn apply-to-adjacency
-  [graph-adj func args]
-  (func (graph-adj :adjacency graph-adj) args))
+  [graph-adj func args & [data-only?]]
+  (let [graph-adj (func (graph-adj :adjacency graph-adj) args)]
+    (if (boolean data-only?)
+      graph-adj {:adjacency graph-adj})))
 
 (defn gen-edge
   [source-idx target-idx
@@ -204,16 +206,18 @@
       (keys edges) (map keys (vals edges)))))
 
 (defn delete-node-by-index [graph idx-nodes]
-  (let [idx-nodes  (vec idx-nodes)]
-   (graph-from-meta-adj
-    (graph :metadata)
+  (let [nodes-tags (vec idx-nodes)]
+    (merge
+      (get-item graph :metadata)
       (-> graph
           (apply-to-adjacency
             delete-items
-            idx-nodes)
+            nodes-tags true)
+
           (apply-to-adjacency
             delete-edges-by-target-indexes
-            idx-nodes)
+            nodes-tags true)
+
           (apply-to-adjacency
             delete-in-edges-in-all-node
-            idx-nodes)))))
+            nodes-tags)))))
