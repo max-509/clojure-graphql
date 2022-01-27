@@ -2,7 +2,9 @@
   (:require [clojure.test :refer :all]
             [jsongraph.impl.query.match-test :refer [graph-with-edges]]
             [jsongraph.api.graph-api :refer :all]
-            [clojure.data.json :as json]))
+            [clojure.data.json :as json]
+            [jsonista.core :as j])
+  (:import (java.io File)))
 
 (use '[clojure.pprint :only (pprint)])
 
@@ -109,3 +111,8 @@
   (let [loaded-graph (load-graph "graph-with-edges.json" true)]
     (pprint loaded-graph)
     (println (= (graph-with-edges :adjacency) loaded-graph))))
+
+
+(deftest pars-graph-from-json-test
+  (pprint (j/read-value (File. (str "./resources/graph_2.json"))))
+  (pprint (decode-str-to-kw (j/read-value (File. (str "./resources/graph_2.json"))))))

@@ -102,31 +102,23 @@
 
 
 (defn save-graph [graph ^String filename]
-  (j/write-value (File. (str "./resources/" filename)) graph (j/object-mapper {:pretty true :encode-key-fn true})))
+  (j/write-value
+    (File. (str "./resources/" filename)) graph
+    (j/object-mapper {:pretty true :encode-key-fn true})))
 
-
-(defn pars-adj-from-json [graph]
-  (let [map-kw-list (fn [coll] (mapv #(keyword %) coll))
-        n-indexes (sort (keys graph))
-        graph-new (transient {})]
+(defn decode-str-to-kw [json]
+  (let [new-json (transient {})]
     (do
-      (doseq [n-index n-indexes]
-        (assoc!
-          graph-new (keyword n-index)
-          (let [adj-item (graph n-index)]
-            (if (some?  (adj-item "out-edges"))
-              (gen-adjacency-item
-                (map-kw-list (adj-item "in-edges"))
-                (pars-adj-from-json (adj-item "out-edges"))
-                (map-kw-list (adj-item "labels"))
-                (keywordize-keys (adj-item "properties")))
-              ;out-edges data
-              {:labels (map-kw-list (adj-item "labels"))
-               :properties (keywordize-keys (adj-item "properties"))}))))
-      (persistent! graph-new))))
+      (doseq [-key (sort (keys json))]
+        (let [json-item (json -key)]
+         (if (map? json-item) (assoc! new-json (keyword -key) (decode-str-to-kw json-item))
+           (if (coll? json-item) (assoc! new-json (keyword -key) (mapv #(keyword %) json-item))
+             (assoc! new-json (keyword -key) json-item)))))
+      (persistent! new-json))))
+
 
 
 (defn load-graph [^String filename & [deep-decode]]
   (if (boolean deep-decode)
-    (pars-adj-from-json (j/read-value (File. (str "./resources/" filename))))
+    (decode-str-to-kw    (j/read-value (File. (str "./resources/" filename))))
     (keywordize-keys    (j/read-value (File. (str "./resources/" filename))))))

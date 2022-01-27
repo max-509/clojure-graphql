@@ -19,7 +19,7 @@
 
 
 (deftest graph-to-graphviz-save-demo
-  (save-graphviz big-graph "big-graph.svg" :svg))
+  (save-graphviz big-graph "big-graph.png"))
 
 (defn wait [sec]
   (doseq [x (range sec)]
@@ -41,9 +41,9 @@
   (show! simple)
 
   (show-graphviz full-graph)
-  (save-graphviz full-graph "full-graph.svg" :svg)
+  (save-graphviz full-graph "full-graph.png")
 
   (show-graphviz graph-with-edges)
-  (save-graphviz graph-with-edges "graph-with-edges.svg" :svg)
+  (save-graphviz graph-with-edges "graph-with-edges.png")
 
   (wait wait-seconds))
