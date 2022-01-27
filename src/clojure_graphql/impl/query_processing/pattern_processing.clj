@@ -91,6 +91,6 @@
   [patterns context]
   (reduce (fn [[nodes edges] pattern]
             (let [[new-nodes new-edges] (pattern-processing (qextr/extract-pattern-data pattern) context)]
-              [(concat nodes new-nodes) (concat edges new-edges)]))
+              [(conj nodes new-nodes) (conj edges new-edges)]))
           [[] []]
           patterns))

@@ -32,8 +32,8 @@
                                                                  (index target-node))
                                                   labels (:labels edge-data)
                                                   properties (:properties edge-data)]
-                                              {edge-var-name [(gen-edge-data source-node target-node
-                                                                            labels properties)]}))
+                                              {edge-var-name (gen-edge-data source-node target-node
+                                                                            labels properties)}))
                                           edges))]
             [founded-nodes founded-edges]))
         founded-subgraphs))

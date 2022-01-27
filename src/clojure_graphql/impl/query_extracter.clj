@@ -97,6 +97,9 @@
 (defn extract-predicates [clause-params]
   (second (second clause-params)))
 
+(defn extract-link-params [clause-params]
+  (rest (nth clause-params 2)))
+
 (defn extract-return-params [clause-data]
   (let [return-params (rest (first clause-data))]
     (if (= (first (first return-params)) :all)

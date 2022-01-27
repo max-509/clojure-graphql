@@ -4,14 +4,17 @@
             [clojure-graphql.impl.language-parser :refer :all]))
 
 
-;(defquery test-query "create ({name: 'c1'})-[:SON]->(p1 {name: 'p1'})<-[:DAUGHTER]-({name: 'c2'})
-;                      create ({name: 'c3'})-[:DAUGHTER]->(p1)
-;                      create ({name: 'c4'})-[:SON]->(p2 {name: 'p2'})<-[:DAUGHTER]-({name: 'c5'})
-;                      create ({name: 'c6'})-[:DAUGHTER]->(p2)
-;                      match (c1)-[:SON]->(p)<-[:DAUGHTER]-(c2)
+;(defquery test-query "create (g:GRANDFATHER)
+;                      create (:MALE {name: 'c1'})-[:SON]->(p1 {name: 'p1'})<-[:DAUGHTER]-(:FEMALE {name: 'c2'})
+;                      create (:FEMALE {name: 'c3'})-[:DAUGHTER]->(p1)
+;                      create (:MALE {name: 'c4'})-[:SON]->(p2 {name: 'p2'})<-[:DAUGHTER]-(:FEMALE {name: 'c5'})
+;                      create (:FEMALE {name: 'c6'})-[:DAUGHTER]->(p2)
+;                      match (c1)-[e1:SON]->(p)<-[e2:DAUGHTER]-(c2),(g:GRANDFATHER) link (c2)-[:SISTER]->(c1),(g)-[:PARENT]->(p)
+;                      set g:GRANDMOTHER
+;                      saveviz sisters
 ;                      return *" )
 ;
-;(def db (init-db))
+(def db (init-db))
 ;(clojure.pprint/pprint (test-query db))
 
 

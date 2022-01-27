@@ -9,7 +9,7 @@
     (*----------------------------CLAUSES DESCRIPTION-----------------------*)
     create = <create-command> patterns
     delete = <delete-command> variables
-    match = <match-command> patterns where
+    match = <match-command> patterns where link
     set = <set-command> set-params
     undo = <undo-command>
     return = <return-command> return-params
@@ -20,6 +20,7 @@
 
     (*----------------------------SUPPORT FOR CLAUSES-------------------------*)
     where = <where-command> predicates | Epsilon
+    link = <link-command> patterns | Epsilon
     (*----------------------------SUPPORT FOR CLAUSES-------------------------*)
 
     (*----------------------------SET PARAMS-----------------------*)
@@ -125,6 +126,7 @@
     loadjson-command = <('loadjson' | 'LOADJSON' | 'Loadjson')> <whitespaces>
 
     where-command = <('where' | 'WHERE' | 'Where')> <whitespaces>
+    link-command = <('link' | 'LINK' | 'Link')> <whitespaces>
 
     and-command = <('and' | 'AND' | 'And')> <whitespaces>
     or-command = <('or' | 'OR' | 'Or')> <whitespaces>

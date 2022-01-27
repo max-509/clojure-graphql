@@ -93,7 +93,7 @@
   (reduce (fn [context var]
             (let [var-name (get-var-name var)
                   var-val (get-var-value var)]
-              (if (not (blank? var-name))
+              (if (and (not (uuid? var-name)) (not (blank? var-name)))
                 (adder context var-name var-val)
                 context)))
           context
@@ -153,19 +153,24 @@
   (reduce (fn [[nodes edges] pattern]
             (let [var-nodes (filter-pattern-by-var (first pattern))
                   var-edges (filter-pattern-by-var (second pattern))]
-              [(concat nodes var-nodes) (concat edges var-edges)]))
+              [(conj nodes var-nodes) (conj edges var-edges)]))
           [[] []]
           founded-patterns))
 
 (defn reduce-founded-patterns-by-vars [founded-patterns]
-  (mapv (fn [var]
-          {:var-name (first var) :var-value (second var)})
-        (seq (reduce (fn [founded-patterns-by-vars pattern]
-                       (merge-with into
-                                   founded-patterns-by-vars
-                                   {(first pattern) (second pattern)}))
-                     {}
-                     founded-patterns))))
+  (map (fn [[var-name var-values]]
+         {:var-name var-name :var-value var-values})
+       (seq (reduce (fn [founded-patterns-by-vars pattern]
+                      (reduce (fn [founded-patterns-by-vars var]
+                                (let [var-name (first var)
+                                      var-val (second var)
+                                      patterns-by-var (founded-patterns-by-vars var-name)
+                                      patterns-by-var (if (nil? patterns-by-var) [] patterns-by-var)]
+                                  (assoc founded-patterns-by-vars var-name (conj patterns-by-var var-val))))
+                              founded-patterns-by-vars
+                              pattern))
+                    {}
+                    founded-patterns))))
 
 (defn- get-labels-properties-from-nodes [nodes]
   (mapv

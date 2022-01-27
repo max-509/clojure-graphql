@@ -49,10 +49,8 @@
             [(cons
                [[(jgraph/index var-by-name-value)] set-var-values]
                new-set-results)
-             (merge merged-nodes
-                    (merge-labels-props-with-node
-                      var-by-name-value set-var-values))])
-          [[] {}]
+             (conj merged-nodes (merge-labels-props-with-node var-by-name-value set-var-values))])
+          [[] []]
           var-by-name-values))
 
 (defn- replace-set-edges-by-variables-uuids [var-by-name-values set-var-values]

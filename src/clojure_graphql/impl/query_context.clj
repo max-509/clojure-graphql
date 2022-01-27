@@ -46,10 +46,11 @@
       (get name))))
 
 (defn add-qcontext-edges-var [qcontext var edges]
-  (assoc qcontext :vars (merge (get-qcontext-vars qcontext) {var [:edges edges]})))
+  (let [edges (if (vector? (first (first edges))) edges [edges])]
+    (assoc qcontext :vars (merge (get-qcontext-vars qcontext) {var [:edges edges]}))))
 
 (defn add-qcontext-nodes-var [qcontext var nodes]
-  (let [nodes (mapv (fn [n] {(first n) (second n)}) (seq nodes))]
+  (let [nodes (if (map? nodes) [nodes] nodes)]
     (assoc qcontext :vars (merge (get-qcontext-vars qcontext) {var [:nodes nodes]}))))
 
 (defn delete-qcontext-var [qcontext var]

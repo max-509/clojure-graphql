@@ -12,12 +12,14 @@
             [clojure-graphql.impl.query-processing.where-processing :as where-proc]
             [clojure-graphql.impl.query-processing.return-processing :as return-proc]
             [clojure-graphql.impl.query-processing.set-processing :as set-proc]
+            [clojure-graphql.impl.query-processing.link-processing :as link-proc]
             [clojure-graphql.impl.query-context :as qcont]
             [clojure-graphql.impl.variables-utils :as vutils]))
 
-(defn match-processing [clause-data context]
+(defn match-processing [clause-data context db]
   (let [patterns (qextr/extract-patterns clause-data)
-        [nodes edges] (patt-proc/patterns-processing patterns context)
+        [nodes-patterns edges-patterns] (patt-proc/patterns-processing patterns context)
+        [nodes edges] [(apply concat nodes-patterns) (apply concat edges-patterns)]
         [nodes edges] (vutils/replace-uuid-by-variables-names nodes edges)
         predicates (qextr/extract-predicates clause-data)
         where-expr-tree (where-proc/where-processing predicates)
@@ -28,8 +30,33 @@
         founded-edges-by-vars (vutils/reduce-founded-patterns-by-vars founded-edges)
         context (->
                   (vutils/add-variables-to-context context founded-nodes-by-vars qcont/add-qcontext-nodes-var)
-                  (vutils/add-variables-to-context founded-edges-by-vars qcont/add-qcontext-edges-var))]
-    context))
+                  (vutils/add-variables-to-context founded-edges-by-vars qcont/add-qcontext-edges-var))
+
+        link-params (qextr/extract-link-params clause-data)]
+    (if (some? link-params)
+      (let [link-patterns (qextr/extract-patterns link-params)
+
+            [link-nodes-patterns link-edges-patterns] (patt-proc/patterns-processing link-patterns context)
+            context (reduce (fn [context [link-nodes link-edges]]
+                              (let [[link-nodes link-edges] (vutils/replace-uuid-by-variables-names link-nodes link-edges)
+                                    [link-nodes link-edges] (link-proc/link-processing link-nodes link-edges founded-nodes-by-vars)
+
+                                    context (->
+                                              (vutils/add-variables-to-context context link-nodes qcont/add-qcontext-nodes-var)
+                                              (vutils/add-variables-to-context link-edges qcont/add-qcontext-edges-var))
+
+                                    updated-graph (->
+                                                    (qcont/get-qcontext-graph context)
+                                                    (jgraph/add-nodes (apply concat (map vutils/get-var-value link-nodes)))
+                                                    (jgraph/add-edges (apply concat (map vutils/get-var-value link-edges))))
+
+                                    context (qcont/set-qcontext-graph context updated-graph)]
+                                context))
+                            context
+                            (map vector link-nodes-patterns link-edges-patterns))]
+        (vtree/add-new-version! db (qcont/get-qcontext-graph context))
+        context)
+      context)))
 
 (defn set-processing [clause-data context db]
   (let [set-params (qextr/extract-set-params clause-data)
@@ -56,18 +83,22 @@
 
 (defn create-processing [clause-data context db]
   (let [patterns (qextr/extract-patterns clause-data)
-        [new-nodes new-edges] (patt-proc/patterns-processing patterns context)
-        [new-nodes new-edges] (vutils/replace-nodes-edges-by-variables new-nodes new-edges
-                                                                       (qcont/get-qcontext-vars context))
-        context (->
-                  (vutils/add-variables-to-context context new-nodes qcont/add-qcontext-nodes-var)
-                  (vutils/add-variables-to-context new-edges qcont/add-qcontext-edges-var))
-        updated-graph (->
-                        (qcont/get-qcontext-graph context)
-                        (jgraph/add-nodes (map vutils/get-var-value new-nodes))
-                        (jgraph/add-edges (apply concat (map vutils/get-var-value new-edges))))
-        new-context (qcont/set-qcontext-graph context updated-graph)]
-    (vtree/add-new-version! db updated-graph)
+        [new-nodes-patterns new-edges-patterns] (patt-proc/patterns-processing patterns context)
+        new-context (reduce (fn [context [new-nodes new-edges]]
+                              (let [[new-nodes new-edges] (vutils/replace-nodes-edges-by-variables new-nodes new-edges
+                                                                                                   (qcont/get-qcontext-vars context))
+                                    context (->
+                                              (vutils/add-variables-to-context context new-nodes qcont/add-qcontext-nodes-var)
+                                              (vutils/add-variables-to-context new-edges qcont/add-qcontext-edges-var))
+                                    updated-graph (->
+                                                    (qcont/get-qcontext-graph context)
+                                                    (jgraph/add-nodes (map vutils/get-var-value new-nodes))
+                                                    (jgraph/add-edges (apply concat (map vutils/get-var-value new-edges))))
+                                    new-context (qcont/set-qcontext-graph context updated-graph)]
+                                new-context))
+                            context
+                            (map vector new-nodes-patterns new-edges-patterns))]
+    (vtree/add-new-version! db (qcont/get-qcontext-graph new-context))
     new-context))
 
 (defn saveviz-processing [clause-data context]
@@ -96,7 +127,7 @@
 (defmethod clause-processing :create [clause context db] (create-processing (qextr/extract-clause-data clause) context db))
 (defmethod clause-processing :delete [clause context db] (delete-processing (qextr/extract-clause-data clause) context db))
 (defmethod clause-processing :undo [clause context db] (undo-processing context db))
-(defmethod clause-processing :match [clause context db] (match-processing (qextr/extract-clause-data clause) context))
+(defmethod clause-processing :match [clause context db] (match-processing (qextr/extract-clause-data clause) context db))
 (defmethod clause-processing :set [clause context db] (set-processing (qextr/extract-clause-data clause) context db))
 (defmethod clause-processing :return [clause context db] (return-processing (qextr/extract-clause-data clause) context))
 (defmethod clause-processing :saveviz [clause context db] (saveviz-processing (qextr/extract-clause-data clause) context))
